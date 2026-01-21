@@ -134,8 +134,6 @@ class ChangeEvaluator:
         'lip_cyanosis', 'lip_pallor', 'lip_dryness', 'dehydration_index',
         'skin_yellowing', 'skin_redness', 'skin_pallor',
         'dark_circles', 'facial_puffiness',
-        'tongue_pallor', 'tongue_purple', 'tongue_crack_index',
-        'coating_thickness', 'coating_yellow',
         'nail_cyanosis', 'nail_pallor', 'nail_yellowing',
     }
 

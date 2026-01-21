@@ -5,7 +5,7 @@ Main entry point for health analysis from smartphone photos.
 Integrates all analyzer modules and generates comprehensive reports.
 
 Features:
-- Multi-region face analysis (skin, eyes, lips, tongue, face)
+- Multi-region face analysis (skin, eyes, lips, face)
 - Skin type detection and calibration
 - Health indicator tracking over time
 - Change evaluation and trend analysis
@@ -24,7 +24,6 @@ from .analyzers import (
     LipAnalyzer,
     NailAnalyzer,
     FaceAnalyzer,
-    TongueAnalyzer,
     AnalysisResult
 )
 from .utils.image_preprocessing import ImagePreprocessor, ImageMetadata
@@ -42,7 +41,6 @@ from .tracking import HealthTracker, HealthRecord, ChangeEvaluator, HealthTrendR
 class AnalysisMode(Enum):
     """Analysis mode selection."""
     FACE = "face"           # Full face analysis (skin, eyes, lips, face)
-    TONGUE = "tongue"       # Include tongue analysis
     NAILS = "nails"         # Nail analysis only
     FULL = "full"           # All available analyses
     QUICK = "quick"         # Quick analysis (reduced indicators)
@@ -56,7 +54,6 @@ class AnalysisConfig:
     enable_eyes: bool = True
     enable_lips: bool = True
     enable_face: bool = True
-    enable_tongue: bool = False
     enable_nails: bool = False
     enable_tracking: bool = True
     enable_skin_type_detection: bool = True
@@ -104,16 +101,6 @@ class HealthAnalyzer:
         'oxygen_saturation_index': "Oxygen saturation indicator",
         'circulation_index': "Circulation quality indicator",
         'dehydration_index': "Dehydration indicator",
-        # Tongue indicators
-        'tongue_color_score': "Tongue body color health",
-        'tongue_pallor': "Paleness in tongue",
-        'tongue_redness': "Redness in tongue",
-        'tongue_purple': "Purple/bluish tint in tongue",
-        'coating_thickness': "Tongue coating thickness",
-        'coating_yellow': "Yellow coating on tongue",
-        'tongue_moisture': "Tongue moisture level",
-        'tongue_crack_index': "Tongue crack/fissure level",
-        'tongue_health_score': "Overall tongue health",
         # Nail indicators
         'nail_cyanosis': "Bluish tint in nails",
         'nail_pallor': "Paleness in nails",
@@ -173,9 +160,6 @@ class HealthAnalyzer:
         if self.config.enable_face:
             self.analyzers['face'] = FaceAnalyzer()
 
-        if self.config.enable_tongue:
-            self.analyzers['tongue'] = TongueAnalyzer()
-
         if self.config.enable_nails:
             self.analyzers['nails'] = NailAnalyzer()
 
@@ -215,8 +199,6 @@ class HealthAnalyzer:
             results = self._analyze_nails(image, metadata)
         elif mode == AnalysisMode.QUICK:
             results = self._analyze_quick(image, metadata)
-        elif mode == AnalysisMode.TONGUE:
-            results = self._analyze_with_tongue(image, metadata, face_region)
         elif mode == AnalysisMode.FULL:
             results = self._analyze_full(image, metadata, face_region)
         else:
@@ -334,28 +316,6 @@ class HealthAnalyzer:
 
         return results
 
-    def _analyze_with_tongue(
-        self,
-        image: np.ndarray,
-        metadata: ImageMetadata,
-        face_region: Optional[Tuple[int, int, int, int]] = None
-    ) -> Dict[str, AnalysisResult]:
-        """Run face analysis including tongue."""
-        results = self._analyze_face(image, metadata)
-
-        kwargs = {
-            'face_region': face_region,
-            'image_quality': metadata.quality_score
-        }
-
-        # Add tongue analysis
-        if 'tongue' not in self.analyzers:
-            self.analyzers['tongue'] = TongueAnalyzer()
-
-        results['tongue'] = self.analyzers['tongue'].analyze(image, **kwargs)
-
-        return results
-
     def _analyze_full(
         self,
         image: np.ndarray,
@@ -363,7 +323,7 @@ class HealthAnalyzer:
         face_region: Optional[Tuple[int, int, int, int]] = None
     ) -> Dict[str, AnalysisResult]:
         """Run complete analysis with all analyzers."""
-        results = self._analyze_with_tongue(image, metadata, face_region)
+        results = self._analyze_face(image, metadata)
 
         # Add nails if present in image
         if 'nails' not in self.analyzers:
