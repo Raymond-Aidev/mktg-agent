@@ -38,10 +38,23 @@ GoldenCheck/
 │   │   ├── lip_analyzer.py     # Lip health analysis
 │   │   ├── nail_analyzer.py    # Nail health analysis
 │   │   └── face_analyzer.py    # Overall face analysis
+│   ├── voice_analysis/          # Voice/Speech analysis module
+│   │   ├── __init__.py
+│   │   ├── voice_analyzer.py           # Core audio processing
+│   │   ├── prosodic_analyzer.py        # Pause, rhythm, speech rate
+│   │   ├── pronunciation_analyzer.py   # Articulation, voice quality
+│   │   ├── cognitive_speech_evaluator.py  # Cognitive assessment
+│   │   ├── reading_tasks.py            # Standardized reading tasks
+│   │   └── voice_tracker.py            # Historical tracking
+│   ├── tracking/                # Health tracking system
+│   │   ├── __init__.py
+│   │   ├── health_tracker.py   # Data storage and retrieval
+│   │   └── change_evaluator.py # Trend analysis
 │   └── utils/
 │       ├── __init__.py
 │       ├── image_preprocessing.py  # Image loading and normalization
 │       ├── color_utils.py          # Color analysis utilities
+│       ├── skin_type_detector.py   # Fitzpatrick skin type detection
 │       └── report_generator.py     # Report generation
 ├── examples/
 │   └── example_usage.py        # Usage examples
@@ -85,6 +98,11 @@ Core dependencies:
 - **matplotlib**: Visualization
 - **rich**: CLI formatting
 - **click**: CLI framework
+
+Voice analysis dependencies:
+- **librosa**: Audio processing and feature extraction
+- **soundfile**: Audio file I/O
+- **parselmouth**: Python interface to Praat (phonetic analysis)
 
 ## Common Commands
 
@@ -164,10 +182,62 @@ Core dependencies:
 | Category | Indicators |
 |----------|------------|
 | Skin | yellowing, redness, pallor, uniformity, texture, spots |
-| Eyes | yellowing, redness, clarity, dark circles |
-| Lips | cyanosis, pallor, dryness, moisture |
+| Eyes | yellowing, redness, clarity, dark circles, anemia_index, jaundice_index |
+| Lips | cyanosis, pallor, dryness, moisture, oxygen_saturation_index |
 | Nails | cyanosis, pallor, yellowing, surface irregularity |
 | Face | symmetry, complexion, puffiness, wellness |
+
+### Voice Analysis Module
+
+The voice analysis module provides cognitive assessment through speech analysis.
+
+#### Key Components
+
+| Component | Purpose |
+|-----------|---------|
+| `VoiceAnalyzer` | Core audio processing, acoustic feature extraction |
+| `ProsodicAnalyzer` | Speech rate, pause patterns, rhythm analysis |
+| `PronunciationAnalyzer` | Articulation quality, voice quality (jitter, shimmer, HNR) |
+| `CognitiveSpeechEvaluator` | Integrated cognitive assessment with risk levels |
+| `ReadingTaskManager` | Standardized reading tasks (Korean/English) |
+| `VoiceTracker` | Historical tracking and trend analysis |
+
+#### Speech Metrics
+
+| Metric | Description | Cognitive Relevance |
+|--------|-------------|---------------------|
+| Speech Rate | Syllables per second | Processing speed indicator |
+| Pause Duration | Average pause length | Memory/word retrieval |
+| Pause Burden Index | Overall pause impact | Cognitive load indicator |
+| Hesitation Ratio | Long pauses / total pauses | Processing difficulty |
+| Rhythm Stability | Consistency of speech rhythm | Executive function |
+| Articulation Score | Pronunciation precision | Motor control |
+| Jitter/Shimmer | Voice perturbation | Voice quality/health |
+
+#### Research Basis
+
+Based on peer-reviewed research:
+- **NIA/NIH Study**: AI speech analysis predicts cognitive impairment progression with 78%+ accuracy
+- **Nature 2025**: Voice biomarkers achieve AUC 0.988 for MCI detection
+- **Cambridge Meta-analysis**: AD patients show 1.20 SD longer pauses than controls
+
+#### Usage Example
+
+```python
+from src.voice_analysis import CognitiveSpeechEvaluator, ReadingTaskManager
+
+# Get a reading task
+task_manager = ReadingTaskManager(language='ko')
+task = task_manager.get_random_task(difficulty=TaskDifficulty.MEDIUM)
+
+# Evaluate speech
+evaluator = CognitiveSpeechEvaluator(age_group='70-79')
+result = evaluator.evaluate(audio, sr, task_text=task.text)
+
+print(f"Overall Score: {result.overall_score}")
+print(f"Risk Level: {result.risk_level.value}")
+print(f"Recommendations: {result.recommendations}")
+```
 
 ### Adding a New Analyzer
 

@@ -27,3 +27,10 @@ reportlab>=4.0.0
 # CLI interface
 click>=8.1.0
 rich>=13.0.0
+
+# Voice analysis dependencies
+librosa>=0.10.0
+soundfile>=0.12.0
+parselmouth>=0.4.3
+praat-parselmouth>=0.4.3
+
