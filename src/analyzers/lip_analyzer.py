@@ -16,13 +16,25 @@ class LipAnalyzer(BaseAnalyzer):
 
     Detects:
     - Lip color (cyanosis, pallor)
+    - Oxygen saturation index (SpO2 indicator)
+    - Circulation status
     - Lip dryness/texture
+    - Dehydration indicator
     - Overall lip health score
     """
 
     # HSV ranges for lip detection
     LIP_HSV_LOWER = np.array([0, 50, 50])
     LIP_HSV_UPPER = np.array([20, 255, 255])
+
+    # Reference values for oxygen saturation estimation
+    # Based on lip color correlation with SpO2 levels
+    SPO2_COLOR_REFERENCE = {
+        'normal': {'h_range': (0, 15), 'a_range': (145, 165)},      # SpO2 > 95%
+        'mild_low': {'h_range': (10, 25), 'a_range': (135, 150)},   # SpO2 90-95%
+        'moderate_low': {'h_range': (100, 130), 'a_range': (125, 140)},  # SpO2 85-90%
+        'severe_low': {'h_range': (110, 140), 'a_range': (115, 130)},    # SpO2 < 85%
+    }
 
     def __init__(self):
         super().__init__()
@@ -168,18 +180,23 @@ class LipAnalyzer(BaseAnalyzer):
         return mask
 
     def _analyze_lip_color(self, image: np.ndarray, mask: np.ndarray) -> dict:
-        """Analyze lip color for health indicators."""
+        """Analyze lip color for health indicators including oxygen saturation."""
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
         lab = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
+        rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
         lip_hsv = hsv[mask > 0]
         lip_lab = lab[mask > 0]
+        lip_rgb = rgb[mask > 0]
 
         if len(lip_hsv) == 0:
             return {
                 'indicators': {
                     'lip_cyanosis': 0.0,
                     'lip_pallor': 0.0,
+                    'oxygen_saturation_index': 1.0,
+                    'circulation_index': 1.0,
+                    'dehydration_index': 0.0,
                 },
                 'details': {}
             }
@@ -188,10 +205,14 @@ class LipAnalyzer(BaseAnalyzer):
         mean_h = np.mean(lip_hsv[:, 0])
         mean_s = np.mean(lip_hsv[:, 1])
         mean_v = np.mean(lip_hsv[:, 2])
+        mean_l = np.mean(lip_lab[:, 0])
         mean_a = np.mean(lip_lab[:, 1])  # Red-green
         mean_b = np.mean(lip_lab[:, 2])  # Yellow-blue
+        mean_r = np.mean(lip_rgb[:, 0])
+        mean_g = np.mean(lip_rgb[:, 1])
+        mean_b_rgb = np.mean(lip_rgb[:, 2])
 
-        # Cyanosis: Bluish tint (hue around 100-130)
+        # === CYANOSIS (Bluish tint) ===
         # Normal lip hue should be 0-20 (red range)
         blue_deviation = 0
         if mean_h > 100 and mean_h < 140:
@@ -203,26 +224,99 @@ class LipAnalyzer(BaseAnalyzer):
             lab_cyanosis = (128 - mean_b) / 50
             cyanosis = max(cyanosis, min(1.0, lab_cyanosis))
 
-        # Pallor: Low saturation, low redness
+        # === PALLOR (Paleness) ===
         # Healthy lips should have good saturation and red tones
         pallor = 0
         if mean_s < 80:
             pallor = (80 - mean_s) / 80
-        if mean_a < 128:  # Low red in LAB
-            pallor = max(pallor, (128 - mean_a) / 50)
+        if mean_a < 140:  # Low red in LAB
+            pallor = max(pallor, (140 - mean_a) / 50)
         pallor = min(1.0, pallor)
+
+        # === OXYGEN SATURATION INDEX ===
+        # Estimate SpO2 based on lip color
+        # Healthy oxygenated blood gives pink/red lips
+        # Low oxygen gives bluish/purple lips
+
+        # Factors for SpO2 estimation:
+        # 1. Hue deviation from red (0-20 is normal)
+        hue_factor = 1.0
+        if mean_h > 20:
+            if mean_h < 100:
+                hue_factor = 1.0 - (mean_h - 20) / 80 * 0.3
+            else:
+                # Bluish hue indicates low oxygen
+                hue_factor = max(0.3, 0.7 - (mean_h - 100) / 40 * 0.4)
+
+        # 2. Red-green ratio in LAB (a channel)
+        # Higher a = more red = better oxygenation
+        a_factor = min(1.0, max(0.5, (mean_a - 120) / 40))
+
+        # 3. Blue tint check
+        blue_factor = 1.0
+        if mean_b_rgb > mean_r * 0.8:
+            blue_factor = max(0.5, 1.0 - (mean_b_rgb - mean_r * 0.8) / 50)
+
+        # Combined SpO2 index (1.0 = healthy, 0.0 = severely low)
+        spo2_index = (hue_factor * 0.4 + a_factor * 0.4 + blue_factor * 0.2)
+        spo2_index = max(0, min(1.0, spo2_index))
+
+        # Classify SpO2 level
+        if spo2_index > 0.85:
+            spo2_level = 'normal'  # >95%
+        elif spo2_index > 0.7:
+            spo2_level = 'mild_low'  # 90-95%
+        elif spo2_index > 0.5:
+            spo2_level = 'moderate_low'  # 85-90%
+        else:
+            spo2_level = 'severe_low'  # <85%
+
+        # === CIRCULATION INDEX ===
+        # Good circulation = vibrant color, good saturation
+        circulation = 0.5
+        if mean_s > 100 and mean_a > 140:
+            circulation = min(1.0, (mean_s - 50) / 100 * (mean_a - 120) / 50)
+        elif mean_s > 60:
+            circulation = (mean_s - 60) / 80 * 0.7
+
+        # Reduce if cyanosis present
+        circulation = circulation * (1 - cyanosis * 0.5)
+        circulation = max(0, min(1.0, circulation))
+
+        # === DEHYDRATION INDEX ===
+        # Dehydration causes: pale, dry, less vibrant lips
+        # Low saturation + low value = possible dehydration
+        dehydration = 0
+        if mean_s < 70:
+            dehydration += (70 - mean_s) / 70 * 0.4
+        if mean_v < 100:
+            dehydration += (100 - mean_v) / 100 * 0.3
+        if pallor > 0.3:
+            dehydration += pallor * 0.3
+
+        dehydration = min(1.0, dehydration)
 
         return {
             'indicators': {
                 'lip_cyanosis': round(cyanosis, 3),
                 'lip_pallor': round(pallor, 3),
+                'oxygen_saturation_index': round(spo2_index, 3),
+                'circulation_index': round(circulation, 3),
+                'dehydration_index': round(dehydration, 3),
             },
             'details': {
                 'mean_hue': round(float(mean_h), 2),
                 'mean_saturation': round(float(mean_s), 2),
                 'mean_value': round(float(mean_v), 2),
+                'mean_lightness': round(float(mean_l), 2),
                 'mean_a_channel': round(float(mean_a), 2),
                 'mean_b_channel': round(float(mean_b), 2),
+                'rgb_values': {
+                    'R': round(float(mean_r), 2),
+                    'G': round(float(mean_g), 2),
+                    'B': round(float(mean_b_rgb), 2),
+                },
+                'spo2_level': spo2_level,
             }
         }
 

@@ -6,6 +6,7 @@ from .eye_analyzer import EyeAnalyzer
 from .lip_analyzer import LipAnalyzer
 from .nail_analyzer import NailAnalyzer
 from .face_analyzer import FaceAnalyzer
+from .tongue_analyzer import TongueAnalyzer
 
 __all__ = [
     'BaseAnalyzer',
@@ -15,4 +16,5 @@ __all__ = [
     'LipAnalyzer',
     'NailAnalyzer',
     'FaceAnalyzer',
+    'TongueAnalyzer',
 ]

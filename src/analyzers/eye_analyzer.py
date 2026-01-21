@@ -17,9 +17,27 @@ class EyeAnalyzer(BaseAnalyzer):
     Detects:
     - Sclera (white of eye) color - yellowing for jaundice
     - Eye redness/bloodshot appearance
+    - Conjunctiva pallor - anemia indicator
     - Pupil characteristics
     - Dark circles under eyes
+    - Scleral icterus (jaundice index)
     """
+
+    # Reference values for anemia detection
+    ANEMIA_THRESHOLDS = {
+        'severe': 0.7,      # Very pale conjunctiva
+        'moderate': 0.5,    # Moderately pale
+        'mild': 0.3,        # Slightly pale
+        'normal': 0.0       # Healthy color
+    }
+
+    # Jaundice index reference (JECI - Jaundice Eye Color Index)
+    JAUNDICE_THRESHOLDS = {
+        'severe': 0.6,      # Significant yellowing
+        'moderate': 0.4,    # Noticeable yellowing
+        'mild': 0.2,        # Slight yellowing
+        'normal': 0.0       # No yellowing
+    }
 
     def __init__(self):
         super().__init__()
@@ -78,11 +96,18 @@ class EyeAnalyzer(BaseAnalyzer):
                 avg_yellowing = np.mean([r['yellowing'] for r in eye_results])
                 avg_redness = np.mean([r['redness'] for r in eye_results])
                 avg_clarity = np.mean([r['clarity'] for r in eye_results])
+                avg_anemia = np.mean([r.get('anemia_index', 0) for r in eye_results])
+                avg_jaundice = np.mean([r.get('jaundice_index', 0) for r in eye_results])
 
                 indicators['eye_yellowing'] = round(avg_yellowing, 3)
                 indicators['eye_redness'] = round(avg_redness, 3)
                 indicators['eye_clarity'] = round(avg_clarity, 3)
+                indicators['anemia_index'] = round(avg_anemia, 3)
+                indicators['jaundice_index'] = round(avg_jaundice, 3)
 
+                # Classify severity
+                details['anemia_severity'] = self._classify_anemia(avg_anemia)
+                details['jaundice_severity'] = self._classify_jaundice(avg_jaundice)
                 details['individual_eyes'] = eye_results
                 details['eyes_detected'] = len(eyes)
 
@@ -152,16 +177,17 @@ class EyeAnalyzer(BaseAnalyzer):
 
     def _analyze_sclera(self, eye_roi: np.ndarray) -> dict:
         """
-        Analyze sclera (white of eye) for health indicators.
+        Analyze sclera (white of eye) and conjunctiva for health indicators.
 
-        Returns dict with yellowing, redness, and clarity scores.
+        Returns dict with yellowing, redness, clarity, anemia_index, and jaundice_index.
         """
         if eye_roi.size == 0:
-            return {'yellowing': 0, 'redness': 0, 'clarity': 0.5}
+            return {'yellowing': 0, 'redness': 0, 'clarity': 0.5, 'anemia_index': 0, 'jaundice_index': 0}
 
         # Convert to different color spaces
         hsv = cv2.cvtColor(eye_roi, cv2.COLOR_BGR2HSV)
         lab = cv2.cvtColor(eye_roi, cv2.COLOR_BGR2LAB)
+        rgb = cv2.cvtColor(eye_roi, cv2.COLOR_BGR2RGB)
 
         # Detect sclera (white regions)
         # High value, low saturation in HSV
@@ -179,11 +205,12 @@ class EyeAnalyzer(BaseAnalyzer):
 
         if sclera_pixels < 50:
             # Not enough sclera visible
-            return {'yellowing': 0, 'redness': 0, 'clarity': 0.5}
+            return {'yellowing': 0, 'redness': 0, 'clarity': 0.5, 'anemia_index': 0, 'jaundice_index': 0}
 
         # Get sclera pixels in LAB space
         sclera_lab = lab[sclera_mask > 0]
         sclera_hsv = hsv[sclera_mask > 0]
+        sclera_rgb = rgb[sclera_mask > 0]
 
         # Yellowing: high b value in LAB (yellow-blue axis)
         mean_b = np.mean(sclera_lab[:, 2])
@@ -206,12 +233,91 @@ class EyeAnalyzer(BaseAnalyzer):
         clarity = (mean_l / 255) * (1 - mean_s / 255)
         clarity = max(0, min(1.0, clarity))
 
+        # === ANEMIA INDEX (Conjunctiva Pallor) ===
+        # Analyze conjunctiva region (pinkish-red area around eye)
+        # Detect pinkish regions that could be conjunctiva
+        conjunctiva_mask = cv2.inRange(
+            hsv,
+            np.array([0, 30, 100]),
+            np.array([20, 150, 255])
+        )
+
+        conjunctiva_pixels = np.sum(conjunctiva_mask > 0)
+        if conjunctiva_pixels > 20:
+            conjunctiva_rgb = rgb[conjunctiva_mask > 0]
+            conjunctiva_lab = lab[conjunctiva_mask > 0]
+
+            # Anemia causes pallor - reduced redness in conjunctiva
+            mean_r = np.mean(conjunctiva_rgb[:, 0])
+            mean_g = np.mean(conjunctiva_rgb[:, 1])
+            mean_conj_l = np.mean(conjunctiva_lab[:, 0])
+            mean_conj_a = np.mean(conjunctiva_lab[:, 1])
+
+            # Normal conjunctiva has good red color (high R, high a in LAB)
+            # Pale conjunctiva has reduced red (lower R-G difference, lower a)
+            rg_diff = mean_r - mean_g
+            expected_rg_diff = 40  # Normal healthy conjunctiva
+            expected_a = 145  # Normal a value in LAB
+
+            pallor_from_rg = max(0, (expected_rg_diff - rg_diff) / expected_rg_diff)
+            pallor_from_a = max(0, (expected_a - mean_conj_a) / 30)
+
+            anemia_index = (pallor_from_rg * 0.6 + pallor_from_a * 0.4)
+            anemia_index = min(1.0, max(0, anemia_index))
+        else:
+            # Use sclera color as fallback
+            mean_conj_a = np.mean(sclera_lab[:, 1])
+            anemia_index = max(0, min(1.0, (140 - mean_conj_a) / 30))
+
+        # === JAUNDICE INDEX (JECI - Jaundice Eye Color Index) ===
+        # Based on sclera yellowness in CIE color space
+        # Yellow is indicated by high b* in LAB
+        mean_sclera_b = np.mean(sclera_lab[:, 2])
+        mean_sclera_a = np.mean(sclera_lab[:, 1])
+
+        # Calculate JECI-like index
+        # Normal sclera: b around 128-135, a around 128
+        # Jaundiced sclera: b > 140, potentially higher a
+        jaundice_index = max(0, (mean_sclera_b - 132) / 35)
+        jaundice_index = min(1.0, jaundice_index)
+
+        # Boost if both a and b are elevated (more yellow-orange)
+        if mean_sclera_a > 132 and mean_sclera_b > 138:
+            jaundice_index = min(1.0, jaundice_index * 1.2)
+
         return {
             'yellowing': round(yellowing, 3),
             'redness': round(redness, 3),
             'clarity': round(clarity, 3),
-            'sclera_pixels': sclera_pixels
+            'anemia_index': round(anemia_index, 3),
+            'jaundice_index': round(jaundice_index, 3),
+            'sclera_pixels': sclera_pixels,
+            'lab_values': {
+                'L': round(float(mean_l), 2),
+                'a': round(float(mean_sclera_a), 2),
+                'b': round(float(mean_sclera_b), 2)
+            }
         }
+
+    def _classify_anemia(self, index: float) -> str:
+        """Classify anemia severity based on index."""
+        if index >= self.ANEMIA_THRESHOLDS['severe']:
+            return 'severe'
+        elif index >= self.ANEMIA_THRESHOLDS['moderate']:
+            return 'moderate'
+        elif index >= self.ANEMIA_THRESHOLDS['mild']:
+            return 'mild'
+        return 'normal'
+
+    def _classify_jaundice(self, index: float) -> str:
+        """Classify jaundice severity based on index."""
+        if index >= self.JAUNDICE_THRESHOLDS['severe']:
+            return 'severe'
+        elif index >= self.JAUNDICE_THRESHOLDS['moderate']:
+            return 'moderate'
+        elif index >= self.JAUNDICE_THRESHOLDS['mild']:
+            return 'mild'
+        return 'normal'
 
     def _analyze_dark_circles(
         self,
