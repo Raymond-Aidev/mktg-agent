@@ -1,5 +1,9 @@
 import { callModel } from "../client.ts";
 import { buildModuleMessages } from "./builder.ts";
+// Side-effect import: dev-fixture self-registers when ANTHROPIC_API_KEY is
+// not set. Ensures the worker's import tree also sees the fallback provider
+// regardless of whether index.ts has already called registerDevFixtureProviders().
+import "../providers/dev-fixture.ts";
 import type { ModuleConfig, ModuleContext, ModuleRunResult } from "./types.ts";
 
 /**

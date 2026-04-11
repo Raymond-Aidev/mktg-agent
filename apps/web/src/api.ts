@@ -38,3 +38,55 @@ export async function fetchKpis(tenantId: string): Promise<DashboardKpis> {
   }
   return (await res.json()) as DashboardKpis;
 }
+
+/* ----------------------------- SignalCraft ----------------------------- */
+
+export interface SignalcraftRunBody {
+  tenantId: string;
+  keyword: string;
+  regions?: string[];
+  modules?: string[];
+}
+
+export interface SignalcraftRunResponse {
+  jobId: string;
+  estimatedMinutes: number;
+}
+
+export interface SignalcraftJob {
+  id: string;
+  tenant_id: string;
+  keyword: string;
+  regions: string[];
+  modules_requested: string[];
+  status: "queued" | "collecting" | "analyzing" | "rendering" | "done" | "failed";
+  current_stage: string | null;
+  progress_pct: number;
+  error_message: string | null;
+  created_at: string;
+  started_at: string | null;
+  finished_at: string | null;
+  rawPostsBySource: Record<string, number>;
+  reportId: string | null;
+}
+
+export async function runSignalcraft(body: SignalcraftRunBody): Promise<SignalcraftRunResponse> {
+  const res = await fetch("/api/v1/signalcraft/run", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`signalcraft/run HTTP ${res.status}: ${text}`);
+  }
+  return (await res.json()) as SignalcraftRunResponse;
+}
+
+export async function fetchSignalcraftJob(id: string): Promise<SignalcraftJob> {
+  const res = await fetch(`/api/v1/signalcraft/jobs/${encodeURIComponent(id)}`);
+  if (!res.ok) {
+    throw new Error(`signalcraft/jobs/${id} HTTP ${res.status}`);
+  }
+  return (await res.json()) as SignalcraftJob;
+}

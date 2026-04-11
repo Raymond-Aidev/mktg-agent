@@ -1,5 +1,11 @@
-import { useCallback, useEffect, useState } from "react";
-import { fetchKpis, type DashboardKpis } from "./api.ts";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  fetchKpis,
+  fetchSignalcraftJob,
+  runSignalcraft,
+  type DashboardKpis,
+  type SignalcraftJob,
+} from "./api.ts";
 
 const DEFAULT_TENANT = "00000000-0000-0000-0000-0000000000ee";
 
@@ -71,7 +77,155 @@ export function App() {
       {loading && <div className="status-loading">Loading KPIs…</div>}
       {error && <div className="status-error">Error: {error}</div>}
       {!loading && !error && data && <Panels data={data} />}
+
+      <SignalcraftPanel tenantId={tenantId} />
     </div>
+  );
+}
+
+/* ----------------------------- SignalCraft ----------------------------- */
+
+const STATUS_LABEL: Record<SignalcraftJob["status"], string> = {
+  queued: "대기 중",
+  collecting: "Stage 1 — 수집",
+  analyzing: "Stage 3 — 분석",
+  rendering: "Stage 4 — 렌더",
+  done: "완료",
+  failed: "실패",
+};
+
+const TERMINAL: SignalcraftJob["status"][] = ["done", "failed"];
+
+function SignalcraftPanel({ tenantId }: { tenantId: string }) {
+  const [keyword, setKeyword] = useState<string>("children's books");
+  const [jobId, setJobId] = useState<string | null>(null);
+  const [job, setJob] = useState<SignalcraftJob | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState<boolean>(false);
+  const pollTimer = useRef<number | null>(null);
+
+  const clearPoll = useCallback(() => {
+    if (pollTimer.current !== null) {
+      window.clearInterval(pollTimer.current);
+      pollTimer.current = null;
+    }
+  }, []);
+
+  useEffect(() => clearPoll, [clearPoll]);
+
+  useEffect(() => {
+    if (!jobId) return;
+    let cancelled = false;
+    const tick = async () => {
+      try {
+        const fresh = await fetchSignalcraftJob(jobId);
+        if (cancelled) return;
+        setJob(fresh);
+        if (TERMINAL.includes(fresh.status)) {
+          clearPoll();
+        }
+      } catch (err) {
+        if (cancelled) return;
+        setSubmitError((err as Error).message);
+        clearPoll();
+      }
+    };
+    void tick();
+    pollTimer.current = window.setInterval(tick, 2000);
+    return () => {
+      cancelled = true;
+      clearPoll();
+    };
+  }, [jobId, clearPoll]);
+
+  const onRun = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!keyword.trim()) return;
+    setSubmitError(null);
+    setSubmitting(true);
+    setJob(null);
+    try {
+      const res = await runSignalcraft({ tenantId, keyword: keyword.trim() });
+      setJobId(res.jobId);
+    } catch (err) {
+      setSubmitError((err as Error).message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const onReset = () => {
+    clearPoll();
+    setJobId(null);
+    setJob(null);
+    setSubmitError(null);
+  };
+
+  return (
+    <section className="panel signalcraft">
+      <h2>SignalCraft 실행</h2>
+      <form className="sc-form" onSubmit={onRun}>
+        <label htmlFor="keyword">분석 키워드</label>
+        <input
+          id="keyword"
+          type="text"
+          value={keyword}
+          onChange={(e) => setKeyword(e.target.value)}
+          disabled={submitting || (job !== null && !TERMINAL.includes(job.status))}
+          placeholder="예: children's books"
+        />
+        <button type="submit" disabled={submitting || !keyword.trim()}>
+          {submitting ? "제출 중…" : "실행"}
+        </button>
+        {(job || submitError) && (
+          <button type="button" onClick={onReset} className="btn-secondary">
+            초기화
+          </button>
+        )}
+      </form>
+
+      {submitError && <div className="status-error">Error: {submitError}</div>}
+
+      {job && (
+        <div className="sc-status">
+          <div className="sc-status-row">
+            <span className={`sc-badge sc-badge-${job.status}`}>{STATUS_LABEL[job.status]}</span>
+            <span className="sc-stage">{job.current_stage ?? "—"}</span>
+            <span className="sc-progress">{job.progress_pct}%</span>
+          </div>
+          <div className="sc-progress-bar">
+            <div
+              className="sc-progress-fill"
+              style={{ width: `${Math.max(4, job.progress_pct)}%` }}
+            />
+          </div>
+          <div className="sc-meta">
+            <span>jobId {job.id.slice(0, 8)}…</span>
+            <span>keyword "{job.keyword}"</span>
+            {Object.entries(job.rawPostsBySource).map(([src, c]) => (
+              <span key={src}>
+                {src} {c}
+              </span>
+            ))}
+          </div>
+          {job.error_message && <div className="status-error">{job.error_message}</div>}
+          {job.status === "done" && job.reportId && (
+            <div className="sc-actions">
+              <a
+                href={`/api/v1/reports/${job.reportId}?format=html`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                📄 통합 리포트 열기
+              </a>
+              <a href={`/api/v1/reports/${job.reportId}`} target="_blank" rel="noreferrer">
+                {}JSON
+              </a>
+            </div>
+          )}
+        </div>
+      )}
+    </section>
   );
 }
 

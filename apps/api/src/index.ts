@@ -16,9 +16,18 @@ import { signalcraftRouter } from "./routes/signalcraft.ts";
 import { reportsRouter } from "./routes/reports.ts";
 import { dashboardRouter } from "./routes/dashboard.ts";
 import { registerBatchSchedules } from "./batch/scheduler.ts";
+import { registerDevFixtureProviders } from "./llm/providers/dev-fixture.ts";
 
 const pg = env.DATABASE_URL ? getPool() : null;
 const redis = env.REDIS_URL ? getRedis() : null;
+
+// Register development fixture LLM providers when real API keys are absent.
+// Once ANTHROPIC_API_KEY lands in Railway Variables the real provider will
+// be registered and this override can be removed.
+if (!env.ANTHROPIC_API_KEY) {
+  registerDevFixtureProviders();
+  console.log("[eduright-api] dev-fixture LLM providers registered (no real keys)");
+}
 
 const app = express();
 app.use(express.json({ limit: "1mb" }));

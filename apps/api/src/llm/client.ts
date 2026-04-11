@@ -20,25 +20,46 @@ import type { LLMCallContext, LLMProvider, LLMRequest, LLMResponse } from "./typ
  *      loops are still visible on the cost dashboard.
  */
 
-const REGISTRY: Record<LLMProvider["name"], LLMProvider> = {
-  mock: mockProvider,
-  anthropic: makeStub("anthropic"),
-  google: makeStub("google"),
-};
+// Global registry: tsx can evaluate the same .ts file more than once when it
+// is imported via different paths in the same process. To make registration
+// resilient to this, we store the provider map directly on globalThis using
+// a plain symbol, and every read/write goes through a helper that rebinds
+// the live reference. Do NOT cache `REGISTRY` in a module-local binding.
+const REGISTRY_KEY = Symbol.for("eduright.llm.registry");
 
-function makeStub(name: "anthropic" | "google"): LLMProvider {
-  return {
-    name,
-    async call(): Promise<LLMResponse> {
-      throw new Error(
-        `LLM provider "${name}" is not wired yet — add the SDK integration before calling.`,
-      );
-    },
-  };
+type RegistryMap = Record<LLMProvider["name"], LLMProvider>;
+
+function getRegistry(): RegistryMap {
+  const g = globalThis as Record<symbol, unknown>;
+  let reg = g[REGISTRY_KEY] as RegistryMap | undefined;
+  if (!reg) {
+    reg = {
+      mock: mockProvider,
+      anthropic: {
+        name: "anthropic",
+        async call() {
+          throw new Error(
+            'LLM provider "anthropic" is not wired yet — add the SDK integration before calling.',
+          );
+        },
+      },
+      google: {
+        name: "google",
+        async call() {
+          throw new Error(
+            'LLM provider "google" is not wired yet — add the SDK integration before calling.',
+          );
+        },
+      },
+    };
+    g[REGISTRY_KEY] = reg;
+  }
+  return reg;
 }
 
 export function registerProvider(provider: LLMProvider): void {
-  REGISTRY[provider.name] = provider;
+  const reg = getRegistry();
+  reg[provider.name] = provider;
 }
 
 async function recordUsage(
@@ -78,7 +99,7 @@ export async function callModel(req: LLMRequest, ctx: LLMCallContext): Promise<L
   }
 
   const pricing = getPricing(req.model);
-  const provider = REGISTRY[pricing.provider];
+  const provider = getRegistry()[pricing.provider];
   if (!provider) {
     throw new Error(`No provider registered for ${pricing.provider}`);
   }

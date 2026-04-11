@@ -23,6 +23,12 @@ const EnvSchema = z.object({
   ADMIN_USER: z.string().default("admin"),
   ADMIN_PASS: z.string().default("change-me-in-railway-variables"),
 
+  // Real LLM SDK keys. When ANTHROPIC_API_KEY is missing we register a
+  // deterministic dev-fixture provider so the SignalCraft pipeline still
+  // reaches a terminal state in staging.
+  ANTHROPIC_API_KEY: z.string().optional(),
+  GOOGLE_AI_KEY: z.string().optional(),
+
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
 });
 

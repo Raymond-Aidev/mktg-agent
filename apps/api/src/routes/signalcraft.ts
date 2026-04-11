@@ -86,5 +86,14 @@ signalcraftRouter.get("/jobs/:id", async (req: Request, res: Response) => {
   const bySource: Record<string, number> = {};
   for (const row of counts.rows) bySource[row.source] = row.c;
 
-  return res.json({ ...job.rows[0], rawPostsBySource: bySource });
+  const report = await pool.query<{ id: string }>(
+    `SELECT id FROM reports
+      WHERE job_id = $1 AND kind = 'signalcraft_integrated'
+      ORDER BY created_at DESC
+      LIMIT 1`,
+    [id],
+  );
+  const reportId = report.rows[0]?.id ?? null;
+
+  return res.json({ ...job.rows[0], rawPostsBySource: bySource, reportId });
 });
