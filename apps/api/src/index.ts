@@ -6,6 +6,8 @@ import { closeAllQueues, listQueues } from "./infra/queues.ts";
 import { startBatchWorker } from "./workers/batch.ts";
 import { startSignalcraftWorker } from "./workers/signalcraft.ts";
 import { mountBullBoard } from "./admin/bull-board.ts";
+import { eventsRouter } from "./routes/events.ts";
+import { emailWebhookRouter } from "./routes/email-webhook.ts";
 
 const pg = env.DATABASE_URL ? getPool() : null;
 const redis = env.REDIS_URL ? getRedis() : null;
@@ -68,6 +70,10 @@ app.get("/health", async (_req, res) => {
   const coreOk = checks.postgres?.ok && checks.redis?.ok;
   res.status(coreOk ? 200 : 503).json({ status: coreOk ? "ok" : "degraded", checks });
 });
+
+// Routes
+app.use("/api/v1/events", eventsRouter);
+app.use("/webhooks/email", emailWebhookRouter);
 
 // Admin UI (bull-board) — mounted only when Redis is available.
 if (env.REDIS_URL) {
