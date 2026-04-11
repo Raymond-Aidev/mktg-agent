@@ -24,7 +24,7 @@ MVP 목표: 2026년 10월 (볼로냐 북페어 시즌 대비).
 6. **환각 방지** — 모든 프롬프트는 "실제 수집된 데이터만 인용, 없는 사실 생성 금지" 문구 포함, Zod 스키마 검증 필수
 
 ## 현재 Phase
-Phase 6 — W18 — React 대시보드 (Vite · KPI 패널 · 첫 사용자 UI)
+Phase 7 — W22 — 관측성 (Prometheus /metrics · Sentry · 부하 테스트 · DLQ 플레이북)
 
 ## 팀 역할
 - **FSL (풀스택 리드)**: 인프라·BullMQ·DB 스키마·API·배포·코드 리뷰

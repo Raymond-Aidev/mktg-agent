@@ -1,9 +1,15 @@
 import { existsSync, statSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import express from "express";
+import { initSentry, captureException } from "./infra/sentry.ts";
+
+// Initialize Sentry FIRST so its instrumentation can patch other modules.
+initSentry();
+
+import express, { type NextFunction, type Request, type Response } from "express";
 import { env } from "./infra/env.ts";
 import { getPool, closePool } from "./infra/db.ts";
+import { httpRequestDuration } from "./infra/metrics.ts";
 import { getRedis, disconnectAllRedis } from "./infra/redis.ts";
 import { closeAllQueues, listQueues } from "./infra/queues.ts";
 import { startBatchWorker } from "./workers/batch.ts";
@@ -17,6 +23,7 @@ import { reportsRouter } from "./routes/reports.ts";
 import { dashboardRouter } from "./routes/dashboard.ts";
 import { buyersRouter } from "./routes/buyers.ts";
 import { operatorRouter } from "./routes/operator.ts";
+import { metricsRouter } from "./routes/metrics.ts";
 import { registerBatchSchedules } from "./batch/scheduler.ts";
 import { registerDevFixtureProviders } from "./llm/providers/dev-fixture.ts";
 
@@ -33,6 +40,22 @@ if (!env.ANTHROPIC_API_KEY) {
 
 const app = express();
 app.use(express.json({ limit: "1mb" }));
+
+// http_request_duration_seconds histogram middleware. Recorded for all
+// routes; we strip query strings and substitute :id-style placeholders so
+// label cardinality stays bounded.
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const start = process.hrtime.bigint();
+  res.on("finish", () => {
+    const seconds = Number(process.hrtime.bigint() - start) / 1e9;
+    const route =
+      (req.route?.path as string | undefined) ?? req.path.replace(/\/[0-9a-f-]{36}/g, "/:id");
+    httpRequestDuration
+      .labels({ method: req.method, route, status: String(res.statusCode) })
+      .observe(seconds);
+  });
+  next();
+});
 
 // Lightweight identity endpoint used by health checks and the build pipeline.
 // The SPA takes over "/" when its static bundle is available (see below).
@@ -101,6 +124,17 @@ app.use("/api/v1/buyers", buyersRouter);
 app.use("/webhooks/email", emailWebhookRouter);
 app.use("/admin/batch", adminBatchRouter);
 app.use("/admin/operator", operatorRouter);
+app.use("/metrics", metricsRouter);
+
+// Express error handler — captures whatever fell through to Sentry and
+// returns a generic 500 to the client.
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+  console.error("[express:error]", err.message);
+  captureException(err);
+  if (!res.headersSent) {
+    res.status(500).json({ error: "internal_error" });
+  }
+});
 
 // Admin UI (bull-board) — mounted only when Redis is available.
 if (env.REDIS_URL) {

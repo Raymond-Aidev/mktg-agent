@@ -29,6 +29,10 @@ const EnvSchema = z.object({
   ANTHROPIC_API_KEY: z.string().optional(),
   GOOGLE_AI_KEY: z.string().optional(),
 
+  // Observability — Phase 7
+  SENTRY_DSN: z.string().url().optional(),
+  RELEASE_SHA: z.string().optional(),
+
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
 });
 
