@@ -15,6 +15,8 @@ import { adminBatchRouter } from "./routes/admin-batch.ts";
 import { signalcraftRouter } from "./routes/signalcraft.ts";
 import { reportsRouter } from "./routes/reports.ts";
 import { dashboardRouter } from "./routes/dashboard.ts";
+import { buyersRouter } from "./routes/buyers.ts";
+import { operatorRouter } from "./routes/operator.ts";
 import { registerBatchSchedules } from "./batch/scheduler.ts";
 import { registerDevFixtureProviders } from "./llm/providers/dev-fixture.ts";
 
@@ -95,8 +97,10 @@ app.use("/api/v1/events", eventsRouter);
 app.use("/api/v1/signalcraft", signalcraftRouter);
 app.use("/api/v1/reports", reportsRouter);
 app.use("/api/v1/dashboard", dashboardRouter);
+app.use("/api/v1/buyers", buyersRouter);
 app.use("/webhooks/email", emailWebhookRouter);
 app.use("/admin/batch", adminBatchRouter);
+app.use("/admin/operator", operatorRouter);
 
 // Admin UI (bull-board) — mounted only when Redis is available.
 if (env.REDIS_URL) {

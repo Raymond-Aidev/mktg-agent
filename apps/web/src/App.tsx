@@ -1,9 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  fetchBuyers,
   fetchKpis,
+  fetchOperatorOverview,
   fetchSignalcraftJob,
   runSignalcraft,
+  type Buyer,
   type DashboardKpis,
+  type OperatorOverview,
   type SignalcraftJob,
 } from "./api.ts";
 
@@ -79,6 +83,8 @@ export function App() {
       {!loading && !error && data && <Panels data={data} />}
 
       <SignalcraftPanel tenantId={tenantId} />
+      <BuyersPanel tenantId={tenantId} />
+      <OperatorPanel />
     </div>
   );
 }
@@ -210,19 +216,248 @@ function SignalcraftPanel({ tenantId }: { tenantId: string }) {
           </div>
           {job.error_message && <div className="status-error">{job.error_message}</div>}
           {job.status === "done" && job.reportId && (
-            <div className="sc-actions">
-              <a
-                href={`/api/v1/reports/${job.reportId}?format=html`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                📄 통합 리포트 열기
-              </a>
-              <a href={`/api/v1/reports/${job.reportId}`} target="_blank" rel="noreferrer">
-                {}JSON
-              </a>
-            </div>
+            <>
+              <div className="sc-actions">
+                <a
+                  href={`/api/v1/reports/${job.reportId}?format=html`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  새 탭에서 열기 ↗
+                </a>
+                <a href={`/api/v1/reports/${job.reportId}`} target="_blank" rel="noreferrer">
+                  JSON 보기
+                </a>
+              </div>
+              <iframe
+                key={job.reportId}
+                title="SignalCraft integrated report"
+                className="sc-report-frame"
+                src={`/api/v1/reports/${job.reportId}?format=html`}
+              />
+            </>
           )}
+        </div>
+      )}
+    </section>
+  );
+}
+
+/* -------------------------------- Buyers -------------------------------- */
+
+function BuyersPanel({ tenantId }: { tenantId: string }) {
+  const [data, setData] = useState<{ total: number; buyers: Buyer[] } | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setErr(null);
+    fetchBuyers(tenantId, 25)
+      .then((res) => {
+        if (cancelled) return;
+        setData({ total: res.total, buyers: res.buyers });
+      })
+      .catch((e) => {
+        if (cancelled) return;
+        setErr((e as Error).message);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [tenantId]);
+
+  return (
+    <section className="panel">
+      <h2>
+        Buyers (top {data?.buyers.length ?? 0} of {data?.total ?? 0})
+      </h2>
+      {loading && <div className="status-loading">Loading buyers…</div>}
+      {err && <div className="status-error">{err}</div>}
+      {!loading && !err && data && data.buyers.length === 0 && (
+        <div className="status-empty">
+          No buyers for this tenant yet. Phase 2 buyers:bologna crawler is gated on legal review
+          (OI-04).
+        </div>
+      )}
+      {!loading && !err && data && data.buyers.length > 0 && (
+        <table>
+          <thead>
+            <tr>
+              <th>Company</th>
+              <th>Country</th>
+              <th>Genres</th>
+              <th className="num">Lead score</th>
+              <th>Updated</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.buyers.map((b) => (
+              <tr key={b.id}>
+                <td>{b.company_name}</td>
+                <td>{b.country ?? "—"}</td>
+                <td>{b.genres.slice(0, 4).join(", ") || "—"}</td>
+                <td className="num">{b.lead_score ?? "—"}</td>
+                <td>{new Date(b.updated_at).toLocaleDateString()}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </section>
+  );
+}
+
+/* ------------------------------- Operator ------------------------------- */
+
+function OperatorPanel() {
+  const [open, setOpen] = useState<boolean>(false);
+  const [data, setData] = useState<OperatorOverview | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setErr(null);
+    try {
+      const res = await fetchOperatorOverview();
+      setData(res);
+    } catch (e) {
+      setErr((e as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const onToggle = () => {
+    const next = !open;
+    setOpen(next);
+    if (next && !data) void load();
+  };
+
+  return (
+    <section className="panel">
+      <div className="op-header">
+        <h2>운영자 오버뷰</h2>
+        <button type="button" onClick={onToggle}>
+          {open ? "닫기" : "열기 (basic auth)"}
+        </button>
+        {open && (
+          <button type="button" onClick={load} className="btn-secondary">
+            새로고침
+          </button>
+        )}
+      </div>
+      {open && loading && <div className="status-loading">Loading…</div>}
+      {open && err && <div className="status-error">{err}</div>}
+      {open && data && (
+        <div className="op-grid">
+          <div className="op-card">
+            <h3>Health</h3>
+            <div>
+              postgres: {data.health.postgres.ok ? "✅" : "❌"} ({data.health.postgres.latencyMs}ms)
+            </div>
+            <div>redis: {data.health.redis.ok ? "✅" : "❌"}</div>
+          </div>
+          <div className="op-card">
+            <h3>Queues</h3>
+            {Object.entries(data.queues).map(([name, c]) => (
+              <div key={name}>
+                <strong>{name}</strong>: w={c.waiting} a={c.active} c={c.completed} f=
+                {c.failed}
+              </div>
+            ))}
+          </div>
+          <div className="op-card">
+            <h3>SignalCraft jobs (24h)</h3>
+            {Object.entries(data.signalcraftJobs).length === 0 && <div>—</div>}
+            {Object.entries(data.signalcraftJobs).map(([s, n]) => (
+              <div key={s}>
+                {s}: {n}
+              </div>
+            ))}
+          </div>
+          <div className="op-card op-wide">
+            <h3>Category A datasets</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Table</th>
+                  <th className="num">Rows</th>
+                  <th className="num">Stale</th>
+                  <th>Newest last_seen</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.datasets.map((d) => (
+                  <tr key={d.table}>
+                    <td>{d.table}</td>
+                    <td className="num">{d.rowCount}</td>
+                    <td className="num">{d.staleCount}</td>
+                    <td>{d.newestLastSeen ? new Date(d.newestLastSeen).toLocaleString() : "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="op-card op-wide">
+            <h3>LLM cost (7d)</h3>
+            {data.llmCost.length === 0 && <div>No calls.</div>}
+            {data.llmCost.length > 0 && (
+              <table>
+                <thead>
+                  <tr>
+                    <th>Model</th>
+                    <th className="num">Calls</th>
+                    <th className="num">Input</th>
+                    <th className="num">Output</th>
+                    <th className="num">Cost (USD)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.llmCost.map((c) => (
+                    <tr key={c.modelName}>
+                      <td>{c.modelName}</td>
+                      <td className="num">{c.totalCalls}</td>
+                      <td className="num">{c.totalInputTokens.toLocaleString()}</td>
+                      <td className="num">{c.totalOutputTokens.toLocaleString()}</td>
+                      <td className="num">${c.costUsd.toFixed(4)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+          <div className="op-card op-wide">
+            <h3>Recent crawler failures (24h)</h3>
+            {data.crawlerFailures.length === 0 && <div>No failures. ✅</div>}
+            {data.crawlerFailures.length > 0 && (
+              <table>
+                <thead>
+                  <tr>
+                    <th>Source</th>
+                    <th>Code</th>
+                    <th>Message</th>
+                    <th>When</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.crawlerFailures.map((f, i) => (
+                    <tr key={i}>
+                      <td>{f.source}</td>
+                      <td>{f.errorCode ?? "—"}</td>
+                      <td>{f.errorMsg ?? "—"}</td>
+                      <td>{new Date(f.failedAt).toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
         </div>
       )}
     </section>

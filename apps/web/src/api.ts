@@ -90,3 +90,79 @@ export async function fetchSignalcraftJob(id: string): Promise<SignalcraftJob> {
   }
   return (await res.json()) as SignalcraftJob;
 }
+
+/* -------------------------------- Buyers -------------------------------- */
+
+export interface Buyer {
+  id: string;
+  source_uid: string;
+  company_name: string;
+  country: string | null;
+  city: string | null;
+  contact_name: string | null;
+  contact_email: string | null;
+  genres: string[];
+  languages: string[];
+  lead_score: number | null;
+  last_contacted: string | null;
+  source_url: string | null;
+  updated_at: string;
+}
+
+export interface BuyersResponse {
+  tenantId: string;
+  limit: number;
+  offset: number;
+  total: number;
+  buyers: Buyer[];
+}
+
+export async function fetchBuyers(tenantId: string, limit = 25): Promise<BuyersResponse> {
+  const res = await fetch(`/api/v1/buyers?tenantId=${encodeURIComponent(tenantId)}&limit=${limit}`);
+  if (!res.ok) {
+    throw new Error(`buyers HTTP ${res.status}`);
+  }
+  return (await res.json()) as BuyersResponse;
+}
+
+/* ------------------------------- Operator ------------------------------- */
+
+export interface OperatorOverview {
+  health: {
+    postgres: { ok: boolean; latencyMs: number };
+    redis: { ok: boolean };
+  };
+  datasets: Array<{
+    table: string;
+    rowCount: number;
+    newestLastSeen: string | null;
+    oldestLastSeen: string | null;
+    staleCount: number;
+  }>;
+  crawlerFailures: Array<{
+    source: string;
+    errorCode: string | null;
+    errorMsg: string | null;
+    attempt: number;
+    failedAt: string;
+  }>;
+  queues: Record<string, Record<string, number>>;
+  llmCost: Array<{
+    modelName: string;
+    totalCalls: number;
+    totalInputTokens: number;
+    totalOutputTokens: number;
+    costUsd: number;
+  }>;
+  signalcraftJobs: Record<string, number>;
+  generatedAt: string;
+}
+
+export async function fetchOperatorOverview(): Promise<OperatorOverview> {
+  // Browser will prompt for basic auth on first request
+  const res = await fetch("/admin/operator/overview");
+  if (!res.ok) {
+    throw new Error(`operator/overview HTTP ${res.status}`);
+  }
+  return (await res.json()) as OperatorOverview;
+}
