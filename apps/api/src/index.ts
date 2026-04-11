@@ -11,6 +11,7 @@ import { emailWebhookRouter } from "./routes/email-webhook.ts";
 import { adminBatchRouter } from "./routes/admin-batch.ts";
 import { signalcraftRouter } from "./routes/signalcraft.ts";
 import { reportsRouter } from "./routes/reports.ts";
+import { dashboardRouter } from "./routes/dashboard.ts";
 import { registerBatchSchedules } from "./batch/scheduler.ts";
 
 const pg = env.DATABASE_URL ? getPool() : null;
@@ -79,6 +80,7 @@ app.get("/health", async (_req, res) => {
 app.use("/api/v1/events", eventsRouter);
 app.use("/api/v1/signalcraft", signalcraftRouter);
 app.use("/api/v1/reports", reportsRouter);
+app.use("/api/v1/dashboard", dashboardRouter);
 app.use("/webhooks/email", emailWebhookRouter);
 app.use("/admin/batch", adminBatchRouter);
 
