@@ -1,15 +1,18 @@
 import { Worker, type Job } from "bullmq";
 import { createBullConnection } from "../infra/redis.ts";
 import { QUEUE_SIGNALCRAFT } from "../infra/queues.ts";
+import { runPipeline } from "../signalcraft/pipeline.ts";
 
 /**
  * queue:signalcraft worker — Category B (on-demand keyword dataset).
  *
- * Phase 1 status: skeleton. Real Stage 1~4 handling lands in Phase 3 + 4
- * (collection, analysis, report rendering).
+ * Phase 3 W06: Stage 1 collection is wired end-to-end through
+ * runPipeline(). Stage 2~4 are stubbed inside the pipeline itself so the
+ * job reaches a terminal state during local testing.
  */
 
 export interface SignalcraftJobData {
+  signalcraftJobId: string;
   tenantId: string;
   keyword: string;
   regions: string[];
@@ -18,12 +21,21 @@ export interface SignalcraftJobData {
 
 async function handleSignalcraftJob(job: Job<SignalcraftJobData>) {
   const started = Date.now();
-  console.log(`[worker:signalcraft] start keyword="${job.data.keyword}" id=${job.id}`);
-  // TODO(Phase 3): collection stage (5 sources → raw_posts)
-  // TODO(Phase 4): 14-module analysis stage
+  const { signalcraftJobId, tenantId, keyword, regions } = job.data;
+  console.log(
+    `[worker:signalcraft] start keyword="${keyword}" job=${signalcraftJobId} bullId=${job.id}`,
+  );
+
+  const result = await runPipeline({
+    jobId: signalcraftJobId,
+    tenantId,
+    keyword,
+    regions,
+  });
+
   await job.updateProgress(100);
   const ms = Date.now() - started;
-  return { ms, note: "skeleton handler — replaced in Phase 3/4" };
+  return { ms, ...result };
 }
 
 export function startSignalcraftWorker(): Worker<SignalcraftJobData> {

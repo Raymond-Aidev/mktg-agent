@@ -9,6 +9,7 @@ import { mountBullBoard } from "./admin/bull-board.ts";
 import { eventsRouter } from "./routes/events.ts";
 import { emailWebhookRouter } from "./routes/email-webhook.ts";
 import { adminBatchRouter } from "./routes/admin-batch.ts";
+import { signalcraftRouter } from "./routes/signalcraft.ts";
 import { registerBatchSchedules } from "./batch/scheduler.ts";
 
 const pg = env.DATABASE_URL ? getPool() : null;
@@ -20,7 +21,7 @@ app.use(express.json({ limit: "1mb" }));
 app.get("/", (_req, res) => {
   res.json({
     name: "eduright-api",
-    phase: "Phase 1 — W03 data foundation",
+    phase: "Phase 3 — W06 signalcraft stage 1",
     status: "ok",
   });
 });
@@ -75,6 +76,7 @@ app.get("/health", async (_req, res) => {
 
 // Routes
 app.use("/api/v1/events", eventsRouter);
+app.use("/api/v1/signalcraft", signalcraftRouter);
 app.use("/webhooks/email", emailWebhookRouter);
 app.use("/admin/batch", adminBatchRouter);
 
