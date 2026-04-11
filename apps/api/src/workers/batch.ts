@@ -3,6 +3,7 @@ import { createBullConnection } from "../infra/redis.ts";
 import { QUEUE_BATCH } from "../infra/queues.ts";
 import { withBatchLifecycle, type BatchHandler, type BatchResult } from "../batch/runner.ts";
 import { fxRatesHandler } from "../batch/handlers/fx-rates.ts";
+import { rightsDealsHandler } from "../batch/handlers/rights-deals.ts";
 
 /**
  * queue:batch worker — Category A (persistent dataset) scheduled crawlers.
@@ -28,12 +29,12 @@ export interface BatchJobData {
 
 const HANDLERS: Record<string, BatchHandler> = {
   "fx-rates:hourly": fxRatesHandler,
+  "rights-deals:daily": rightsDealsHandler,
   // Phase 2 follow-ups slot in here:
   //   "bestsellers:daily": bestsellersHandler,
   //   "market-trends:daily": marketTrendsHandler,
   //   "buyers:bologna": buyersBolognaHandler,
   //   "competitors:weekly": competitorsHandler,
-  //   "rights-deals:daily": rightsDealsHandler,
 };
 
 async function handleBatchJob(job: Job<BatchJobData>): Promise<BatchResult> {
