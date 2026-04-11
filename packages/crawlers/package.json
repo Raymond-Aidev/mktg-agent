@@ -10,7 +10,8 @@
     "./category-a/fx-rates": "./src/category-a/fx-rates.ts",
     "./category-a/rights-deals": "./src/category-a/rights-deals.ts",
     "./category-a/bestsellers": "./src/category-a/bestsellers.ts",
-    "./category-a/market-trends": "./src/category-a/market-trends.ts"
+    "./category-a/market-trends": "./src/category-a/market-trends.ts",
+    "./category-a/competitors": "./src/category-a/competitors.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

@@ -6,6 +6,7 @@ import { fxRatesHandler } from "../batch/handlers/fx-rates.ts";
 import { rightsDealsHandler } from "../batch/handlers/rights-deals.ts";
 import { bestsellersHandler } from "../batch/handlers/bestsellers.ts";
 import { marketTrendsHandler } from "../batch/handlers/market-trends.ts";
+import { competitorsHandler } from "../batch/handlers/competitors.ts";
 
 /**
  * queue:batch worker — Category A (persistent dataset) scheduled crawlers.
@@ -34,9 +35,9 @@ const HANDLERS: Record<string, BatchHandler> = {
   "rights-deals:daily": rightsDealsHandler,
   "bestsellers:daily": bestsellersHandler,
   "market-trends:daily": marketTrendsHandler,
+  "competitors:weekly": competitorsHandler,
   // Phase 2 follow-ups slot in here:
   //   "buyers:bologna": buyersBolognaHandler,
-  //   "competitors:weekly": competitorsHandler,
 };
 
 async function handleBatchJob(job: Job<BatchJobData>): Promise<BatchResult> {
