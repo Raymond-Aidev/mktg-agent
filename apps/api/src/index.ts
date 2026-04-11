@@ -8,6 +8,8 @@ import { startSignalcraftWorker } from "./workers/signalcraft.ts";
 import { mountBullBoard } from "./admin/bull-board.ts";
 import { eventsRouter } from "./routes/events.ts";
 import { emailWebhookRouter } from "./routes/email-webhook.ts";
+import { adminBatchRouter } from "./routes/admin-batch.ts";
+import { registerBatchSchedules } from "./batch/scheduler.ts";
 
 const pg = env.DATABASE_URL ? getPool() : null;
 const redis = env.REDIS_URL ? getRedis() : null;
@@ -74,6 +76,7 @@ app.get("/health", async (_req, res) => {
 // Routes
 app.use("/api/v1/events", eventsRouter);
 app.use("/webhooks/email", emailWebhookRouter);
+app.use("/admin/batch", adminBatchRouter);
 
 // Admin UI (bull-board) — mounted only when Redis is available.
 if (env.REDIS_URL) {
@@ -98,6 +101,11 @@ if (env.REDIS_URL) {
   } catch (err) {
     console.error("[eduright-api] worker start failed:", (err as Error).message);
   }
+
+  // Register Category A cron repeats. Stable jobIds make this idempotent.
+  registerBatchSchedules().catch((err) => {
+    console.error("[eduright-api] scheduler register failed:", (err as Error).message);
+  });
 }
 
 const server = app.listen(env.PORT, () => {

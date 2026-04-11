@@ -50,6 +50,9 @@ importers:
       '@bull-board/express':
         specifier: ^6.6.3
         version: 6.21.0
+      '@eduright/crawlers':
+        specifier: workspace:*
+        version: link:../../packages/crawlers
       bullmq:
         specifier: ^5.34.8
         version: 5.73.4

@@ -1,13 +1,16 @@
 import { Worker, type Job } from "bullmq";
 import { createBullConnection } from "../infra/redis.ts";
 import { QUEUE_BATCH } from "../infra/queues.ts";
+import { withBatchLifecycle, type BatchHandler, type BatchResult } from "../batch/runner.ts";
+import { fxRatesHandler } from "../batch/handlers/fx-rates.ts";
 
 /**
  * queue:batch worker — Category A (persistent dataset) scheduled crawlers.
  *
- * Phase 1 status: skeleton only. Real handlers are wired per crawler in
- * Phase 2. For now this acknowledges jobs so we can test the pipeline
- * end-to-end and observe them in bull-board.
+ * Routes BullMQ job names to per-source handlers via the HANDLERS map.
+ * Each handler is responsible for one master dataset and is wrapped with
+ * `withBatchLifecycle` so logging, timing, and crawler_failures recording
+ * are uniform.
  */
 
 export type BatchJobName =
@@ -23,13 +26,22 @@ export interface BatchJobData {
   [k: string]: unknown;
 }
 
-async function handleBatchJob(job: Job<BatchJobData>) {
-  const started = Date.now();
-  console.log(`[worker:batch] start ${job.name} id=${job.id}`);
-  // TODO(Phase 2): dispatch to per-source crawler in packages/crawlers.
-  await job.updateProgress(100);
-  const ms = Date.now() - started;
-  return { name: job.name, ms, note: "skeleton handler — replaced in Phase 2" };
+const HANDLERS: Record<string, BatchHandler> = {
+  "fx-rates:hourly": fxRatesHandler,
+  // Phase 2 follow-ups slot in here:
+  //   "bestsellers:daily": bestsellersHandler,
+  //   "market-trends:daily": marketTrendsHandler,
+  //   "buyers:bologna": buyersBolognaHandler,
+  //   "competitors:weekly": competitorsHandler,
+  //   "rights-deals:daily": rightsDealsHandler,
+};
+
+async function handleBatchJob(job: Job<BatchJobData>): Promise<BatchResult> {
+  const handler = HANDLERS[job.name];
+  if (!handler) {
+    throw new Error(`No batch handler registered for job name "${job.name}"`);
+  }
+  return withBatchLifecycle(job, handler);
 }
 
 export function startBatchWorker(): Worker<BatchJobData> {
