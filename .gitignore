@@ -1,7 +1,45 @@
-.claude/
+# OS
 .DS_Store
-*.pyc
-__pycache__/
-.env
-.venv/
+Thumbs.db
+
+# Editor
+.vscode/*
+!.vscode/settings.json.example
+.idea/
+
+# Claude Code local
+.claude/memory/
+.claude/backups/
+
+# Node
 node_modules/
+.pnpm-store/
+.npm
+.yarn
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build
+dist/
+build/
+.turbo/
+*.tsbuildinfo
+coverage/
+
+# Env / secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.pyc
+
+# Playwright
+playwright-report/
+test-results/

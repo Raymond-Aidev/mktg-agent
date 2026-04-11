@@ -1,0 +1,14 @@
+node_modules
+dist
+build
+.turbo
+coverage
+pnpm-lock.yaml
+
+# Docs exported from Google Docs — preserve tab-based table formatting
+docs/*.md
+docs/*.pdf
+CLAUDE.md
+
+# Claude Code agents — markdown with YAML frontmatter, keep as-authored
+.claude/agents/*.md
