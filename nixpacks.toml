@@ -1,15 +1,12 @@
 # Nixpacks config for Railway
-# pnpm 10 + Node 22 monorepo
+# Node 22 + pnpm 10 monorepo. pnpm is provided by Nix (no corepack).
 
 [phases.setup]
 nixPkgs = ["nodejs_22", "pnpm"]
+nixLibs = ["libuuid"]
 
 [phases.install]
-cmds = [
-  "corepack enable",
-  "corepack prepare pnpm@10.26.2 --activate",
-  "pnpm install --frozen-lockfile --prod=false"
-]
+cmds = ["pnpm install --frozen-lockfile --prod=false"]
 
 [phases.build]
 cmds = ["echo 'no build step (tsx runtime)'"]
