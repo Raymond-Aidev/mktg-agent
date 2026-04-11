@@ -3,7 +3,14 @@ import { getPool } from "../infra/db.ts";
 import { COLLECTORS } from "./collectors.ts";
 import { runModule } from "../llm/modules/runner.ts";
 import { sentimentModuleConfig } from "../llm/modules/sentiment.ts";
-import type { ModuleContext, ModuleRunResult, RawPostForAnalysis } from "../llm/modules/types.ts";
+import { macroViewModuleConfig } from "../llm/modules/macro-view.ts";
+import { summaryModuleConfig } from "../llm/modules/summary.ts";
+import type {
+  ModuleConfig,
+  ModuleContext,
+  ModuleRunResult,
+  RawPostForAnalysis,
+} from "../llm/modules/types.ts";
 
 /**
  * SignalCraft pipeline orchestrator.
@@ -241,9 +248,15 @@ async function runStage3(input: PipelineInput): Promise<Stage3Result> {
   const ran: string[] = [];
   const failed: string[] = [];
 
-  // Phase 4 W10: only #03 Sentiment is wired. The remaining 13 modules
-  // slot in below as their configs land.
-  const modules = [sentimentModuleConfig];
+  // Phase 4 W10–W11: #01 + #03 are independent and run first; #08
+  // (Executive Summary) reads upstream #01 and #03 results.
+  // Order matters because each module's output is appended to
+  // ctx.upstreamResults for subsequent modules.
+  const modules: ModuleConfig<unknown>[] = [
+    macroViewModuleConfig as ModuleConfig<unknown>, // #01
+    sentimentModuleConfig as ModuleConfig<unknown>, // #03
+    summaryModuleConfig as ModuleConfig<unknown>, // #08 — reads upstream
+  ];
 
   for (const cfg of modules) {
     const result = await runModule(cfg, ctx);
