@@ -5,6 +5,7 @@ import { runModule } from "../llm/modules/runner.ts";
 import { sentimentModuleConfig } from "../llm/modules/sentiment.ts";
 import { macroViewModuleConfig } from "../llm/modules/macro-view.ts";
 import { summaryModuleConfig } from "../llm/modules/summary.ts";
+import { integratedModuleConfig, type IntegratedOutput } from "../llm/modules/integrated.ts";
 import type {
   ModuleConfig,
   ModuleContext,
@@ -40,6 +41,7 @@ export interface PipelineResult {
   failedSources: string[];
   modulesRun: string[];
   modulesFailed: string[];
+  reportId: string | null;
   durationMs: number;
 }
 
@@ -224,6 +226,7 @@ async function persistModuleResult<T>(
 interface Stage3Result {
   modulesRun: string[];
   modulesFailed: string[];
+  reportId: string | null;
 }
 
 async function runStage3(input: PipelineInput): Promise<Stage3Result> {
@@ -234,7 +237,7 @@ async function runStage3(input: PipelineInput): Promise<Stage3Result> {
 
   const rawPosts = await loadRawPostsForAnalysis(input.jobId);
   if (rawPosts.length === 0) {
-    return { modulesRun: [], modulesFailed: [] };
+    return { modulesRun: [], modulesFailed: [], reportId: null };
   }
 
   const ctx: ModuleContext = {
@@ -256,7 +259,10 @@ async function runStage3(input: PipelineInput): Promise<Stage3Result> {
     macroViewModuleConfig as ModuleConfig<unknown>, // #01
     sentimentModuleConfig as ModuleConfig<unknown>, // #03
     summaryModuleConfig as ModuleConfig<unknown>, // #08 — reads upstream
+    integratedModuleConfig as ModuleConfig<unknown>, // #13 — runs last, sees everything
   ];
+
+  let integratedOutput: IntegratedOutput | null = null;
 
   for (const cfg of modules) {
     const result = await runModule(cfg, ctx);
@@ -264,13 +270,53 @@ async function runStage3(input: PipelineInput): Promise<Stage3Result> {
     if (result.status === "success") {
       ran.push(cfg.id);
       ctx.upstreamResults[cfg.id] = result.output;
+      if (cfg.id === "#13") {
+        integratedOutput = result.output as IntegratedOutput;
+      }
     } else {
       failed.push(cfg.id);
       console.error(`[signalcraft:${input.jobId}] module ${cfg.id} failed: ${result.errorMessage}`);
     }
   }
 
-  return { modulesRun: ran, modulesFailed: failed };
+  let reportId: string | null = null;
+  if (integratedOutput) {
+    reportId = await persistReport(input, integratedOutput, ran);
+  }
+
+  return { modulesRun: ran, modulesFailed: failed, reportId };
+}
+
+async function persistReport(
+  input: PipelineInput,
+  integrated: IntegratedOutput,
+  modulesUsed: string[],
+): Promise<string | null> {
+  const pool = getPool();
+  try {
+    const res = await pool.query<{ id: string }>(
+      `INSERT INTO reports
+         (tenant_id, job_id, kind, title, sections, metadata)
+       VALUES ($1, $2, 'signalcraft_integrated', $3, $4, $5)
+       RETURNING id`,
+      [
+        input.tenantId,
+        input.jobId,
+        integrated.title,
+        JSON.stringify(integrated.sections),
+        JSON.stringify({
+          ...integrated.metadata,
+          modulesUsed,
+          confidence: integrated.confidence,
+          disclaimer: integrated.disclaimer,
+        }),
+      ],
+    );
+    return res.rows[0]?.id ?? null;
+  } catch (err) {
+    console.error(`[signalcraft:${input.jobId}] persistReport failed: ${(err as Error).message}`);
+    return null;
+  }
 }
 
 export async function runPipeline(input: PipelineInput): Promise<PipelineResult> {
