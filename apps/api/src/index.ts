@@ -1,14 +1,13 @@
 import express from "express";
-import { Pool } from "pg";
 import { env } from "./infra/env.ts";
+import { getPool, closePool } from "./infra/db.ts";
 import { getRedis, disconnectAllRedis } from "./infra/redis.ts";
 import { closeAllQueues, listQueues } from "./infra/queues.ts";
 import { startBatchWorker } from "./workers/batch.ts";
 import { startSignalcraftWorker } from "./workers/signalcraft.ts";
 import { mountBullBoard } from "./admin/bull-board.ts";
 
-const pg = env.DATABASE_URL ? new Pool({ connectionString: env.DATABASE_URL, max: 5 }) : null;
-
+const pg = env.DATABASE_URL ? getPool() : null;
 const redis = env.REDIS_URL ? getRedis() : null;
 
 const app = express();
@@ -111,7 +110,7 @@ async function shutdown(signal: string): Promise<void> {
     batchWorker?.close(),
     signalcraftWorker?.close(),
     closeAllQueues(),
-    pg?.end(),
+    closePool(),
   ]);
 
   await disconnectAllRedis();
