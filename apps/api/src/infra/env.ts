@@ -1,0 +1,44 @@
+/**
+ * Typed environment loader. Validates required variables at startup.
+ *
+ * Adding a new variable:
+ *   1. Add it to `EnvSchema` with a clear default or required marker.
+ *   2. Consume it via `env` (not `process.env.*` directly).
+ */
+import { z } from "zod";
+
+const EnvSchema = z.object({
+  NODE_ENV: z.enum(["development", "test", "staging", "production"]).default("development"),
+  PORT: z.coerce.number().int().positive().default(8080),
+
+  DATABASE_URL: z.string().url().optional(),
+  REDIS_URL: z.string().url().optional(),
+
+  // Category A / B role connection strings (optional, fall back to DATABASE_URL)
+  DATABASE_URL_BATCH_WORKER: z.string().url().optional(),
+  DATABASE_URL_SIGNALCRAFT_WORKER: z.string().url().optional(),
+
+  // Admin UI gate (bull-board, /admin/*). Default to a random-looking placeholder
+  // so unauthenticated access is rejected even if the operator forgets to set it.
+  ADMIN_USER: z.string().default("admin"),
+  ADMIN_PASS: z.string().default("change-me-in-railway-variables"),
+
+  LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
+});
+
+export type Env = z.infer<typeof EnvSchema>;
+
+let cached: Env | null = null;
+
+export function loadEnv(): Env {
+  if (cached) return cached;
+  const parsed = EnvSchema.safeParse(process.env);
+  if (!parsed.success) {
+    console.error("[env] invalid environment:", parsed.error.flatten().fieldErrors);
+    throw new Error("Environment validation failed");
+  }
+  cached = parsed.data;
+  return cached;
+}
+
+export const env = loadEnv();
