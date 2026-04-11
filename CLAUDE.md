@@ -42,8 +42,17 @@ Phase 0 — W01 — 프로젝트 셋업 기반 다지기
 - Node.js 22 LTS, pnpm 10, TypeScript 5.7+
 - PostgreSQL 15, Redis 7, BullMQ, Playwright
 - Express, React 18 + Vite, Chart.js, Puppeteer
-- Prometheus + Grafana, Sentry
-- AWS ECS + RDS + ElastiCache + S3
+- Sentry (에러 추적), Grafana Cloud (무료 티어, 메트릭/로그)
+
+## 인프라 (Railway 기반)
+- **호스팅**: Railway — API / workers / web 서비스, GitHub 연동 자동 배포
+- **DB**: Railway Postgres 플러그인 (15)
+- **Cache/Queue**: Railway Redis 플러그인 (BullMQ 백엔드)
+- **Object storage**: Cloudflare R2 (S3 호환, PDF/아카이브 저장) — Railway에 오브젝트 스토리지 없음
+- **Secrets**: Railway Variables (환경변수 암호화 저장)
+- **IaC**: `railway.json` + Railway CLI (Terraform 불필요)
+- **CI/CD**: GitHub push → Railway 자동 빌드·배포 (GitHub Actions는 lint/test만)
+- **환경 분리**: Railway Environments (staging / production)
 
 ## 문서 참조 (세션 시작 시 반드시 확인)
 - `docs/PRD_v1.0.md` — 제품 요구사항
