@@ -1,0 +1,18 @@
+# Nixpacks config for Railway
+# pnpm 10 + Node 22 monorepo
+
+[phases.setup]
+nixPkgs = ["nodejs_22", "pnpm"]
+
+[phases.install]
+cmds = [
+  "corepack enable",
+  "corepack prepare pnpm@10.26.2 --activate",
+  "pnpm install --frozen-lockfile --prod=false"
+]
+
+[phases.build]
+cmds = ["echo 'no build step (tsx runtime)'"]
+
+[start]
+cmd = "pnpm --filter @eduright/api start"
