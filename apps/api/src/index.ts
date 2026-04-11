@@ -1,3 +1,6 @@
+import { existsSync, statSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import express from "express";
 import { env } from "./infra/env.ts";
 import { getPool, closePool } from "./infra/db.ts";
@@ -20,10 +23,12 @@ const redis = env.REDIS_URL ? getRedis() : null;
 const app = express();
 app.use(express.json({ limit: "1mb" }));
 
-app.get("/", (_req, res) => {
+// Lightweight identity endpoint used by health checks and the build pipeline.
+// The SPA takes over "/" when its static bundle is available (see below).
+app.get("/api", (_req, res) => {
   res.json({
     name: "eduright-api",
-    phase: "Phase 5 — W16 integrated reports",
+    phase: "Phase 6 — W18 dashboard",
     status: "ok",
   });
 });
@@ -91,6 +96,29 @@ if (env.REDIS_URL) {
     console.log("[eduright-api] bull-board mounted at /admin/queues");
   } catch (err) {
     console.error("[eduright-api] bull-board mount failed:", (err as Error).message);
+  }
+}
+
+// --------------------------------------------------------------------------
+// Static SPA — serve apps/web/dist when the build output is present.
+// Missing in dev mode (tsx src/index.ts) when the web build has not been
+// produced yet; in that case '/' returns the JSON identity instead and
+// developers typically run `pnpm --filter @eduright/web dev` on :5173.
+// --------------------------------------------------------------------------
+{
+  const here = dirname(fileURLToPath(import.meta.url));
+  const webDist = resolve(here, "../../web/dist");
+  const webIndex = join(webDist, "index.html");
+  if (existsSync(webIndex) && statSync(webIndex).isFile()) {
+    app.use(express.static(webDist, { index: false, maxAge: "1h" }));
+    app.get(/^\/(?!api\/|admin\/|webhooks\/|health).*/, (_req, res) => {
+      res.sendFile(webIndex);
+    });
+    console.log(`[eduright-api] serving SPA from ${webDist}`);
+  } else {
+    console.log(
+      `[eduright-api] SPA dist not found at ${webDist} — run 'pnpm --filter @eduright/web build'`,
+    );
   }
 }
 

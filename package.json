@@ -13,6 +13,10 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc -b",
+    "build:web": "pnpm --filter @eduright/web build",
+    "start": "pnpm --filter @eduright/api start",
+    "dev:api": "pnpm --filter @eduright/api dev",
+    "dev:web": "pnpm --filter @eduright/web dev",
     "prepare": "husky"
   },
   "devDependencies": {

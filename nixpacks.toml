@@ -9,7 +9,7 @@ nixLibs = ["libuuid"]
 cmds = ["pnpm install --frozen-lockfile --prod=false"]
 
 [phases.build]
-cmds = ["echo 'no build step (tsx runtime)'"]
+cmds = ["pnpm --filter @eduright/web build"]
 
 [start]
 cmd = "pnpm --filter @eduright/api start"
