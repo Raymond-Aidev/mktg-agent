@@ -33,8 +33,14 @@ export const BATCH_SCHEDULES: BatchScheduleEntry[] = [
     tz: "Asia/Seoul",
     timeoutMs: 600_000,
   },
-  // Phase 2 follow-ups (W07~): bestsellers:daily, market-trends:daily,
-  // buyers:bologna, competitors:weekly.
+  {
+    name: "bestsellers:daily",
+    cron: "0 6 * * *",
+    tz: "Asia/Seoul",
+    timeoutMs: 600_000,
+  },
+  // Phase 2 follow-ups (W07~): market-trends:daily, buyers:bologna,
+  // competitors:weekly.
 ];
 
 export async function registerBatchSchedules(): Promise<void> {

@@ -4,6 +4,7 @@ import { QUEUE_BATCH } from "../infra/queues.ts";
 import { withBatchLifecycle, type BatchHandler, type BatchResult } from "../batch/runner.ts";
 import { fxRatesHandler } from "../batch/handlers/fx-rates.ts";
 import { rightsDealsHandler } from "../batch/handlers/rights-deals.ts";
+import { bestsellersHandler } from "../batch/handlers/bestsellers.ts";
 
 /**
  * queue:batch worker — Category A (persistent dataset) scheduled crawlers.
@@ -30,8 +31,8 @@ export interface BatchJobData {
 const HANDLERS: Record<string, BatchHandler> = {
   "fx-rates:hourly": fxRatesHandler,
   "rights-deals:daily": rightsDealsHandler,
+  "bestsellers:daily": bestsellersHandler,
   // Phase 2 follow-ups slot in here:
-  //   "bestsellers:daily": bestsellersHandler,
   //   "market-trends:daily": marketTrendsHandler,
   //   "buyers:bologna": buyersBolognaHandler,
   //   "competitors:weekly": competitorsHandler,
