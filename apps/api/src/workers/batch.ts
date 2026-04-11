@@ -5,6 +5,7 @@ import { withBatchLifecycle, type BatchHandler, type BatchResult } from "../batc
 import { fxRatesHandler } from "../batch/handlers/fx-rates.ts";
 import { rightsDealsHandler } from "../batch/handlers/rights-deals.ts";
 import { bestsellersHandler } from "../batch/handlers/bestsellers.ts";
+import { marketTrendsHandler } from "../batch/handlers/market-trends.ts";
 
 /**
  * queue:batch worker — Category A (persistent dataset) scheduled crawlers.
@@ -32,8 +33,8 @@ const HANDLERS: Record<string, BatchHandler> = {
   "fx-rates:hourly": fxRatesHandler,
   "rights-deals:daily": rightsDealsHandler,
   "bestsellers:daily": bestsellersHandler,
+  "market-trends:daily": marketTrendsHandler,
   // Phase 2 follow-ups slot in here:
-  //   "market-trends:daily": marketTrendsHandler,
   //   "buyers:bologna": buyersBolognaHandler,
   //   "competitors:weekly": competitorsHandler,
 };
