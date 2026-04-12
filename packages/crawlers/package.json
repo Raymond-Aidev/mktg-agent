@@ -13,7 +13,8 @@
     "./category-a/market-trends": "./src/category-a/market-trends.ts",
     "./category-a/competitors": "./src/category-a/competitors.ts",
     "./category-b/types": "./src/category-b/types.ts",
-    "./category-b/hackernews": "./src/category-b/hackernews.ts"
+    "./category-b/hackernews": "./src/category-b/hackernews.ts",
+    "./category-b/naver": "./src/category-b/naver.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

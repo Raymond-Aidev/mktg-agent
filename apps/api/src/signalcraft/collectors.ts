@@ -1,11 +1,21 @@
 import type { Collector } from "@eduright/crawlers/category-b/types";
 import { hackerNewsCollector } from "@eduright/crawlers/category-b/hackernews";
+import {
+  naverNewsCollector,
+  naverBlogCollector,
+  naverCafeCollector,
+} from "@eduright/crawlers/category-b/naver";
 
 /**
- * Active Category B collector roster.
+ * Active Category B collector roster (v2.0).
  *
- * Only one real source for now (Hacker News). The Korean sources from
- * Tech Spec §1.3.3 (naver_news, naver_comment, youtube, dc, clien,
- * fmkorea) slot in here as they are built out in Phase 3 follow-ups.
+ * Korean sources run first (P0), then English (P2).
+ * Each collector self-skips when its env vars are missing, so the
+ * pipeline always completes even if only a subset is configured.
  */
-export const COLLECTORS: Collector[] = [hackerNewsCollector];
+export const COLLECTORS: Collector[] = [
+  naverNewsCollector,
+  naverBlogCollector,
+  naverCafeCollector,
+  hackerNewsCollector,
+];

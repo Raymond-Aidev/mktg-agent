@@ -37,6 +37,10 @@ const EnvSchema = z.object({
   PUBLIC_BASE_URL: z.string().url().optional(),
   ALLOWED_ORIGINS: z.string().optional(),
 
+  // Korean data sources — Phase A (v2.0)
+  NAVER_CLIENT_ID: z.string().optional(),
+  NAVER_CLIENT_SECRET: z.string().optional(),
+
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
 });
 
