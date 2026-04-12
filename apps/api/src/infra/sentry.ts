@@ -25,6 +25,9 @@ export function initSentry(): boolean {
   });
 
   initialized = true;
+  console.log(
+    `[goldencheck-api] Sentry initialized (env=${env.NODE_ENV}, release=${env.RELEASE_SHA ?? "(none)"})`,
+  );
   return true;
 }
 

@@ -114,6 +114,23 @@ app.get("/api", (_req, res) => {
   });
 });
 
+// Admin-only one-off Sentry smoke test. Hits this after deploying a new
+// SENTRY_DSN to verify the SDK is wired end-to-end. Behind basic auth so
+// random visitors can't spam the issue feed.
+app.get("/admin/sentry-test", (req: Request, res: Response, next: NextFunction) => {
+  const auth = req.headers.authorization ?? "";
+  if (!auth.startsWith("Basic ")) {
+    res.set("WWW-Authenticate", 'Basic realm="goldencheck-admin"');
+    res.status(401).send("auth required");
+    return;
+  }
+  try {
+    throw new Error("Sentry smoke test from /admin/sentry-test — expected error, safe to close.");
+  } catch (err) {
+    next(err);
+  }
+});
+
 app.get("/health", async (_req, res) => {
   const checks: Record<string, { ok: boolean; detail?: string }> = {};
 
