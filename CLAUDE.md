@@ -1,8 +1,10 @@
-# EduRights AI — Marketing Agent Platform
+# GoldenCheck — AI Marketing Agent Platform
 
 ## 프로젝트 요약
 교육 콘텐츠·아동 도서 출판사를 위한 자동화 마케팅 플랫폼.
 5개 AI 에이전트(Research · Marketing · Translation · CRM · Analytics) + 14모듈 SignalCraft 여론 분석 파이프라인.
+공개 브랜드: **GoldenCheck** (www.goldencheck.kr)
+내부 코드네임: MKTGagent · 초기 제품명: EduRights AI (docs/PRD_v1.0.md는 historical)
 MVP 목표: 2026년 10월 (볼로냐 북페어 시즌 대비).
 
 ## 레포 구조

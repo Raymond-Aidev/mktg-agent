@@ -70,7 +70,7 @@ const FIXTURES: Record<string, string> = {
     confidence: "medium",
   }),
   IntegratedSchema: JSON.stringify({
-    title: "EduRights SignalCraft — children's books 통합 리포트",
+    title: "GoldenCheck SignalCraft — children's books 통합 리포트",
     sections: [
       {
         id: "section-1",

@@ -7,6 +7,8 @@ import { initSentry, captureException } from "./infra/sentry.ts";
 initSentry();
 
 import express, { type NextFunction, type Request, type Response } from "express";
+import helmet from "helmet";
+import cors from "cors";
 import { env } from "./infra/env.ts";
 import { getPool, closePool } from "./infra/db.ts";
 import { httpRequestDuration } from "./infra/metrics.ts";
@@ -35,10 +37,54 @@ const redis = env.REDIS_URL ? getRedis() : null;
 // be registered and this override can be removed.
 if (!env.ANTHROPIC_API_KEY) {
   registerDevFixtureProviders();
-  console.log("[eduright-api] dev-fixture LLM providers registered (no real keys)");
+  console.log("[goldencheck-api] dev-fixture LLM providers registered (no real keys)");
 }
 
 const app = express();
+
+// Security headers — Phase 7 launch hardening.
+// CSP is relaxed because the SPA inlines styles from vite and bull-board
+// injects its own runtime bundle; tighten further once both use hashed nonces.
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      useDefaults: true,
+      directives: {
+        "default-src": ["'self'"],
+        "script-src": ["'self'", "'unsafe-inline'"],
+        "style-src": ["'self'", "'unsafe-inline'"],
+        "img-src": ["'self'", "data:", "https:"],
+        "frame-ancestors": ["'self'"],
+      },
+    },
+    crossOriginEmbedderPolicy: false,
+  }),
+);
+
+// CORS — allow the public site origin + optional additional allowlist.
+// ALLOWED_ORIGINS is a comma-separated list. When neither PUBLIC_BASE_URL
+// nor ALLOWED_ORIGINS is set, CORS is effectively same-origin (dev).
+const allowList = new Set<string>();
+if (env.PUBLIC_BASE_URL) allowList.add(env.PUBLIC_BASE_URL);
+if (env.ALLOWED_ORIGINS) {
+  for (const o of env.ALLOWED_ORIGINS.split(",")) {
+    const trimmed = o.trim();
+    if (trimmed) allowList.add(trimmed);
+  }
+}
+app.use(
+  cors({
+    origin: (origin, cb) => {
+      // Same-origin or tool requests (Postman etc.) have no Origin header.
+      if (!origin) return cb(null, true);
+      if (allowList.size === 0 || allowList.has(origin)) return cb(null, true);
+      return cb(new Error(`origin ${origin} not allowed`));
+    },
+    credentials: false,
+    methods: ["GET", "POST", "OPTIONS"],
+  }),
+);
+
 app.use(express.json({ limit: "1mb" }));
 
 // http_request_duration_seconds histogram middleware. Recorded for all
@@ -61,8 +107,9 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 // The SPA takes over "/" when its static bundle is available (see below).
 app.get("/api", (_req, res) => {
   res.json({
-    name: "eduright-api",
-    phase: "Phase 6 — W18 dashboard",
+    name: "goldencheck-api",
+    brand: "GoldenCheck",
+    phase: "Phase 7 — W22 observability",
     status: "ok",
   });
 });
@@ -140,9 +187,9 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 if (env.REDIS_URL) {
   try {
     mountBullBoard(app);
-    console.log("[eduright-api] bull-board mounted at /admin/queues");
+    console.log("[goldencheck-api] bull-board mounted at /admin/queues");
   } catch (err) {
-    console.error("[eduright-api] bull-board mount failed:", (err as Error).message);
+    console.error("[goldencheck-api] bull-board mount failed:", (err as Error).message);
   }
 }
 
@@ -161,10 +208,10 @@ if (env.REDIS_URL) {
     app.get(/^\/(?!api\/|admin\/|webhooks\/|health).*/, (_req, res) => {
       res.sendFile(webIndex);
     });
-    console.log(`[eduright-api] serving SPA from ${webDist}`);
+    console.log(`[goldencheck-api] serving SPA from ${webDist}`);
   } else {
     console.log(
-      `[eduright-api] SPA dist not found at ${webDist} — run 'pnpm --filter @eduright/web build'`,
+      `[goldencheck-api] SPA dist not found at ${webDist} — run 'pnpm --filter @eduright/web build'`,
     );
   }
 }
@@ -178,26 +225,26 @@ if (env.REDIS_URL) {
   try {
     batchWorker = startBatchWorker();
     signalcraftWorker = startSignalcraftWorker();
-    console.log("[eduright-api] workers started: queue:batch, queue:signalcraft");
+    console.log("[goldencheck-api] workers started: queue:batch, queue:signalcraft");
   } catch (err) {
-    console.error("[eduright-api] worker start failed:", (err as Error).message);
+    console.error("[goldencheck-api] worker start failed:", (err as Error).message);
   }
 
   // Register Category A cron repeats. Stable jobIds make this idempotent.
   registerBatchSchedules().catch((err) => {
-    console.error("[eduright-api] scheduler register failed:", (err as Error).message);
+    console.error("[goldencheck-api] scheduler register failed:", (err as Error).message);
   });
 }
 
 const server = app.listen(env.PORT, () => {
-  console.log(`[eduright-api] listening on :${env.PORT}`);
+  console.log(`[goldencheck-api] listening on :${env.PORT}`);
 });
 
 let shuttingDown = false;
 async function shutdown(signal: string): Promise<void> {
   if (shuttingDown) return;
   shuttingDown = true;
-  console.log(`[eduright-api] ${signal} received, shutting down`);
+  console.log(`[goldencheck-api] ${signal} received, shutting down`);
 
   server.close();
 

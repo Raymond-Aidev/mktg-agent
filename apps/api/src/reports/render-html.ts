@@ -61,7 +61,7 @@ export function renderReportHtml(report: ReportRow): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${escapeHtml(report.title)} — EduRights AI</title>
+  <title>${escapeHtml(report.title)} — GoldenCheck</title>
   <style>
     :root { color-scheme: light dark; }
     body {

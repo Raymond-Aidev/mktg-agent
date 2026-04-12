@@ -33,6 +33,10 @@ const EnvSchema = z.object({
   SENTRY_DSN: z.string().url().optional(),
   RELEASE_SHA: z.string().optional(),
 
+  // Public deployment — Phase 7 launch
+  PUBLIC_BASE_URL: z.string().url().optional(),
+  ALLOWED_ORIGINS: z.string().optional(),
+
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
 });
 

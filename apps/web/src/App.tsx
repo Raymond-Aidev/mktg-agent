@@ -62,8 +62,8 @@ export function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>EduRights AI — Dashboard</h1>
-        <span className="phase-tag">Phase 6 — W18</span>
+        <h1>GoldenCheck — AI Marketing Dashboard</h1>
+        <span className="phase-tag">Phase 7 · W22</span>
       </header>
 
       <form className="tenant-switcher" onSubmit={onSubmit}>
