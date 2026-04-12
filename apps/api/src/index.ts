@@ -26,6 +26,7 @@ import { dashboardRouter } from "./routes/dashboard.ts";
 import { buyersRouter } from "./routes/buyers.ts";
 import { operatorRouter } from "./routes/operator.ts";
 import { metricsRouter } from "./routes/metrics.ts";
+import { legalRouter } from "./routes/legal.ts";
 import { registerBatchSchedules } from "./batch/scheduler.ts";
 import { registerDevFixtureProviders } from "./llm/providers/dev-fixture.ts";
 
@@ -189,6 +190,7 @@ app.use("/webhooks/email", emailWebhookRouter);
 app.use("/admin/batch", adminBatchRouter);
 app.use("/admin/operator", operatorRouter);
 app.use("/metrics", metricsRouter);
+app.use("/", legalRouter);
 
 // Express error handler — captures whatever fell through to Sentry and
 // returns a generic 500 to the client.
@@ -222,7 +224,7 @@ if (env.REDIS_URL) {
   const webIndex = join(webDist, "index.html");
   if (existsSync(webIndex) && statSync(webIndex).isFile()) {
     app.use(express.static(webDist, { index: false, maxAge: "1h" }));
-    app.get(/^\/(?!api\/|admin\/|webhooks\/|health).*/, (_req, res) => {
+    app.get(/^\/(?!api\/|admin\/|webhooks\/|health|metrics|terms|privacy|about).*/, (_req, res) => {
       res.sendFile(webIndex);
     });
     console.log(`[goldencheck-api] serving SPA from ${webDist}`);
