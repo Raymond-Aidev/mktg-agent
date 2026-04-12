@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.65.0",
     "@bull-board/api": "^6.6.3",
     "@bull-board/express": "^6.6.3",
     "@eduright/crawlers": "workspace:*",

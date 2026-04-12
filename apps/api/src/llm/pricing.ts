@@ -15,6 +15,13 @@ export interface ModelPricing {
   cachedInputPerToken?: number;
   /** Vendor hint for the client dispatcher. */
   provider: "anthropic" | "google" | "mock";
+  /**
+   * Model identifier the vendor API actually expects. We keep the internal
+   * key stable (e.g. "claude-sonnet-4-6") while letting the API id rotate
+   * (e.g. pinned snapshot "claude-sonnet-4-6-20260301"). Optional — when
+   * missing, providers fall back to the registry key.
+   */
+  apiModelId?: string;
 }
 
 const perMillion = (usd: number): number => usd / 1_000_000;
