@@ -39,8 +39,19 @@ reportsRouter.get("/:id", async (req: Request, res: Response) => {
   }
 
   if (req.query.format === "html") {
+    const moduleOutputs: Record<string, unknown> = {};
+    if (row.job_id) {
+      const moRes = await pool.query<{ module_id: string; output: unknown }>(
+        `SELECT module_id, output FROM signalcraft_module_outputs
+          WHERE job_id = $1 AND status = 'success' AND output IS NOT NULL`,
+        [row.job_id],
+      );
+      for (const mo of moRes.rows) {
+        moduleOutputs[mo.module_id] = mo.output;
+      }
+    }
     res.set("content-type", "text/html; charset=utf-8");
-    return res.status(200).send(renderReportHtml(row));
+    return res.status(200).send(renderReportHtml(row, moduleOutputs));
   }
 
   return res.json(row);
