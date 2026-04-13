@@ -29,20 +29,38 @@ body {
 
 .app-header {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
 }
-.app-header h1 { margin: 0; font-size: 24px; }
-.app-header .phase-tag {
+.header-left h1 { margin: 0; font-size: 22px; font-weight: 700; }
+.header-subtitle {
+  margin: 2px 0 0; font-size: 13px; color: var(--text-muted); font-weight: 400;
+}
+.settings-toggle {
+  background: none; border: 1px solid var(--border); border-radius: 8px;
+  padding: 6px 10px; font-size: 18px; cursor: pointer; color: var(--text-muted);
+}
+.settings-toggle:hover { border-color: var(--accent); }
+
+.section-header {
+  margin: 24px 0 12px;
+}
+.section-header h2 { margin: 0 0 4px; font-size: 17px; }
+.section-header p { margin: 0; font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
+.collapse-section { margin-top: 24px; }
+
+.app-footer {
+  display: flex; justify-content: center; gap: 16px;
+  margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--border);
   font-size: 12px;
-  padding: 4px 10px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: var(--bg-card);
-  color: var(--text-muted);
 }
+.app-footer a { color: var(--text-muted); text-decoration: none; }
+.app-footer a:hover { text-decoration: underline; }
 
 .tenant-switcher {
   display: flex;

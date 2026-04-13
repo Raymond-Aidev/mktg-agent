@@ -71,39 +71,66 @@ export function App() {
     }
   };
 
+  const [showSettings, setShowSettings] = useState(false);
+
   return (
     <div className="app">
       <header className="app-header">
-        <h1>GoldenCheck — AI Marketing Dashboard</h1>
-        <span className="phase-tag">Phase 7 · W22</span>
+        <div className="header-left">
+          <h1>GoldenCheck</h1>
+          <p className="header-subtitle">교육상품 마케팅 AI 분석</p>
+        </div>
+        <button
+          type="button"
+          className="settings-toggle"
+          onClick={() => setShowSettings(!showSettings)}
+          title="계정 설정"
+        >
+          ⚙
+        </button>
       </header>
 
-      <form className="tenant-switcher" onSubmit={onSubmit}>
-        <label htmlFor="tenant">Tenant UUID</label>
-        <input
-          id="tenant"
-          type="text"
-          value={pendingTenant}
-          onChange={(e) => setPendingTenant(e.target.value)}
-          placeholder="00000000-0000-0000-0000-000000000000"
-        />
-        <button type="submit">Load</button>
-      </form>
+      {showSettings && (
+        <form className="tenant-switcher" onSubmit={onSubmit}>
+          <label htmlFor="tenant">계정 ID</label>
+          <input
+            id="tenant"
+            type="text"
+            value={pendingTenant}
+            onChange={(e) => setPendingTenant(e.target.value)}
+            placeholder="00000000-0000-0000-0000-000000000000"
+          />
+          <button type="submit">적용</button>
+        </form>
+      )}
 
-      {loading && <div className="status-loading">Loading…</div>}
-      {error && <div className="status-error">Error: {error}</div>}
+      {loading && <div className="status-loading">데이터를 불러오는 중…</div>}
+      {error && <div className="status-error">{error}</div>}
 
       {!loading && !error && overview && (
         <BusinessOverview overview={overview} tenantId={tenantId} />
       )}
 
+      {/* ── 질문 2: 뭘 수정해야 하나? ── */}
+      <ChannelCard tenantId={tenantId} />
+      <CompetitorCard tenantId={tenantId} />
+
+      {/* ── 질문 3: 더 좋은 방법은? ── */}
+      <section className="section-header">
+        <h2>📊 시장 반응 분석하기</h2>
+        <p>
+          키워드를 입력하면 네이버 뉴스·블로그·카페에서 자동으로 여론을 수집하고, AI가 분석 리포트를
+          생성합니다.
+        </p>
+      </section>
       <SignalcraftPanel tenantId={tenantId} />
 
-      <section className="panel">
+      {/* ── 상세 (접기) ── */}
+      <section className="panel collapse-section">
         <div className="op-header">
           <h2>상세 데이터</h2>
           <button type="button" onClick={() => setShowOperator(!showOperator)}>
-            {showOperator ? "접기" : "바이어 · 캠페인 · 운영자 보기"}
+            {showOperator ? "접기" : "바이어 · 캠페인 · 관리자"}
           </button>
         </div>
         {showOperator && (
@@ -114,19 +141,19 @@ export function App() {
           </>
         )}
       </section>
+
+      <footer className="app-footer">
+        <a href="/terms">이용약관</a>
+        <a href="/privacy">개인정보처리방침</a>
+        <a href="/about">사업자 정보</a>
+      </footer>
     </div>
   );
 }
 
 /* ----------------------------- Business v2 ----------------------------- */
 
-function BusinessOverview({
-  overview,
-  tenantId,
-}: {
-  overview: DashboardOverview;
-  tenantId: string;
-}) {
+function BusinessOverview({ overview }: { overview: DashboardOverview; tenantId: string }) {
   return (
     <>
       <div className="grid">
@@ -216,9 +243,6 @@ function BusinessOverview({
           </section>
         )}
       </div>
-
-      <ChannelCard tenantId={tenantId} />
-      <CompetitorCard tenantId={tenantId} />
 
       {overview.lastAnalyzedAt && (
         <div className="data-freshness">
