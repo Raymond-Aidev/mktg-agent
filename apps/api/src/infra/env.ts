@@ -41,6 +41,9 @@ const EnvSchema = z.object({
   NAVER_CLIENT_ID: z.string().optional(),
   NAVER_CLIENT_SECRET: z.string().optional(),
 
+  // Auth — Phase B
+  JWT_SECRET: z.string().default("goldencheck-dev-jwt-secret-change-in-prod"),
+
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
 });
 

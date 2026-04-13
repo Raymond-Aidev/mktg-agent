@@ -523,6 +523,7 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .login-sub { text-align: center; font-size: 13px; color: var(--text-muted); margin-top: 8px; }
 .link { color: var(--accent); cursor: pointer; font-weight: 600; }
 .link:hover { text-decoration: underline; }
+.auth-error { color: var(--danger); font-size: 13px; text-align: center; padding: 8px; background: var(--danger-light); border-radius: 6px; }
 
 /* ── Mobile ── */
 table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }

@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  apiLogin,
+  apiLogout,
+  apiRegister,
+  clearToken,
+  getToken,
   fetchBuyers,
   fetchChannels,
   fetchCompetitors,
@@ -10,6 +15,7 @@ import {
   generateAction,
   runSignalcraft,
   type ActionResult,
+  type AuthUser,
   type Buyer,
   type ChannelData,
   type CompetitorData,
@@ -333,8 +339,23 @@ function sentimentColor(score: number): string {
 export function App() {
   const [tenantId, setTenantId] = useState(DEFAULT_TENANT);
   const [pendingTenant, setPendingTenant] = useState(DEFAULT_TENANT);
-  const [view, setView] = useState<View>({ screen: "landing" });
+  const [authUser, setAuthUser] = useState<AuthUser | null>(null);
+  const [view, setView] = useState<View>(
+    getToken() ? { screen: "products" } : { screen: "landing" },
+  );
   const [showSettings, setShowSettings] = useState(false);
+
+  const handleLogin = (user: AuthUser) => {
+    setAuthUser(user);
+    setTenantId(user.tenantId);
+    setView({ screen: "products" });
+  };
+
+  const handleLogout = () => {
+    apiLogout();
+    setAuthUser(null);
+    setView({ screen: "landing" });
+  };
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -358,7 +379,7 @@ export function App() {
       : null;
 
   if (view.screen === "landing") {
-    return <LandingPage onEnter={() => setView({ screen: "products" })} />;
+    return <LandingPage onLogin={handleLogin} />;
   }
 
   return (
@@ -392,12 +413,8 @@ export function App() {
           </span>
         </div>
         <div className="nav-right">
-          <span className="nav-user">Demo User</span>
-          <button
-            type="button"
-            className="nav-logout"
-            onClick={() => setView({ screen: "landing" })}
-          >
+          <span className="nav-user">{authUser?.name ?? authUser?.email ?? "Demo User"}</span>
+          <button type="button" className="nav-logout" onClick={handleLogout}>
             로그아웃
           </button>
         </div>
@@ -464,8 +481,41 @@ export function App() {
 
 /* ══════════════════════ Landing Page ══════════════════════ */
 
-function LandingPage({ onEnter }: { onEnter: () => void }) {
+function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
   const [showLogin, setShowLogin] = useState(false);
+  const [isRegister, setIsRegister] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError(null);
+    setLoading(true);
+    try {
+      const res = isRegister
+        ? await apiRegister(email, password, name || undefined)
+        : await apiLogin(email, password);
+      onLogin(res.user);
+    } catch (err) {
+      setAuthError((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const enterDemo = () => {
+    clearToken();
+    onLogin({
+      id: "demo",
+      tenantId: DEFAULT_TENANT,
+      email: "demo@goldencheck.kr",
+      name: "Demo User",
+      role: "owner",
+    });
+  };
 
   return (
     <div className="landing">
@@ -476,7 +526,14 @@ function LandingPage({ onEnter }: { onEnter: () => void }) {
           <a href="#how">분석 프로세스</a>
           <a href="#pricing">요금제</a>
           <a href="#faq">FAQ</a>
-          <button type="button" className="btn-login" onClick={() => setShowLogin(true)}>
+          <button
+            type="button"
+            className="btn-login"
+            onClick={() => {
+              setShowLogin(true);
+              setIsRegister(false);
+            }}
+          >
             로그인
           </button>
         </div>
@@ -485,35 +542,77 @@ function LandingPage({ onEnter }: { onEnter: () => void }) {
       {showLogin && (
         <div className="modal-overlay" onClick={() => setShowLogin(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h2>로그인</h2>
-            <form
-              className="login-form"
-              onSubmit={(e) => {
-                e.preventDefault();
-                onEnter();
-              }}
-            >
+            <h2>{isRegister ? "회원가입" : "로그인"}</h2>
+            <form className="login-form" onSubmit={handleSubmit}>
+              {isRegister && (
+                <>
+                  <label>이름</label>
+                  <input
+                    type="text"
+                    placeholder="홍길동"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                  />
+                </>
+              )}
               <label>이메일</label>
-              <input type="email" placeholder="name@company.com" />
+              <input
+                type="email"
+                placeholder="name@company.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
               <label>비밀번호</label>
-              <input type="password" placeholder="비밀번호 입력" />
-              <button type="submit" className="btn-primary-lg">
-                로그인
+              <input
+                type="password"
+                placeholder={isRegister ? "8자 이상" : "비밀번호 입력"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={isRegister ? 8 : 1}
+              />
+              {authError && <div className="auth-error">{authError}</div>}
+              <button type="submit" className="btn-primary-lg" disabled={loading}>
+                {loading ? "처리 중..." : isRegister ? "가입하기" : "로그인"}
               </button>
               <p className="login-sub">
-                계정이 없으신가요?{" "}
-                <span
-                  className="link"
-                  onClick={() => {
-                    onEnter();
-                  }}
-                >
-                  무료 체험 시작
+                {isRegister ? (
+                  <>
+                    이미 계정이 있으신가요?{" "}
+                    <span
+                      className="link"
+                      onClick={() => {
+                        setIsRegister(false);
+                        setAuthError(null);
+                      }}
+                    >
+                      로그인
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    계정이 없으신가요?{" "}
+                    <span
+                      className="link"
+                      onClick={() => {
+                        setIsRegister(true);
+                        setAuthError(null);
+                      }}
+                    >
+                      무료 체험 시작
+                    </span>
+                  </>
+                )}
+              </p>
+              <p className="login-sub">
+                <span className="link" onClick={enterDemo}>
+                  데모 모드로 둘러보기
                 </span>
               </p>
             </form>
             <button type="button" className="modal-close" onClick={() => setShowLogin(false)}>
-              ×
+              x
             </button>
           </div>
         </div>
@@ -531,10 +630,24 @@ function LandingPage({ onEnter }: { onEnter: () => void }) {
           투자할 키워드와 철수할 키워드를 데이터 기반으로 판단하세요.
         </p>
         <div className="hero-cta">
-          <button type="button" className="btn-primary-lg" onClick={onEnter}>
+          <button
+            type="button"
+            className="btn-primary-lg"
+            onClick={() => {
+              setShowLogin(true);
+              setIsRegister(true);
+            }}
+          >
             무료로 시작하기
           </button>
-          <button type="button" className="btn-secondary-lg" onClick={() => setShowLogin(true)}>
+          <button
+            type="button"
+            className="btn-secondary-lg"
+            onClick={() => {
+              setShowLogin(true);
+              setIsRegister(false);
+            }}
+          >
             로그인
           </button>
         </div>
@@ -645,7 +758,14 @@ function LandingPage({ onEnter }: { onEnter: () => void }) {
               <li>월 10회 분석</li>
               <li>기본 리포트</li>
             </ul>
-            <button type="button" className="btn-primary" onClick={onEnter}>
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={() => {
+                setShowLogin(true);
+                setIsRegister(true);
+              }}
+            >
               시작하기
             </button>
           </div>
@@ -661,7 +781,14 @@ function LandingPage({ onEnter }: { onEnter: () => void }) {
               <li>리스크 알림</li>
               <li>전담 매니저</li>
             </ul>
-            <button type="button" className="btn-primary" onClick={onEnter}>
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={() => {
+                setShowLogin(true);
+                setIsRegister(true);
+              }}
+            >
               무료 체험
             </button>
           </div>
@@ -723,7 +850,14 @@ function LandingPage({ onEnter }: { onEnter: () => void }) {
       <section className="cta-section">
         <h2>지금 시작하세요</h2>
         <p>14일 무료 체험. 카드 등록 없이 바로 시작할 수 있습니다.</p>
-        <button type="button" className="btn-primary-lg" onClick={onEnter}>
+        <button
+          type="button"
+          className="btn-primary-lg"
+          onClick={() => {
+            setShowLogin(true);
+            setIsRegister(true);
+          }}
+        >
           무료로 시작하기
         </button>
       </section>

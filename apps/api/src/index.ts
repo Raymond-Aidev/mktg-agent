@@ -32,6 +32,8 @@ import { operatorRouter } from "./routes/operator.ts";
 import { metricsRouter } from "./routes/metrics.ts";
 import { legalRouter } from "./routes/legal.ts";
 import { campaignsRouter } from "./routes/campaigns.ts";
+import { authRouter } from "./routes/auth.ts";
+import { authMiddleware } from "./infra/auth.ts";
 import { registerBatchSchedules } from "./batch/scheduler.ts";
 import { registerDevFixtureProviders } from "./llm/providers/dev-fixture.ts";
 
@@ -184,6 +186,12 @@ app.get("/health", async (_req, res) => {
   const coreOk = checks.postgres?.ok && checks.redis?.ok;
   res.status(coreOk ? 200 : 503).json({ status: coreOk ? "ok" : "degraded", checks });
 });
+
+// Auth — public routes (no JWT required)
+app.use("/api/v1/auth", authRouter);
+
+// JWT middleware — extracts user from Authorization header for all routes below
+app.use(authMiddleware);
 
 // Routes
 app.use("/api/v1/events", eventsRouter);

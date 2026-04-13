@@ -1,3 +1,75 @@
+/* ══════════════════════ Auth ══════════════════════ */
+
+export interface AuthUser {
+  id: string;
+  tenantId: string;
+  email: string;
+  name: string | null;
+  role: string;
+}
+
+export interface AuthResponse {
+  token: string;
+  user: AuthUser;
+}
+
+export function getToken(): string | null {
+  return localStorage.getItem("gc_token");
+}
+
+export function setToken(token: string): void {
+  localStorage.setItem("gc_token", token);
+}
+
+export function clearToken(): void {
+  localStorage.removeItem("gc_token");
+}
+
+export function authHeaders(): Record<string, string> {
+  const token = getToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+export async function apiRegister(
+  email: string,
+  password: string,
+  name?: string,
+): Promise<AuthResponse> {
+  const res = await fetch("/api/v1/auth/register", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ email, password, name }),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error((body as { message?: string }).message ?? `Register failed (${res.status})`);
+  }
+  const data = (await res.json()) as AuthResponse;
+  setToken(data.token);
+  return data;
+}
+
+export async function apiLogin(email: string, password: string): Promise<AuthResponse> {
+  const res = await fetch("/api/v1/auth/login", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error((body as { message?: string }).message ?? `Login failed (${res.status})`);
+  }
+  const data = (await res.json()) as AuthResponse;
+  setToken(data.token);
+  return data;
+}
+
+export function apiLogout(): void {
+  clearToken();
+}
+
+/* ══════════════════════ Dashboard ══════════════════════ */
+
 export interface DashboardKpis {
   tenantId: string;
   windowDays: number;
