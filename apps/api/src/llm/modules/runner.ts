@@ -26,12 +26,22 @@ export interface RunOptions {
 }
 
 function tryExtractJson(raw: string): unknown {
-  // Strip optional markdown code fences and surrounding whitespace.
-  const cleaned = raw
+  // Claude sometimes adds preamble text ("Here's the analysis:") or
+  // wraps the JSON in markdown code fences. We aggressively extract
+  // the first valid JSON object from the response.
+  let cleaned = raw
     .trim()
     .replace(/^```(?:json)?\s*/i, "")
     .replace(/\s*```$/i, "")
     .trim();
+
+  // If the cleaned string doesn't start with '{', find the first '{'.
+  const firstBrace = cleaned.indexOf("{");
+  const lastBrace = cleaned.lastIndexOf("}");
+  if (firstBrace >= 0 && lastBrace > firstBrace) {
+    cleaned = cleaned.slice(firstBrace, lastBrace + 1);
+  }
+
   return JSON.parse(cleaned);
 }
 
