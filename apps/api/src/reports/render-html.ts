@@ -121,11 +121,11 @@ function renderMacroView(mod: Record<string, unknown>): string {
   const trend =
     (mod.dailyMentionTrend as Array<{ date: string; count: number; sentiment: string }>) ?? [];
 
-  const directionEmoji: Record<string, string> = {
-    positive: "📈",
-    negative: "📉",
-    neutral: "➡️",
-    mixed: "🔀",
+  const directionIcon: Record<string, string> = {
+    positive: "&#x25B2;",
+    negative: "&#x25BC;",
+    neutral: "&#x25B6;",
+    mixed: "&#x25C6;",
   };
   const directionLabel: Record<string, string> = {
     positive: "상승세",
@@ -145,7 +145,7 @@ function renderMacroView(mod: Record<string, unknown>): string {
     <section class="card visual-card">
       <header><h2>시장 여론 동향</h2><span class="badge">#01</span></header>
       <div class="direction-banner direction-${esc(direction)}">
-        <span class="direction-emoji">${directionEmoji[direction] ?? "➡️"}</span>
+        <span class="direction-icon">${directionIcon[direction] ?? "&#x25B6;"}</span>
         <span class="direction-text">전체 방향: <strong>${esc(directionLabel[direction] ?? direction)}</strong></span>
       </div>
       <p class="summary-text">${esc(summary)}</p>
@@ -243,7 +243,11 @@ function renderOpportunity(mod: Record<string, unknown>): string {
     weak: "#f59e0b",
     moderate: "#6b7280",
   };
-  const impactIcon: Record<string, string> = { high: "🔴", medium: "🟡", low: "⚪" };
+  const impactIcon: Record<string, string> = {
+    high: "&#x25CF;",
+    medium: "&#x25CB;",
+    low: "&#x25CB;",
+  };
 
   return `
     <section class="card visual-card">
@@ -321,7 +325,7 @@ function renderOpportunity(mod: Record<string, unknown>): string {
             (g) => `
           <div class="cgap-item">
             <div class="cgap-header">
-              <span>${impactIcon[g.estimatedImpact] ?? "⚪"}</span>
+              <span>${impactIcon[g.estimatedImpact] ?? "&#x25CB;"}</span>
               <strong>${esc(g.topic)}</strong>
               <span class="cgap-status" style="background:${statusColor[g.ourStatus] ?? "#6b7280"}">${statusLabel[g.ourStatus] ?? g.ourStatus}</span>
             </div>
@@ -390,11 +394,11 @@ function renderStrategy(mod: Record<string, unknown>): string {
   const risks = (mod.riskMitigation as Array<{ risk: string; action: string }>) ?? [];
 
   const channelIcon: Record<string, string> = {
-    naver_blog: "📝",
-    instagram: "📸",
-    youtube: "🎬",
-    email: "📧",
-    other: "📌",
+    naver_blog: "Blog",
+    instagram: "IG",
+    youtube: "YT",
+    email: "Mail",
+    other: "",
   };
 
   return `
@@ -424,7 +428,7 @@ function renderStrategy(mod: Record<string, unknown>): string {
             (t) => `
           <div class="cal-item">
             <div class="cal-timing">${esc(t.timing)}</div>
-            <div class="cal-channel">${channelIcon[t.channel] ?? "📌"} ${esc(t.channel)}</div>
+            <div class="cal-channel">${channelIcon[t.channel] ?? ""} ${esc(t.channel)}</div>
             <div class="cal-topic">${esc(t.topic)}</div>
             <div class="cal-format">${esc(t.format)}</div>
           </div>`,
@@ -466,7 +470,7 @@ function renderStrategy(mod: Record<string, unknown>): string {
           .map(
             (r) => `
           <div class="risk-item">
-            <div class="risk-label">⚠️ ${esc(r.risk)}</div>
+            <div class="risk-label">${esc(r.risk)}</div>
             <div class="risk-action">→ ${esc(r.action)}</div>
           </div>`,
           )
@@ -651,7 +655,7 @@ export function renderReportHtml(
     .direction-negative { background:#fef2f2; border:1px solid #fecaca; }
     .direction-neutral { background:#f4f4f5; border:1px solid #e4e4e7; }
     .direction-mixed { background:#fffbeb; border:1px solid #fde68a; }
-    .direction-emoji { font-size:24px; }
+    .direction-icon { font-size:18px; font-weight:700; }
     .summary-text { font-size:15px; color:#3f3f46; line-height:1.7; }
 
     /* Opportunity */

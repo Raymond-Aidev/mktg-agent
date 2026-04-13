@@ -86,7 +86,7 @@ export function App() {
           onClick={() => setShowSettings(!showSettings)}
           title="계정 설정"
         >
-          ⚙
+          설정
         </button>
       </header>
 
@@ -117,7 +117,7 @@ export function App() {
 
       {/* ── 질문 3: 더 좋은 방법은? ── */}
       <section className="section-header">
-        <h2>📊 시장 반응 분석하기</h2>
+        <h2>시장 반응 분석하기</h2>
         <p>
           키워드를 입력하면 네이버 뉴스·블로그·카페에서 자동으로 여론을 수집하고, AI가 분석 리포트를
           생성합니다.
@@ -539,7 +539,7 @@ function ActionButtons({ jobId, tenantId }: { jobId: string; tenantId: string })
           disabled={generating !== null}
           className="action-btn"
         >
-          {generating === "campaign_draft" ? "생성 중…" : "📧 캠페인 초안 생성"}
+          {generating === "campaign_draft" ? "생성 중…" : "캠페인 초안 생성"}
         </button>
         <button
           type="button"
@@ -547,7 +547,7 @@ function ActionButtons({ jobId, tenantId }: { jobId: string; tenantId: string })
           disabled={generating !== null}
           className="action-btn"
         >
-          {generating === "content_calendar" ? "생성 중…" : "📅 콘텐츠 캘린더 생성"}
+          {generating === "content_calendar" ? "생성 중…" : "콘텐츠 캘린더 생성"}
         </button>
       </div>
       {err && <div className="status-error">{err}</div>}
@@ -677,9 +677,10 @@ function OperatorPanel() {
           <div className="op-card">
             <h3>Health</h3>
             <div>
-              postgres: {data.health.postgres.ok ? "✅" : "❌"} ({data.health.postgres.latencyMs}ms)
+              postgres: {data.health.postgres.ok ? "OK" : "FAIL"} ({data.health.postgres.latencyMs}
+              ms)
             </div>
-            <div>redis: {data.health.redis.ok ? "✅" : "❌"}</div>
+            <div>redis: {data.health.redis.ok ? "OK" : "FAIL"}</div>
           </div>
           <div className="op-card">
             <h3>Queues</h3>
@@ -752,7 +753,7 @@ function OperatorPanel() {
           </div>
           <div className="op-card op-wide">
             <h3>Recent crawler failures (24h)</h3>
-            {data.crawlerFailures.length === 0 && <div>No failures. ✅</div>}
+            {data.crawlerFailures.length === 0 && <div>No failures.</div>}
             {data.crawlerFailures.length > 0 && (
               <table>
                 <thead>
