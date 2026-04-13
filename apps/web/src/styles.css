@@ -525,6 +525,37 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .link:hover { text-decoration: underline; }
 .auth-error { color: var(--danger); font-size: 13px; text-align: center; padding: 8px; background: var(--danger-light); border-radius: 6px; }
 
+/* ── Product CRUD ── */
+.section-label { font-size: 14px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.03em; margin: 24px 0 12px; }
+.add-product-row { margin: 24px 0; }
+.add-product-form { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.add-product-form input { font-family: inherit; font-size: 14px; padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--radius-xs); flex: 1; min-width: 160px; }
+.add-product-form input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
+.card-delete-btn {
+  position: absolute; top: 12px; right: 12px; font-family: inherit; font-size: 11px;
+  padding: 4px 10px; border: 1px solid var(--border); border-radius: 6px;
+  background: var(--bg); color: var(--text-muted); cursor: pointer; opacity: 0; transition: all 0.15s;
+}
+.product-card { position: relative; }
+.product-card:hover .card-delete-btn { opacity: 1; }
+.card-delete-btn:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-light); }
+.product-card-demo { border-style: dashed; opacity: 0.8; }
+.product-card-demo:hover { opacity: 1; }
+.demo-badge { font-size: 11px; color: var(--text-muted); background: var(--bg-subtle); padding: 2px 8px; border-radius: 4px; }
+
+/* Inline form */
+.inline-form { display: flex; gap: 6px; align-items: center; }
+.inline-form input { font-family: inherit; font-size: 13px; padding: 6px 12px; border: 1px solid var(--border); border-radius: 6px; width: 200px; }
+.inline-form input:focus { outline: none; border-color: var(--accent); }
+
+/* Table delete button */
+.table-delete-btn {
+  font-family: inherit; font-size: 11px; padding: 4px 8px; border: 1px solid var(--border);
+  border-radius: 4px; background: var(--bg); color: var(--text-muted); cursor: pointer;
+  margin-left: 4px; transition: all 0.15s;
+}
+.table-delete-btn:hover { border-color: var(--danger); color: var(--danger); }
+
 /* ── Mobile ── */
 table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 thead, tbody, tr { display: table; width: 100%; table-layout: auto; }

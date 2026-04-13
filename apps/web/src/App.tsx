@@ -5,6 +5,12 @@ import {
   apiRegister,
   clearToken,
   getToken,
+  fetchProducts,
+  createProduct,
+  fetchProductDetail,
+  deleteProduct,
+  addKeyword,
+  removeKeyword,
   fetchBuyers,
   fetchChannels,
   fetchCompetitors,
@@ -15,6 +21,8 @@ import {
   generateAction,
   runSignalcraft,
   type ActionResult,
+  type ApiKeyword,
+  type ApiProduct,
   type AuthUser,
   type Buyer,
   type ChannelData,
@@ -32,8 +40,8 @@ const DEFAULT_TENANT = "00000000-0000-0000-0000-0000000000ee";
 type View =
   | { screen: "landing" }
   | { screen: "products" }
-  | { screen: "product-detail"; productId: string }
-  | { screen: "keyword-report"; productId: string; keywordId: string };
+  | { screen: "product-detail"; productId: string; isDemo?: boolean }
+  | { screen: "keyword-report"; productId: string; keywordId: string; isDemo?: boolean };
 
 interface DemoKeyword {
   id: string;
@@ -451,22 +459,56 @@ export function App() {
 
         {view.screen === "products" && (
           <ProductsGrid
-            products={DEMO_PRODUCTS}
-            onSelect={(id) => setView({ screen: "product-detail", productId: id })}
+            tenantId={tenantId}
+            demoProducts={DEMO_PRODUCTS}
+            onSelect={(id, isDemo) => setView({ screen: "product-detail", productId: id, isDemo })}
           />
         )}
 
-        {view.screen === "product-detail" && currentProduct && (
+        {view.screen === "product-detail" && view.isDemo && currentProduct && (
           <ProductDetail
             product={currentProduct}
             onKeywordSelect={(kwId) =>
-              setView({ screen: "keyword-report", productId: currentProduct.id, keywordId: kwId })
+              setView({
+                screen: "keyword-report",
+                productId: currentProduct.id,
+                keywordId: kwId,
+                isDemo: true,
+              })
             }
           />
         )}
 
-        {view.screen === "keyword-report" && currentProduct && currentKeyword && (
+        {view.screen === "product-detail" && !view.isDemo && (
+          <RealProductDetail
+            tenantId={tenantId}
+            productId={view.productId}
+            onKeywordSelect={(kw) =>
+              setView({ screen: "keyword-report", productId: view.productId, keywordId: kw })
+            }
+          />
+        )}
+
+        {view.screen === "keyword-report" && view.isDemo && currentProduct && currentKeyword && (
           <KeywordReportView keyword={currentKeyword} tenantId={tenantId} />
+        )}
+
+        {view.screen === "keyword-report" && !view.isDemo && (
+          <KeywordReportView
+            keyword={{
+              id: view.keywordId,
+              keyword: view.keywordId,
+              searchVolume: 0,
+              sentimentScore: 0,
+              postCount30d: 0,
+              trendDirection: "flat",
+              competitorDensity: "medium",
+              recommendation: "maintain",
+              lastAnalyzed: null,
+              reportId: null,
+            }}
+            tenantId={tenantId}
+          />
         )}
       </div>
 
@@ -917,46 +959,144 @@ function Breadcrumb({
 /* ══════════════════════ Products Grid ══════════════════════ */
 
 function ProductsGrid({
-  products,
+  tenantId,
+  demoProducts,
   onSelect,
 }: {
-  products: DemoProduct[];
-  onSelect: (id: string) => void;
+  tenantId: string;
+  demoProducts: DemoProduct[];
+  onSelect: (id: string, isDemo: boolean) => void;
 }) {
+  const [apiProducts, setApiProducts] = useState<ApiProduct[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [showAdd, setShowAdd] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newDesc, setNewDesc] = useState("");
+  const [adding, setAdding] = useState(false);
+
+  const loadProducts = useCallback(() => {
+    setLoading(true);
+    fetchProducts(tenantId)
+      .then(setApiProducts)
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [tenantId]);
+
+  useEffect(() => {
+    loadProducts();
+  }, [loadProducts]);
+
+  const handleAdd = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newName.trim()) return;
+    setAdding(true);
+    try {
+      await createProduct(tenantId, newName.trim(), newDesc.trim() || undefined);
+      setNewName("");
+      setNewDesc("");
+      setShowAdd(false);
+      loadProducts();
+    } catch {
+      /* ignore */
+    } finally {
+      setAdding(false);
+    }
+  };
+
+  const handleDelete = async (e: React.MouseEvent, productId: string) => {
+    e.stopPropagation();
+    if (!confirm("이 제품을 삭제하시겠습니까?")) return;
+    await deleteProduct(tenantId, productId).catch(() => {});
+    loadProducts();
+  };
+
   return (
     <>
       <div className="page-title">
         <h2>내 제품</h2>
         <p>제품별 키워드 성과를 모니터링하고 투자 전략을 수립하세요.</p>
       </div>
-      <div className="products-grid">
-        {products.map((p) => {
-          const investCount = p.keywords.filter((k) => k.recommendation === "invest").length;
-          const abandonCount = p.keywords.filter((k) => k.recommendation === "abandon").length;
-          const avgSentiment =
-            p.keywords.reduce((s, k) => s + k.sentimentScore, 0) / p.keywords.length;
-          return (
-            <div key={p.id} className="product-card" onClick={() => onSelect(p.id)}>
-              <h3>{p.name}</h3>
-              <p className="product-desc">{p.description}</p>
-              <div className="product-meta">
-                <span className="product-kw-count">{p.keywords.length}개 키워드</span>
-                <span className="product-sentiment" style={{ color: sentimentColor(avgSentiment) }}>
-                  감성 {(avgSentiment * 100).toFixed(0)}%
-                </span>
+
+      {apiProducts.length > 0 && (
+        <>
+          <h3 className="section-label">등록된 제품</h3>
+          <div className="products-grid">
+            {apiProducts.map((p) => (
+              <div key={p.id} className="product-card" onClick={() => onSelect(p.id, false)}>
+                <h3>{p.name}</h3>
+                <p className="product-desc">{p.description ?? ""}</p>
+                <div className="product-meta">
+                  <span className="product-kw-count">{p.keyword_count}개 키워드</span>
+                </div>
+                <button
+                  type="button"
+                  className="card-delete-btn"
+                  onClick={(e) => handleDelete(e, p.id)}
+                >
+                  삭제
+                </button>
               </div>
-              <div className="product-tags">
-                {investCount > 0 && (
-                  <span className="rec-badge rec-invest">투자 {investCount}</span>
-                )}
-                {abandonCount > 0 && (
-                  <span className="rec-badge rec-abandon">철수 {abandonCount}</span>
-                )}
-              </div>
-            </div>
-          );
-        })}
+            ))}
+          </div>
+        </>
+      )}
+
+      <div className="add-product-row">
+        {!showAdd ? (
+          <button type="button" className="btn-primary" onClick={() => setShowAdd(true)}>
+            + 제품 추가
+          </button>
+        ) : (
+          <form className="add-product-form" onSubmit={handleAdd}>
+            <input
+              type="text"
+              placeholder="제품명"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              required
+            />
+            <input
+              type="text"
+              placeholder="설명 (선택)"
+              value={newDesc}
+              onChange={(e) => setNewDesc(e.target.value)}
+            />
+            <button type="submit" className="btn-primary" disabled={adding}>
+              {adding ? "추가 중..." : "추가"}
+            </button>
+            <button type="button" className="btn-secondary" onClick={() => setShowAdd(false)}>
+              취소
+            </button>
+          </form>
+        )}
       </div>
+
+      {demoProducts.length > 0 && (
+        <>
+          <h3 className="section-label">샘플 제품 (데모)</h3>
+          <div className="products-grid">
+            {demoProducts.map((p) => {
+              const kwCount = p.keywords.length;
+              return (
+                <div
+                  key={p.id}
+                  className="product-card product-card-demo"
+                  onClick={() => onSelect(p.id, true)}
+                >
+                  <h3>{p.name}</h3>
+                  <p className="product-desc">{p.description}</p>
+                  <div className="product-meta">
+                    <span className="product-kw-count">{kwCount}개 키워드</span>
+                    <span className="demo-badge">데모</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+
+      {loading && <div className="status-loading">불러오는 중...</div>}
     </>
   );
 }
@@ -1149,6 +1289,159 @@ function ProductDetail({
             ))}
           </tbody>
         </table>
+      </section>
+    </>
+  );
+}
+
+/* ══════════════════════ Real Product Detail (API) ══════════════════════ */
+
+function RealProductDetail({
+  tenantId,
+  productId,
+  onKeywordSelect,
+}: {
+  tenantId: string;
+  productId: string;
+  onKeywordSelect: (keyword: string) => void;
+}) {
+  const [product, setProduct] = useState<ApiProduct | null>(null);
+  const [keywords, setKeywords] = useState<ApiKeyword[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showAddKw, setShowAddKw] = useState(false);
+  const [newKw, setNewKw] = useState("");
+  const [adding, setAdding] = useState(false);
+
+  const load = useCallback(() => {
+    setLoading(true);
+    fetchProductDetail(tenantId, productId)
+      .then((d) => {
+        setProduct(d.product);
+        setKeywords(d.keywords);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [tenantId, productId]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const handleAddKw = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newKw.trim()) return;
+    setAdding(true);
+    try {
+      await addKeyword(tenantId, productId, newKw.trim());
+      setNewKw("");
+      setShowAddKw(false);
+      load();
+    } catch {
+      /* ignore */
+    } finally {
+      setAdding(false);
+    }
+  };
+
+  const handleRemoveKw = async (e: React.MouseEvent, kwId: string) => {
+    e.stopPropagation();
+    await removeKeyword(tenantId, productId, kwId).catch(() => {});
+    load();
+  };
+
+  if (loading) return <div className="status-loading">불러오는 중...</div>;
+  if (!product) return <div className="status-error">제품을 찾을 수 없습니다.</div>;
+
+  return (
+    <>
+      <div className="page-title">
+        <h2>{product.name}</h2>
+        <p>{product.description ?? ""}</p>
+      </div>
+
+      <div className="summary-strip">
+        <div className="summary-item">
+          <div className="summary-value">{keywords.length}</div>
+          <div className="summary-label">키워드</div>
+        </div>
+        <div className="summary-item">
+          <div className="summary-value">{keywords.filter((k) => k.last_analyzed).length}</div>
+          <div className="summary-label">분석 완료</div>
+        </div>
+      </div>
+
+      <section className="panel">
+        <div className="op-header">
+          <h2>키워드 목록</h2>
+          {!showAddKw ? (
+            <button type="button" onClick={() => setShowAddKw(true)}>
+              + 키워드 추가
+            </button>
+          ) : (
+            <form className="inline-form" onSubmit={handleAddKw}>
+              <input
+                type="text"
+                placeholder="키워드 입력"
+                value={newKw}
+                onChange={(e) => setNewKw(e.target.value)}
+                required
+              />
+              <button type="submit" disabled={adding}>
+                {adding ? "..." : "추가"}
+              </button>
+              <button type="button" className="btn-secondary" onClick={() => setShowAddKw(false)}>
+                취소
+              </button>
+            </form>
+          )}
+        </div>
+
+        {keywords.length === 0 ? (
+          <div className="status-empty">등록된 키워드가 없습니다. 키워드를 추가해주세요.</div>
+        ) : (
+          <table className="portfolio-table">
+            <thead>
+              <tr>
+                <th>키워드</th>
+                <th className="num">언급(30일)</th>
+                <th>최근 분석</th>
+                <th>액션</th>
+              </tr>
+            </thead>
+            <tbody>
+              {keywords.map((kw) => (
+                <tr
+                  key={kw.id}
+                  className="portfolio-row"
+                  onClick={() => onKeywordSelect(kw.keyword)}
+                >
+                  <td className="kw-name">{kw.keyword}</td>
+                  <td className="num">{kw.post_count_30d}</td>
+                  <td className="date-cell">{relativeDate(kw.last_analyzed)}</td>
+                  <td>
+                    <button
+                      type="button"
+                      className="table-action-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onKeywordSelect(kw.keyword);
+                      }}
+                    >
+                      분석
+                    </button>
+                    <button
+                      type="button"
+                      className="table-delete-btn"
+                      onClick={(e) => handleRemoveKw(e, kw.id)}
+                    >
+                      삭제
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </section>
     </>
   );

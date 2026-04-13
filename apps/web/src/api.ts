@@ -68,6 +68,109 @@ export function apiLogout(): void {
   clearToken();
 }
 
+/* ══════════════════════ Products ══════════════════════ */
+
+export interface ApiProduct {
+  id: string;
+  name: string;
+  description: string | null;
+  created_at: string;
+  keyword_count: number;
+}
+
+export interface ApiKeyword {
+  id: string;
+  keyword: string;
+  search_volume: number;
+  status: string;
+  created_at: string;
+  post_count_30d: number;
+  last_analyzed: string | null;
+}
+
+export async function fetchProducts(tenantId: string): Promise<ApiProduct[]> {
+  const res = await fetch(`/api/v1/products?tenantId=${encodeURIComponent(tenantId)}`, {
+    headers: authHeaders(),
+  });
+  if (!res.ok) throw new Error(`products HTTP ${res.status}`);
+  const data = (await res.json()) as { products: ApiProduct[] };
+  return data.products;
+}
+
+export async function createProduct(
+  tenantId: string,
+  name: string,
+  description?: string,
+): Promise<string> {
+  const res = await fetch(`/api/v1/products?tenantId=${encodeURIComponent(tenantId)}`, {
+    method: "POST",
+    headers: { "content-type": "application/json", ...authHeaders() },
+    body: JSON.stringify({ name, description }),
+  });
+  if (!res.ok) throw new Error(`create product HTTP ${res.status}`);
+  const data = (await res.json()) as { id: string };
+  return data.id;
+}
+
+export async function fetchProductDetail(
+  tenantId: string,
+  productId: string,
+): Promise<{ product: ApiProduct; keywords: ApiKeyword[] }> {
+  const res = await fetch(
+    `/api/v1/products/${productId}?tenantId=${encodeURIComponent(tenantId)}`,
+    { headers: authHeaders() },
+  );
+  if (!res.ok) throw new Error(`product detail HTTP ${res.status}`);
+  return (await res.json()) as { product: ApiProduct; keywords: ApiKeyword[] };
+}
+
+export async function deleteProduct(tenantId: string, productId: string): Promise<void> {
+  const res = await fetch(
+    `/api/v1/products/${productId}?tenantId=${encodeURIComponent(tenantId)}`,
+    {
+      method: "DELETE",
+      headers: authHeaders(),
+    },
+  );
+  if (!res.ok) throw new Error(`delete product HTTP ${res.status}`);
+}
+
+export async function addKeyword(
+  tenantId: string,
+  productId: string,
+  keyword: string,
+  searchVolume?: number,
+): Promise<string> {
+  const res = await fetch(
+    `/api/v1/products/${productId}/keywords?tenantId=${encodeURIComponent(tenantId)}`,
+    {
+      method: "POST",
+      headers: { "content-type": "application/json", ...authHeaders() },
+      body: JSON.stringify({ keyword, searchVolume }),
+    },
+  );
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error((body as { error?: string }).error ?? `add keyword HTTP ${res.status}`);
+  }
+  return ((await res.json()) as { id: string }).id;
+}
+
+export async function removeKeyword(
+  tenantId: string,
+  productId: string,
+  kwId: string,
+): Promise<void> {
+  const res = await fetch(
+    `/api/v1/products/${productId}/keywords/${kwId}?tenantId=${encodeURIComponent(tenantId)}`,
+    {
+      method: "DELETE",
+      headers: authHeaders(),
+    },
+  );
+  if (!res.ok) throw new Error(`remove keyword HTTP ${res.status}`);
+}
+
 /* ══════════════════════ Dashboard ══════════════════════ */
 
 export interface DashboardKpis {
