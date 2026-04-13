@@ -157,14 +157,6 @@ function BusinessOverview({ overview }: { overview: DashboardOverview; tenantId:
   return (
     <>
       <div className="grid">
-        <div className="card hero-card">
-          <h3>이번 달 예상 매출</h3>
-          <div className="value">₩{overview.estimatedRevenue.amount.toLocaleString()}</div>
-          <div className="subtitle">
-            활성 바이어 {overview.estimatedRevenue.activeBuyers}명 · avg score{" "}
-            {overview.estimatedRevenue.avgLeadScore}
-          </div>
-        </div>
         <div className="card">
           <h3>브랜드 온라인 반응</h3>
           {overview.brandSentiment ? (
