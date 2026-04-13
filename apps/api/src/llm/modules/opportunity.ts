@@ -60,7 +60,7 @@ export const opportunityModuleConfig: ModuleConfig<OpportunityOutput> = {
     "5. upstreamResults의 #03 Sentiment 결과가 있으면 감정 분포와 키워드를 참조하여",
     "   기회 영역을 도출하라.",
   ].join("\n"),
-  maxPosts: 30,
+  maxPosts: 15,
   maxOutputTokens: 2500,
   model: "claude-sonnet-4-6",
   temperature: 0.3,

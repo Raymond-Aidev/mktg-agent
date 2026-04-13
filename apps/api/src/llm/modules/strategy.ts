@@ -75,7 +75,7 @@ export const strategyModuleConfig: ModuleConfig<StrategyOutput> = {
     "   잠재 위기에 대한 선제적 대응 전략.",
     "5. 분석 신뢰도(high/medium/low)와 필요 시 disclaimer를 첨부하라.",
   ].join("\n"),
-  maxPosts: 25,
+  maxPosts: 15,
   maxOutputTokens: 2500,
   model: "claude-sonnet-4-6",
   temperature: 0.3,

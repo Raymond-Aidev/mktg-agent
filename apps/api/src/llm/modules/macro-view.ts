@@ -52,7 +52,7 @@ export const macroViewModuleConfig: ModuleConfig<MacroViewOutput> = {
     "4. 일자별 게시물 수와 감정 분포를 dailyMentionTrend에 채워라.",
     "5. 분석 신뢰도(high/medium/low)와 필요 시 disclaimer를 첨부하라.",
   ].join("\n"),
-  maxPosts: 40,
+  maxPosts: 15,
   maxOutputTokens: 2000,
   model: "claude-sonnet-4-6",
   temperature: 0.2,

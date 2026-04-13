@@ -50,7 +50,7 @@ export async function runModule<TOutput>(
   context: ModuleContext,
   options: RunOptions = {},
 ): Promise<ModuleRunResult<TOutput>> {
-  const maxAttempts = options.maxAttempts ?? 2;
+  const maxAttempts = options.maxAttempts ?? 1;
   const started = Date.now();
   const messages = buildModuleMessages({ config, context });
 

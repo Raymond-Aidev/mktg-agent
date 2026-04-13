@@ -44,7 +44,7 @@ export const summaryModuleConfig: ModuleConfig<SummaryOutput> = {
     "5. 가능한 경우 upstreamResults의 #01 Macro View와 #03 Sentiment 결과를",
     "   인용하여 일관된 권고를 제시하라.",
   ].join("\n"),
-  maxPosts: 25,
+  maxPosts: 15,
   maxOutputTokens: 1200,
   model: "claude-sonnet-4-6",
   temperature: 0.3,

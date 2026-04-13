@@ -56,7 +56,7 @@ export const sentimentModuleConfig: ModuleConfig<SentimentOutput> = {
     "   추출하고, 각 프레임이 점유한 share를 0~1로 추정하라.",
     "4. 분석 신뢰도(high/medium/low)와 필요 시 disclaimer를 첨부하라.",
   ].join("\n"),
-  maxPosts: 30,
+  maxPosts: 15,
   maxOutputTokens: 1500,
   model: "claude-sonnet-4-6",
   temperature: 0.2,
