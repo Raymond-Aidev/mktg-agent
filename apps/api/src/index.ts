@@ -31,6 +31,7 @@ import { buyersRouter } from "./routes/buyers.ts";
 import { operatorRouter } from "./routes/operator.ts";
 import { metricsRouter } from "./routes/metrics.ts";
 import { legalRouter } from "./routes/legal.ts";
+import { campaignsRouter } from "./routes/campaigns.ts";
 import { registerBatchSchedules } from "./batch/scheduler.ts";
 import { registerDevFixtureProviders } from "./llm/providers/dev-fixture.ts";
 
@@ -194,6 +195,7 @@ app.use("/api/v2/actions", actionsRouter);
 app.use("/api/v2/dashboard/competitors", competitorsV2Router);
 app.use("/api/v2/dashboard/channels", channelsRouter);
 app.use("/api/v1/buyers", buyersRouter);
+app.use("/api/v1/campaigns", campaignsRouter);
 app.use("/webhooks/email", emailWebhookRouter);
 app.use("/admin/batch", adminBatchRouter);
 app.use("/admin/operator", operatorRouter);

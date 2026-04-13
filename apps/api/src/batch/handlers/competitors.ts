@@ -1,6 +1,6 @@
 import type { Job } from "bullmq";
 import { fetchCompetitors } from "@eduright/crawlers/category-a/competitors";
-import { getPool } from "../../infra/db.ts";
+import { getPoolForRole } from "../../infra/db.ts";
 import { upsertCategoryA } from "../upsert.ts";
 import type { BatchContext } from "../runner.ts";
 
@@ -12,7 +12,7 @@ export async function competitorsHandler(_job: Job, _ctx: BatchContext) {
     return { source: "open-library-publisher", collected: 0 };
   }
 
-  const pool = getPool();
+  const pool = getPoolForRole("batch_worker");
   let inserted = 0;
   let updated = 0;
   let noop = 0;

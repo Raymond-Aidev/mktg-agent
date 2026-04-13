@@ -1,11 +1,12 @@
 import type { Job } from "bullmq";
-import { getPool } from "../infra/db.ts";
+import { getPoolForRole } from "../infra/db.ts";
 
 /**
  * Common batch job lifecycle wrapper.
  *
  * Every Category A handler is wrapped with `withBatchLifecycle` so we get
  * uniform logging, timing, and crawler_failures persistence on errors.
+ * All DB operations run under SET ROLE batch_worker (0006_roles.sql).
  *
  * Handlers receive a `BatchContext` and return a serializable `BatchResult`
  * that BullMQ stores on the completed job. Throwing inside the handler
@@ -51,10 +52,8 @@ export async function withBatchLifecycle(job: Job, handler: BatchHandler): Promi
     const durationMs = Date.now() - ctx.startedAt;
     console.error(`[batch:${job.name}] fail in ${durationMs}ms: ${error.message}`);
 
-    // Best-effort persistence to crawler_failures so the operator dashboard
-    // sees the error even if BullMQ later removes the failed job record.
     try {
-      const pool = getPool();
+      const pool = getPoolForRole("batch_worker");
       await pool.query(
         `INSERT INTO crawler_failures (source, target_url, error_code, error_msg, attempt)
          VALUES ($1, NULL, $2, $3, $4)`,
