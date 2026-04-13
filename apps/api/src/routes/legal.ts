@@ -18,10 +18,9 @@ const COMPANY = {
   name: "GoldenCheck",
   legalName: "(주)코넥트",
   representative: "박재준",
-  bizNo: "123-45-67890",
-  address: "서울특별시 강남구 테헤란로 123, 4층",
-  email: "hello@goldencheck.kr",
-  phone: "02-1234-5678",
+  bizNo: "686-19-02309",
+  address: "서울시 양천구 신목로34 3층",
+  email: "konnect-operation@konnect-ai.net",
   privacyOfficer: "박재준",
 };
 
@@ -136,7 +135,7 @@ function termsHtml(): string {
 <h2>제11조 (문의)</h2>
 <p>본 약관에 관한 문의는 ${COMPANY.email} 으로 연락 주십시오.</p>
 
-<p class="meta" style="margin-top: 48px;">본 문서에 대한 문의는 hello@goldencheck.kr로 연락 주십시오.</p>`,
+<p class="meta" style="margin-top: 48px;">본 문서에 대한 문의는 konnect-operation@konnect-ai.net로 연락 주십시오.</p>`,
   );
 }
 
@@ -219,7 +218,7 @@ function privacyHtml(): string {
 <h2>10. 개인정보처리방침의 변경</h2>
 <p>본 방침이 변경될 경우 변경사항의 시행일 7일 전부터 본 페이지를 통해 공지합니다.</p>
 
-<p class="meta" style="margin-top: 48px;">본 문서에 대한 문의는 hello@goldencheck.kr로 연락 주십시오.</p>`,
+<p class="meta" style="margin-top: 48px;">본 문서에 대한 문의는 konnect-operation@konnect-ai.net로 연락 주십시오.</p>`,
   );
 }
 
@@ -237,7 +236,6 @@ function aboutHtml(): string {
     <tr><th>사업자등록번호</th><td>${COMPANY.bizNo}</td></tr>
     <tr><th>사업장 주소</th><td>${COMPANY.address}</td></tr>
     <tr><th>이메일</th><td><a href="mailto:${COMPANY.email}">${COMPANY.email}</a></td></tr>
-    <tr><th>전화</th><td>${COMPANY.phone}</td></tr>
     <tr><th>개인정보보호책임자</th><td>${COMPANY.privacyOfficer}</td></tr>
   </tbody>
 </table>
@@ -251,7 +249,7 @@ function aboutHtml(): string {
   <li><a href="/privacy">개인정보처리방침</a></li>
 </ul>
 
-<p class="meta" style="margin-top: 48px;">본 페이지에 대한 문의는 hello@goldencheck.kr로 연락 주십시오.</p>`,
+<p class="meta" style="margin-top: 48px;">본 페이지에 대한 문의는 konnect-operation@konnect-ai.net로 연락 주십시오.</p>`,
   );
 }
 
@@ -293,7 +291,7 @@ function pricingHtml(): string {
 <p>결제일로부터 7일 이내 요청 시 전액 환불이 가능합니다. 7일 이후에는 잔여 기간에 대한 일할 환불을 제공합니다.</p>
 
 <h2>문의</h2>
-<p>요금제 관련 상담은 <a href="mailto:${COMPANY.email}">${COMPANY.email}</a> 또는 전화 ${COMPANY.phone}으로 연락 주십시오.</p>`,
+<p>요금제 관련 상담은 <a href="mailto:${COMPANY.email}">${COMPANY.email}</a>으로 연락 주십시오.</p>`,
   );
 }
 

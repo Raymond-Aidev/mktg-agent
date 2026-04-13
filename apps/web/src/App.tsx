@@ -907,7 +907,7 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
             <button
               type="button"
               className="btn-secondary"
-              onClick={() => (window.location.href = "mailto:hello@goldencheck.kr")}
+              onClick={() => (window.location.href = "mailto:konnect-operation@konnect-ai.net")}
             >
               문의하기
             </button>
@@ -964,7 +964,7 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
           <a href="/terms">이용약관</a>
           <a href="/privacy">개인정보처리방침</a>
           <a href="/about">사업자 정보</a>
-          <a href="mailto:hello@goldencheck.kr">문의</a>
+          <a href="mailto:konnect-operation@konnect-ai.net">문의</a>
         </div>
       </footer>
     </div>
