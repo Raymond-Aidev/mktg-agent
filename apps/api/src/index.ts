@@ -244,9 +244,12 @@ if (env.REDIS_URL) {
   const webIndex = join(webDist, "index.html");
   if (existsSync(webIndex) && statSync(webIndex).isFile()) {
     app.use(express.static(webDist, { index: false, maxAge: "1h" }));
-    app.get(/^\/(?!api\/|admin\/|webhooks\/|health|metrics|terms|privacy|about).*/, (_req, res) => {
-      res.sendFile(webIndex);
-    });
+    app.get(
+      /^\/(?!api\/|admin\/|webhooks\/|health|metrics|terms|privacy|about|pricing).*/,
+      (_req, res) => {
+        res.sendFile(webIndex);
+      },
+    );
     console.log(`[goldencheck-api] serving SPA from ${webDist}`);
   } else {
     console.log(

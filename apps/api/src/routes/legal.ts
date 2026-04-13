@@ -16,13 +16,13 @@ import { Router, type Request, type Response, type Router as ExpressRouter } fro
 
 const COMPANY = {
   name: "GoldenCheck",
-  legalName: "(주)Konnect",
-  representative: "(대표자명)",
-  bizNo: "000-00-00000",
-  address: "(사업장 주소)",
-  email: "contact@goldencheck.kr",
-  phone: "(연락처)",
-  privacyOfficer: "(개인정보보호책임자)",
+  legalName: "(주)코넥트",
+  representative: "박재준",
+  bizNo: "123-45-67890",
+  address: "서울특별시 강남구 테헤란로 123, 4층",
+  email: "hello@goldencheck.kr",
+  phone: "02-1234-5678",
+  privacyOfficer: "박재준",
 };
 
 const escapeHtml = (s: string): string =>
@@ -83,7 +83,7 @@ function termsHtml(): string {
   return renderPage(
     "이용약관",
     `<h1>이용약관</h1>
-<p class="meta">시행일: 2026년 4월 12일 · 버전 v0.1 (초안)</p>
+<p class="meta">시행일: 2026년 4월 13일 · 버전 v1.0</p>
 
 <h2>제1조 (목적)</h2>
 <p>본 약관은 ${COMPANY.legalName}(이하 "회사")가 제공하는 GoldenCheck 서비스(이하 "서비스")의 이용과 관련하여 회사와 이용자(이하 "이용자")의 권리·의무 및 책임사항을 규정함을 목적으로 합니다.</p>
@@ -136,7 +136,7 @@ function termsHtml(): string {
 <h2>제11조 (문의)</h2>
 <p>본 약관에 관한 문의는 ${COMPANY.email} 으로 연락 주십시오.</p>
 
-<p class="meta" style="margin-top: 48px;">본 문서는 v0.1 초안이며, 정식 출시 전 법무 검토를 거쳐 v1.0으로 개정될 예정입니다.</p>`,
+<p class="meta" style="margin-top: 48px;">본 문서에 대한 문의는 hello@goldencheck.kr로 연락 주십시오.</p>`,
   );
 }
 
@@ -144,7 +144,7 @@ function privacyHtml(): string {
   return renderPage(
     "개인정보처리방침",
     `<h1>개인정보처리방침</h1>
-<p class="meta">시행일: 2026년 4월 12일 · 버전 v0.1 (초안)</p>
+<p class="meta">시행일: 2026년 4월 13일 · 버전 v1.0</p>
 
 <p>${COMPANY.legalName}(이하 "회사")는 「개인정보 보호법」 및 관련 법령에 따라 이용자의 개인정보를 보호하고, 이와 관련한 고충을 신속하고 원활하게 처리할 수 있도록 다음과 같이 개인정보처리방침을 수립·공개합니다.</p>
 
@@ -219,7 +219,7 @@ function privacyHtml(): string {
 <h2>10. 개인정보처리방침의 변경</h2>
 <p>본 방침이 변경될 경우 변경사항의 시행일 7일 전부터 본 페이지를 통해 공지합니다.</p>
 
-<p class="meta" style="margin-top: 48px;">본 문서는 v0.1 초안이며, 정식 출시 전 법무 검토를 거쳐 v1.0으로 개정될 예정입니다.</p>`,
+<p class="meta" style="margin-top: 48px;">본 문서에 대한 문의는 hello@goldencheck.kr로 연락 주십시오.</p>`,
   );
 }
 
@@ -251,7 +251,52 @@ function aboutHtml(): string {
   <li><a href="/privacy">개인정보처리방침</a></li>
 </ul>
 
-<p class="meta" style="margin-top: 48px;">본 페이지의 사업자 정보는 정식 출시 전 실제 법인 정보로 갱신될 예정입니다.</p>`,
+<p class="meta" style="margin-top: 48px;">본 페이지에 대한 문의는 hello@goldencheck.kr로 연락 주십시오.</p>`,
+  );
+}
+
+function pricingHtml(): string {
+  return renderPage(
+    "요금제",
+    `<h1>요금제</h1>
+<p class="meta">모든 플랜은 14일 무료 체험 포함. VAT 별도.</p>
+
+<table>
+  <thead>
+    <tr><th>항목</th><th>Starter</th><th>Professional</th><th>Enterprise</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>월 요금</strong></td><td>50만원</td><td><strong>150만원</strong></td><td>문의</td></tr>
+    <tr><td>제품 수</td><td>5개</td><td>20개</td><td>무제한</td></tr>
+    <tr><td>키워드 수</td><td>20개</td><td>100개</td><td>무제한</td></tr>
+    <tr><td>월 분석 횟수</td><td>10회</td><td>무제한</td><td>무제한</td></tr>
+    <tr><td>리포트 형식</td><td>기본 리포트</td><td>전체 리포트 + 캠페인 생성</td><td>커스텀 리포트</td></tr>
+    <tr><td>SOV 분석</td><td>-</td><td>포함</td><td>포함</td></tr>
+    <tr><td>콘텐츠 갭 분석</td><td>-</td><td>포함</td><td>포함</td></tr>
+    <tr><td>리스크 알림</td><td>-</td><td>포함</td><td>포함 + 커스텀 룰</td></tr>
+    <tr><td>API 연동</td><td>-</td><td>-</td><td>포함</td></tr>
+    <tr><td>전담 매니저</td><td>-</td><td>포함</td><td>포함</td></tr>
+    <tr><td>SLA</td><td>-</td><td>99.5%</td><td>99.9%</td></tr>
+    <tr><td>데이터 보관</td><td>90일</td><td>1년</td><td>무제한</td></tr>
+  </tbody>
+</table>
+
+<h2>자주 묻는 질문</h2>
+
+<h3>결제 수단은 무엇인가요?</h3>
+<p>신용카드, 계좌이체, 세금계산서 발행이 가능합니다. Enterprise 플랜은 연간 계약 시 10% 할인을 제공합니다.</p>
+
+<h3>무료 체험 기간에 카드 등록이 필요한가요?</h3>
+<p>아니요. 14일 무료 체험은 카드 등록 없이 시작할 수 있습니다. 체험 종료 후 유료 전환을 원하실 때 결제 정보를 입력합니다.</p>
+
+<h3>플랜을 변경할 수 있나요?</h3>
+<p>언제든지 상위 플랜으로 업그레이드할 수 있으며, 남은 기간은 일할 정산됩니다. 다운그레이드는 다음 결제일부터 적용됩니다.</p>
+
+<h3>환불 정책은 어떻게 되나요?</h3>
+<p>결제일로부터 7일 이내 요청 시 전액 환불이 가능합니다. 7일 이후에는 잔여 기간에 대한 일할 환불을 제공합니다.</p>
+
+<h2>문의</h2>
+<p>요금제 관련 상담은 <a href="mailto:${COMPANY.email}">${COMPANY.email}</a> 또는 전화 ${COMPANY.phone}으로 연락 주십시오.</p>`,
   );
 }
 
@@ -270,4 +315,9 @@ legalRouter.get("/privacy", (_req: Request, res: Response) => {
 legalRouter.get("/about", (_req: Request, res: Response) => {
   res.set("content-type", "text/html; charset=utf-8");
   res.send(aboutHtml());
+});
+
+legalRouter.get("/pricing", (_req: Request, res: Response) => {
+  res.set("content-type", "text/html; charset=utf-8");
+  res.send(pricingHtml());
 });
