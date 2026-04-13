@@ -39,6 +39,46 @@ export async function fetchKpis(tenantId: string): Promise<DashboardKpis> {
   return (await res.json()) as DashboardKpis;
 }
 
+/* ----------------------------- Dashboard v2 ----------------------------- */
+
+export interface DashboardOverview {
+  tenantId: string;
+  estimatedRevenue: {
+    amount: number;
+    currency: string;
+    activeBuyers: number;
+    avgLeadScore: number;
+  };
+  brandSentiment: {
+    positive: number;
+    negative: number;
+    neutral: number;
+    oneLiner: string | null;
+    confidence: string | null;
+  } | null;
+  weeklyActions: Array<{ action: string; priority: string }>;
+  trendKeywords: Array<{ term: string; volume: number; direction: string }>;
+  latestKeyword: string | null;
+  lastAnalyzedAt: string | null;
+  recentReports: Array<{
+    id: string;
+    title: string;
+    kind: string;
+    keyword: string | null;
+    createdAt: string;
+    htmlUrl: string;
+  }>;
+  dataFreshness: Record<string, string | null>;
+}
+
+export async function fetchOverview(tenantId: string): Promise<DashboardOverview> {
+  const res = await fetch(`/api/v2/dashboard/overview?tenantId=${encodeURIComponent(tenantId)}`);
+  if (!res.ok) {
+    throw new Error(`dashboard/overview HTTP ${res.status}`);
+  }
+  return (await res.json()) as DashboardOverview;
+}
+
 /* ----------------------------- SignalCraft ----------------------------- */
 
 export interface SignalcraftRunBody {

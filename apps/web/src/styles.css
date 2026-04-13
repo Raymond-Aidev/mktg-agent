@@ -298,6 +298,56 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
   background: var(--bg-card);
 }
 
+/* ----------------------------- Business v2 ----------------------------- */
+.hero-card .value { font-size: 32px; }
+.sentiment-bar {
+  display: flex; height: 8px; border-radius: 999px; overflow: hidden;
+  margin-bottom: 6px;
+}
+.sentiment-bar .pos { background: var(--success); }
+.sentiment-bar .neg { background: var(--danger); }
+.sentiment-bar .neu { background: #a1a1aa; }
+.one-liner {
+  margin: 8px 0 0; font-size: 13px; color: var(--text);
+  line-height: 1.5; font-style: italic;
+}
+
+.actions-panel h2 { margin: 0 0 8px; font-size: 15px; }
+.action-list { list-style: none; padding: 0; margin: 0; }
+.action-item {
+  display: flex; align-items: baseline; gap: 8px;
+  padding: 8px 0; border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+.action-item:last-child { border-bottom: none; }
+.priority-badge {
+  display: inline-block; padding: 2px 8px; border-radius: 4px;
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.badge-high { background: #fee2e2; color: #b91c1c; }
+.badge-medium { background: #fef3c7; color: #92400e; }
+.badge-low { background: #e0f2fe; color: #0369a1; }
+
+.trend-list, .report-list {
+  list-style: none; padding: 0; margin: 0;
+}
+.trend-list li, .report-list li {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 6px 0; border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.trend-list li:last-child, .report-list li:last-child { border-bottom: none; }
+.trend-vol { font-variant-numeric: tabular-nums; color: var(--text-muted); font-size: 12px; }
+.report-list a { color: var(--text); text-decoration: none; }
+.report-list a:hover { text-decoration: underline; }
+.report-date { font-size: 11px; color: var(--text-muted); }
+
+.data-freshness {
+  text-align: center; font-size: 11px; color: var(--text-muted);
+  margin: 8px 0 16px; padding: 6px;
+}
+
 /* ------------------------------- Operator ------------------------------- */
 .op-header {
   display: flex;

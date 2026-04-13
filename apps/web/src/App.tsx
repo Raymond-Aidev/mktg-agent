@@ -3,10 +3,12 @@ import {
   fetchBuyers,
   fetchKpis,
   fetchOperatorOverview,
+  fetchOverview,
   fetchSignalcraftJob,
   runSignalcraft,
   type Buyer,
   type DashboardKpis,
+  type DashboardOverview,
   type OperatorOverview,
   type SignalcraftJob,
 } from "./api.ts";
@@ -30,18 +32,22 @@ function formatKrw(value: number): string {
 export function App() {
   const [tenantId, setTenantId] = useState<string>(DEFAULT_TENANT);
   const [pendingTenant, setPendingTenant] = useState<string>(DEFAULT_TENANT);
+  const [overview, setOverview] = useState<DashboardOverview | null>(null);
   const [data, setData] = useState<DashboardKpis | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [showOperator, setShowOperator] = useState<boolean>(false);
 
   const load = useCallback(async (id: string) => {
     setLoading(true);
     setError(null);
     try {
-      const kpis = await fetchKpis(id);
+      const [ov, kpis] = await Promise.all([fetchOverview(id), fetchKpis(id)]);
+      setOverview(ov);
       setData(kpis);
     } catch (err) {
       setError((err as Error).message);
+      setOverview(null);
       setData(null);
     } finally {
       setLoading(false);
@@ -78,14 +84,132 @@ export function App() {
         <button type="submit">Load</button>
       </form>
 
-      {loading && <div className="status-loading">Loading KPIs…</div>}
+      {loading && <div className="status-loading">Loading…</div>}
       {error && <div className="status-error">Error: {error}</div>}
-      {!loading && !error && data && <Panels data={data} />}
+
+      {!loading && !error && overview && <BusinessOverview overview={overview} />}
 
       <SignalcraftPanel tenantId={tenantId} />
-      <BuyersPanel tenantId={tenantId} />
-      <OperatorPanel />
+
+      <section className="panel">
+        <div className="op-header">
+          <h2>상세 데이터</h2>
+          <button type="button" onClick={() => setShowOperator(!showOperator)}>
+            {showOperator ? "접기" : "바이어 · 캠페인 · 운영자 보기"}
+          </button>
+        </div>
+        {showOperator && (
+          <>
+            <BuyersPanel tenantId={tenantId} />
+            {data && <Panels data={data} />}
+            <OperatorPanel />
+          </>
+        )}
+      </section>
     </div>
+  );
+}
+
+/* ----------------------------- Business v2 ----------------------------- */
+
+function BusinessOverview({ overview }: { overview: DashboardOverview }) {
+  return (
+    <>
+      <div className="grid">
+        <div className="card hero-card">
+          <h3>이번 달 예상 매출</h3>
+          <div className="value">₩{overview.estimatedRevenue.amount.toLocaleString()}</div>
+          <div className="subtitle">
+            활성 바이어 {overview.estimatedRevenue.activeBuyers}명 · avg score{" "}
+            {overview.estimatedRevenue.avgLeadScore}
+          </div>
+        </div>
+        <div className="card">
+          <h3>브랜드 온라인 반응</h3>
+          {overview.brandSentiment ? (
+            <>
+              <div className="sentiment-bar">
+                <span
+                  className="pos"
+                  style={{ width: `${overview.brandSentiment.positive * 100}%` }}
+                />
+                <span
+                  className="neg"
+                  style={{ width: `${overview.brandSentiment.negative * 100}%` }}
+                />
+                <span
+                  className="neu"
+                  style={{ width: `${overview.brandSentiment.neutral * 100}%` }}
+                />
+              </div>
+              <div className="subtitle">
+                긍정 {(overview.brandSentiment.positive * 100).toFixed(0)}% · 부정{" "}
+                {(overview.brandSentiment.negative * 100).toFixed(0)}% · 중립{" "}
+                {(overview.brandSentiment.neutral * 100).toFixed(0)}%
+              </div>
+              {overview.brandSentiment.oneLiner && (
+                <p className="one-liner">{overview.brandSentiment.oneLiner}</p>
+              )}
+            </>
+          ) : (
+            <div className="subtitle">아직 분석 결과가 없습니다. SignalCraft를 실행해주세요.</div>
+          )}
+        </div>
+      </div>
+
+      {overview.weeklyActions.length > 0 && (
+        <section className="panel actions-panel">
+          <h2>이번 주 실행 과제</h2>
+          <ul className="action-list">
+            {overview.weeklyActions.map((a, i) => (
+              <li key={i} className={`action-item action-${a.priority}`}>
+                <span className={`priority-badge badge-${a.priority}`}>{a.priority}</span>
+                {a.action}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <div className="grid">
+        {overview.trendKeywords.length > 0 && (
+          <section className="card">
+            <h3>트렌드 키워드 TOP 5</h3>
+            <ul className="trend-list">
+              {overview.trendKeywords.map((t, i) => (
+                <li key={i}>
+                  <strong>{t.term}</strong>
+                  <span className="trend-vol">{t.volume.toLocaleString()}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {overview.recentReports.length > 0 && (
+          <section className="card">
+            <h3>최근 리포트</h3>
+            <ul className="report-list">
+              {overview.recentReports.map((r) => (
+                <li key={r.id}>
+                  <a href={r.htmlUrl} target="_blank" rel="noreferrer">
+                    {r.keyword ?? r.title}
+                  </a>
+                  <span className="report-date">{new Date(r.createdAt).toLocaleDateString()}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+      </div>
+
+      {overview.lastAnalyzedAt && (
+        <div className="data-freshness">
+          마지막 분석: {new Date(overview.lastAnalyzedAt).toLocaleString()} · 키워드: "
+          {overview.latestKeyword}"
+        </div>
+      )}
+    </>
   );
 }
 
