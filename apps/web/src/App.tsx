@@ -31,6 +31,13 @@ import {
   type DashboardOverview,
   type OperatorOverview,
   type SignalcraftJob,
+  fetchAdminUsers,
+  fetchAdminStats,
+  createAdminUser,
+  updateUserRole,
+  deleteAdminUser,
+  type AdminUser,
+  type AdminStats,
 } from "./api.ts";
 
 const DEFAULT_TENANT = "00000000-0000-0000-0000-0000000000ee";
@@ -41,7 +48,8 @@ type View =
   | { screen: "landing" }
   | { screen: "products" }
   | { screen: "product-detail"; productId: string; isDemo?: boolean }
-  | { screen: "keyword-report"; productId: string; keywordId: string; isDemo?: boolean };
+  | { screen: "keyword-report"; productId: string; keywordId: string; isDemo?: boolean }
+  | { screen: "admin" };
 
 interface DemoKeyword {
   id: string;
@@ -378,7 +386,7 @@ export function App() {
   };
 
   const currentProduct =
-    view.screen !== "products" && view.screen !== "landing"
+    view.screen === "product-detail" || view.screen === "keyword-report"
       ? (DEMO_PRODUCTS.find((p) => p.id === view.productId) ?? null)
       : null;
   const currentKeyword =
@@ -419,6 +427,14 @@ export function App() {
           <span className="nav-link" onClick={() => setShowSettings(!showSettings)}>
             설정
           </span>
+          {authUser?.role === "admin" && (
+            <span
+              className={`nav-link ${view.screen === "admin" ? "nav-active" : ""}`}
+              onClick={() => setView({ screen: "admin" })}
+            >
+              관리자
+            </span>
+          )}
         </div>
         <div className="nav-right">
           <span className="nav-user">{authUser?.name ?? authUser?.email ?? "Demo User"}</span>
@@ -510,6 +526,8 @@ export function App() {
             tenantId={tenantId}
           />
         )}
+
+        {view.screen === "admin" && authUser?.role === "admin" && <AdminPanel />}
       </div>
 
       <footer className="app-footer">
@@ -2254,6 +2272,222 @@ function Panels({ data }: { data: DashboardKpis }) {
                   <td className="num">{formatInt(m.totalOutputTokens)}</td>
                   <td className="num">{formatUsd(m.costUsd)}</td>
                   <td className="num">{formatKrw(m.costUsd * (data.fxToKrw.USD ?? 1300))}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </section>
+    </>
+  );
+}
+
+/* ══════════════════════ Admin Panel ══════════════════════ */
+
+function AdminPanel() {
+  const [users, setUsers] = useState<AdminUser[]>([]);
+  const [stats, setStats] = useState<AdminStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [showCreate, setShowCreate] = useState(false);
+  const [newEmail, setNewEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [newName, setNewName] = useState("");
+  const [newRole, setNewRole] = useState("member");
+  const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [u, s] = await Promise.all([fetchAdminUsers(), fetchAdminStats()]);
+      setUsers(u.users);
+      setStats(s);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCreating(true);
+    setCreateError(null);
+    try {
+      await createAdminUser({
+        email: newEmail,
+        password: newPassword,
+        name: newName || undefined,
+        role: newRole,
+      });
+      setNewEmail("");
+      setNewPassword("");
+      setNewName("");
+      setNewRole("member");
+      setShowCreate(false);
+      await load();
+    } catch (err) {
+      setCreateError((err as Error).message);
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const handleRoleChange = async (userId: string, role: string) => {
+    await updateUserRole(userId, role).catch(() => {});
+    await load();
+  };
+
+  const handleDelete = async (userId: string, email: string) => {
+    if (!confirm(`${email} 계정을 삭제하시겠습니까?`)) return;
+    try {
+      await deleteAdminUser(userId);
+      await load();
+    } catch (err) {
+      alert((err as Error).message);
+    }
+  };
+
+  return (
+    <>
+      <div className="page-title">
+        <h2>관리자 대시보드</h2>
+        <p>회원 관리, 시스템 모니터링, 계정 생성 및 권한 관리</p>
+      </div>
+
+      {loading && <div className="status-loading">불러오는 중...</div>}
+      {error && <div className="status-error">{error}</div>}
+
+      {stats && (
+        <div className="summary-strip">
+          <div className="summary-item">
+            <div className="summary-value">{stats.users}</div>
+            <div className="summary-label">전체 회원</div>
+          </div>
+          <div className="summary-item">
+            <div className="summary-value">{stats.products}</div>
+            <div className="summary-label">등록 제품</div>
+          </div>
+          <div className="summary-item">
+            <div className="summary-value">{stats.activeKeywords}</div>
+            <div className="summary-label">활성 키워드</div>
+          </div>
+          <div className="summary-item">
+            <div className="summary-value">{stats.jobs7d.total}</div>
+            <div className="summary-label">분석 (7일)</div>
+          </div>
+          <div className="summary-item">
+            <div className="summary-value" style={{ color: "var(--success)" }}>
+              {stats.jobs7d.done}
+            </div>
+            <div className="summary-label">성공</div>
+          </div>
+          <div className="summary-item">
+            <div className="summary-value" style={{ color: "var(--danger)" }}>
+              {stats.jobs7d.failed}
+            </div>
+            <div className="summary-label">실패</div>
+          </div>
+          <div className="summary-item">
+            <div className="summary-value">{stats.reports}</div>
+            <div className="summary-label">리포트</div>
+          </div>
+        </div>
+      )}
+
+      <section className="panel">
+        <div className="op-header">
+          <h2>회원 관리 ({users.length}명)</h2>
+          <button type="button" onClick={() => setShowCreate(!showCreate)}>
+            {showCreate ? "취소" : "+ 계정 생성"}
+          </button>
+          <button type="button" className="btn-secondary" onClick={load}>
+            새로고침
+          </button>
+        </div>
+
+        {showCreate && (
+          <form className="admin-create-form" onSubmit={handleCreate}>
+            <div className="admin-form-row">
+              <input
+                type="email"
+                placeholder="이메일"
+                value={newEmail}
+                onChange={(e) => setNewEmail(e.target.value)}
+                required
+              />
+              <input
+                type="password"
+                placeholder="비밀번호 (8자 이상)"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+                minLength={8}
+              />
+              <input
+                type="text"
+                placeholder="이름 (선택)"
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+              />
+              <select value={newRole} onChange={(e) => setNewRole(e.target.value)}>
+                <option value="member">member</option>
+                <option value="owner">owner</option>
+                <option value="admin">admin</option>
+              </select>
+              <button type="submit" disabled={creating}>
+                {creating ? "생성 중..." : "생성"}
+              </button>
+            </div>
+            {createError && <div className="auth-error">{createError}</div>}
+          </form>
+        )}
+
+        {!loading && users.length > 0 && (
+          <table>
+            <thead>
+              <tr>
+                <th>이메일</th>
+                <th>이름</th>
+                <th>권한</th>
+                <th>테넌트 ID</th>
+                <th>가입일</th>
+                <th>액션</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((u) => (
+                <tr key={u.id}>
+                  <td>{u.email}</td>
+                  <td>{u.name ?? "—"}</td>
+                  <td>
+                    <select
+                      className="role-select"
+                      value={u.role}
+                      onChange={(e) => handleRoleChange(u.id, e.target.value)}
+                    >
+                      <option value="member">member</option>
+                      <option value="owner">owner</option>
+                      <option value="admin">admin</option>
+                    </select>
+                  </td>
+                  <td className="tenant-cell">{u.tenant_id.slice(0, 8)}...</td>
+                  <td className="date-cell">{new Date(u.created_at).toLocaleDateString()}</td>
+                  <td>
+                    <button
+                      type="button"
+                      className="table-delete-btn"
+                      onClick={() => handleDelete(u.id, u.email)}
+                    >
+                      삭제
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

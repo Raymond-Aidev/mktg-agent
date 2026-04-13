@@ -171,6 +171,73 @@ export async function removeKeyword(
   if (!res.ok) throw new Error(`remove keyword HTTP ${res.status}`);
 }
 
+/* ══════════════════════ Admin ══════════════════════ */
+
+export interface AdminUser {
+  id: string;
+  tenant_id: string;
+  email: string;
+  name: string | null;
+  role: string;
+  created_at: string;
+}
+
+export interface AdminStats {
+  users: number;
+  products: number;
+  activeKeywords: number;
+  jobs7d: { total: number; done: number; failed: number };
+  reports: number;
+}
+
+export async function fetchAdminUsers(): Promise<{ total: number; users: AdminUser[] }> {
+  const res = await fetch("/api/v1/admin/users", { headers: authHeaders() });
+  if (!res.ok) throw new Error(`admin/users HTTP ${res.status}`);
+  return (await res.json()) as { total: number; users: AdminUser[] };
+}
+
+export async function createAdminUser(data: {
+  email: string;
+  password: string;
+  name?: string;
+  role?: string;
+  tenantId?: string;
+}): Promise<{ id: string }> {
+  const res = await fetch("/api/v1/admin/users", {
+    method: "POST",
+    headers: { "content-type": "application/json", ...authHeaders() },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const b = await res.json().catch(() => ({}));
+    throw new Error((b as { error?: string }).error ?? `HTTP ${res.status}`);
+  }
+  return (await res.json()) as { id: string };
+}
+
+export async function updateUserRole(userId: string, role: string): Promise<void> {
+  const res = await fetch(`/api/v1/admin/users/${userId}/role`, {
+    method: "PATCH",
+    headers: { "content-type": "application/json", ...authHeaders() },
+    body: JSON.stringify({ role }),
+  });
+  if (!res.ok) throw new Error(`update role HTTP ${res.status}`);
+}
+
+export async function deleteAdminUser(userId: string): Promise<void> {
+  const res = await fetch(`/api/v1/admin/users/${userId}`, {
+    method: "DELETE",
+    headers: authHeaders(),
+  });
+  if (!res.ok) throw new Error(`delete user HTTP ${res.status}`);
+}
+
+export async function fetchAdminStats(): Promise<AdminStats> {
+  const res = await fetch("/api/v1/admin/users/stats", { headers: authHeaders() });
+  if (!res.ok) throw new Error(`admin/stats HTTP ${res.status}`);
+  return (await res.json()) as AdminStats;
+}
+
 /* ══════════════════════ Dashboard ══════════════════════ */
 
 export interface DashboardKpis {

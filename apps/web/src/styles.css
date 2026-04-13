@@ -556,6 +556,25 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 }
 .table-delete-btn:hover { border-color: var(--danger); color: var(--danger); }
 
+/* ── Admin Panel ── */
+.admin-create-form { margin-bottom: 20px; padding: 20px; background: var(--bg-subtle); border-radius: var(--radius-sm); }
+.admin-form-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.admin-form-row input, .admin-form-row select {
+  font-family: inherit; font-size: 13px; padding: 8px 12px;
+  border: 1px solid var(--border); border-radius: 6px; background: var(--bg-card);
+}
+.admin-form-row input { flex: 1; min-width: 140px; }
+.admin-form-row select { min-width: 100px; }
+.admin-form-row input:focus, .admin-form-row select:focus { outline: none; border-color: var(--accent); }
+.admin-form-row button { font-family: inherit; font-size: 13px; font-weight: 600; padding: 8px 16px; border: none; border-radius: 6px; background: var(--accent); color: #fff; cursor: pointer; }
+.admin-form-row button:hover { background: var(--accent-hover); }
+.role-select {
+  font-family: inherit; font-size: 12px; padding: 4px 8px;
+  border: 1px solid var(--border); border-radius: 4px; background: var(--bg-card); cursor: pointer;
+}
+.role-select:focus { outline: none; border-color: var(--accent); }
+.tenant-cell { font-family: ui-monospace, monospace; font-size: 12px; color: var(--text-muted); }
+
 /* ── Mobile ── */
 table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 thead, tbody, tr { display: table; width: 100%; table-layout: auto; }
