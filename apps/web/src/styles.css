@@ -348,6 +348,32 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
   margin: 8px 0 16px; padding: 6px;
 }
 
+/* ------------------------------ Action Buttons ----------------------------- */
+.action-buttons { margin-top: 12px; }
+.action-btn-row {
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.action-btn {
+  font-family: inherit; font-size: 13px; font-weight: 500;
+  padding: 10px 16px; border: 1px solid var(--border);
+  border-radius: 8px; background: var(--bg-card);
+  color: var(--text); cursor: pointer;
+  transition: border-color 0.15s;
+}
+.action-btn:hover { border-color: var(--accent); }
+.action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.action-result {
+  margin-top: 12px; padding: 14px;
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.action-result h4 { margin: 0 0 8px; font-size: 14px; }
+.action-result pre {
+  margin: 0; font-size: 12px; line-height: 1.5;
+  white-space: pre-wrap; word-break: break-word;
+  max-height: 400px; overflow-y: auto;
+}
+
 /* ------------------------------- Operator ------------------------------- */
 .op-header {
   display: flex;

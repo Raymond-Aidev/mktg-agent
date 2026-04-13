@@ -5,7 +5,9 @@ import {
   fetchOperatorOverview,
   fetchOverview,
   fetchSignalcraftJob,
+  generateAction,
   runSignalcraft,
+  type ActionResult,
   type Buyer,
   type DashboardKpis,
   type DashboardOverview,
@@ -353,6 +355,7 @@ function SignalcraftPanel({ tenantId }: { tenantId: string }) {
                   JSON 보기
                 </a>
               </div>
+              <ActionButtons jobId={job.id} tenantId={job.tenant_id} />
               <iframe
                 key={job.reportId}
                 title="SignalCraft integrated report"
@@ -364,6 +367,58 @@ function SignalcraftPanel({ tenantId }: { tenantId: string }) {
         </div>
       )}
     </section>
+  );
+}
+
+/* ------------------------------ Action Buttons ----------------------------- */
+
+function ActionButtons({ jobId, tenantId }: { jobId: string; tenantId: string }) {
+  const [generating, setGenerating] = useState<string | null>(null);
+  const [result, setResult] = useState<ActionResult | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+
+  const onGenerate = async (actionType: "campaign_draft" | "content_calendar") => {
+    setGenerating(actionType);
+    setErr(null);
+    setResult(null);
+    try {
+      const res = await generateAction({ jobId, tenantId, actionType });
+      setResult(res);
+    } catch (e) {
+      setErr((e as Error).message.slice(0, 200));
+    } finally {
+      setGenerating(null);
+    }
+  };
+
+  return (
+    <div className="action-buttons">
+      <div className="action-btn-row">
+        <button
+          type="button"
+          onClick={() => onGenerate("campaign_draft")}
+          disabled={generating !== null}
+          className="action-btn"
+        >
+          {generating === "campaign_draft" ? "생성 중…" : "📧 캠페인 초안 생성"}
+        </button>
+        <button
+          type="button"
+          onClick={() => onGenerate("content_calendar")}
+          disabled={generating !== null}
+          className="action-btn"
+        >
+          {generating === "content_calendar" ? "생성 중…" : "📅 콘텐츠 캘린더 생성"}
+        </button>
+      </div>
+      {err && <div className="status-error">{err}</div>}
+      {result && result.output && (
+        <div className="action-result">
+          <h4>{result.actionType === "campaign_draft" ? "캠페인 초안" : "콘텐츠 캘린더"}</h4>
+          <pre>{JSON.stringify(result.output, null, 2)}</pre>
+        </div>
+      )}
+    </div>
   );
 }
 

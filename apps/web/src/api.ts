@@ -131,6 +131,32 @@ export async function fetchSignalcraftJob(id: string): Promise<SignalcraftJob> {
   return (await res.json()) as SignalcraftJob;
 }
 
+/* -------------------------------- Actions -------------------------------- */
+
+export interface ActionResult {
+  actionId: string;
+  actionType: string;
+  status: string;
+  output: Record<string, unknown>;
+}
+
+export async function generateAction(body: {
+  jobId: string;
+  tenantId: string;
+  actionType: "campaign_draft" | "content_calendar";
+}): Promise<ActionResult> {
+  const res = await fetch("/api/v2/actions/generate", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`actions/generate HTTP ${res.status}: ${text.slice(0, 200)}`);
+  }
+  return (await res.json()) as ActionResult;
+}
+
 /* -------------------------------- Buyers -------------------------------- */
 
 export interface Buyer {
