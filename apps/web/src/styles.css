@@ -556,6 +556,11 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 }
 .table-delete-btn:hover { border-color: var(--danger); color: var(--danger); }
 
+/* ── Sample Report ── */
+.sample-actions { display: flex; gap: 10px; margin-bottom: 16px; }
+.sample-actions a { display: inline-block; padding: 10px 20px; border-radius: var(--radius-xs); font-size: 14px; font-weight: 600; text-decoration: none; text-align: center; transition: all 0.15s; }
+.sample-frame { width: 100%; height: 800px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-card); }
+
 /* ── Admin Panel ── */
 .admin-create-form { margin-bottom: 20px; padding: 20px; background: var(--bg-subtle); border-radius: var(--radius-sm); }
 .admin-form-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }

@@ -49,7 +49,10 @@ type View =
   | { screen: "products" }
   | { screen: "product-detail"; productId: string; isDemo?: boolean }
   | { screen: "keyword-report"; productId: string; keywordId: string; isDemo?: boolean }
+  | { screen: "sample" }
   | { screen: "admin" };
+
+const SAMPLE_REPORT_ID = "5137fae9-aa53-44c9-b6a0-c1ef998f453e";
 
 interface DemoKeyword {
   id: string;
@@ -414,15 +417,10 @@ export function App() {
             대시보드
           </span>
           <span
-            className="nav-link"
-            onClick={() =>
-              window.open(
-                "/api/v1/reports/" + (currentKeyword?.reportId === "demo" ? "" : ""),
-                "_blank",
-              )
-            }
+            className={`nav-link ${view.screen === "sample" ? "nav-active" : ""}`}
+            onClick={() => setView({ screen: "sample" })}
           >
-            리포트
+            분석 샘플
           </span>
           <span className="nav-link" onClick={() => setShowSettings(!showSettings)}>
             설정
@@ -528,6 +526,8 @@ export function App() {
         )}
 
         {view.screen === "admin" && authUser?.role === "admin" && <AdminPanel />}
+
+        {view.screen === "sample" && <SampleReportView />}
       </div>
 
       <footer className="app-footer">
@@ -2494,6 +2494,45 @@ function AdminPanel() {
           </table>
         )}
       </section>
+    </>
+  );
+}
+
+/* ══════════════════════ Sample Report View ══════════════════════ */
+
+function SampleReportView() {
+  return (
+    <>
+      <div className="page-title">
+        <h2>분석 샘플</h2>
+        <p>
+          "어린이AI 지휘자" 제품의 AI 마케팅 분석 리포트 샘플입니다. 실제 서비스에서 생성되는
+          리포트와 동일한 형식입니다.
+        </p>
+      </div>
+      <div className="sample-actions">
+        <a
+          href={`/api/v1/reports/${SAMPLE_REPORT_ID}?format=html`}
+          target="_blank"
+          rel="noreferrer"
+          className="btn-primary"
+        >
+          새 탭에서 보기
+        </a>
+        <a
+          href={`/api/v1/reports/${SAMPLE_REPORT_ID}`}
+          target="_blank"
+          rel="noreferrer"
+          className="btn-secondary"
+        >
+          JSON 데이터
+        </a>
+      </div>
+      <iframe
+        title="샘플 분석 리포트"
+        className="sample-frame"
+        src={`/api/v1/reports/${SAMPLE_REPORT_ID}?format=html`}
+      />
     </>
   );
 }
