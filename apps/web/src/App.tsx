@@ -24,6 +24,7 @@ const DEFAULT_TENANT = "00000000-0000-0000-0000-0000000000ee";
 /* ══════════════════════ Types & Demo Data ══════════════════════ */
 
 type View =
+  | { screen: "landing" }
   | { screen: "products" }
   | { screen: "product-detail"; productId: string }
   | { screen: "keyword-report"; productId: string; keywordId: string };
@@ -332,7 +333,7 @@ function sentimentColor(score: number): string {
 export function App() {
   const [tenantId, setTenantId] = useState(DEFAULT_TENANT);
   const [pendingTenant, setPendingTenant] = useState(DEFAULT_TENANT);
-  const [view, setView] = useState<View>({ screen: "products" });
+  const [view, setView] = useState<View>({ screen: "landing" });
   const [showSettings, setShowSettings] = useState(false);
 
   const onSubmit = (e: React.FormEvent) => {
@@ -340,8 +341,15 @@ export function App() {
     if (pendingTenant.trim().length > 0) setTenantId(pendingTenant.trim());
   };
 
+  const goBack = () => {
+    if (view.screen === "keyword-report")
+      setView({ screen: "product-detail", productId: view.productId });
+    else if (view.screen === "product-detail") setView({ screen: "products" });
+    else setView({ screen: "products" });
+  };
+
   const currentProduct =
-    view.screen !== "products"
+    view.screen !== "products" && view.screen !== "landing"
       ? (DEMO_PRODUCTS.find((p) => p.id === view.productId) ?? null)
       : null;
   const currentKeyword =
@@ -349,69 +357,385 @@ export function App() {
       ? (currentProduct.keywords.find((k) => k.id === view.keywordId) ?? null)
       : null;
 
+  if (view.screen === "landing") {
+    return <LandingPage onEnter={() => setView({ screen: "products" })} />;
+  }
+
   return (
     <div className="app">
-      <header className="app-header">
-        <div className="header-left">
-          <h1 className="header-logo" onClick={() => setView({ screen: "products" })}>
+      <nav className="global-nav">
+        <div className="nav-left">
+          <span className="nav-logo" onClick={() => setView({ screen: "products" })}>
             GoldenCheck
-          </h1>
-          <p className="header-subtitle">교육상품 마케팅 AI 분석</p>
+          </span>
         </div>
-        <button
-          type="button"
-          className="settings-toggle"
-          onClick={() => setShowSettings(!showSettings)}
-        >
-          설정
-        </button>
-      </header>
+        <div className="nav-links">
+          <span
+            className={`nav-link ${view.screen === "products" ? "nav-active" : ""}`}
+            onClick={() => setView({ screen: "products" })}
+          >
+            대시보드
+          </span>
+          <span
+            className="nav-link"
+            onClick={() =>
+              window.open(
+                "/api/v1/reports/" + (currentKeyword?.reportId === "demo" ? "" : ""),
+                "_blank",
+              )
+            }
+          >
+            리포트
+          </span>
+          <span className="nav-link" onClick={() => setShowSettings(!showSettings)}>
+            설정
+          </span>
+        </div>
+        <div className="nav-right">
+          <span className="nav-user">Demo User</span>
+          <button
+            type="button"
+            className="nav-logout"
+            onClick={() => setView({ screen: "landing" })}
+          >
+            로그아웃
+          </button>
+        </div>
+      </nav>
 
-      {showSettings && (
-        <form className="tenant-switcher" onSubmit={onSubmit}>
-          <label htmlFor="tenant">계정 ID</label>
-          <input
-            id="tenant"
-            type="text"
-            value={pendingTenant}
-            onChange={(e) => setPendingTenant(e.target.value)}
-            placeholder="00000000-0000-0000-0000-000000000000"
+      <div className="app-body">
+        {showSettings && (
+          <form className="tenant-switcher" onSubmit={onSubmit}>
+            <label htmlFor="tenant">계정 ID</label>
+            <input
+              id="tenant"
+              type="text"
+              value={pendingTenant}
+              onChange={(e) => setPendingTenant(e.target.value)}
+              placeholder="00000000-0000-0000-0000-000000000000"
+            />
+            <button type="submit">적용</button>
+          </form>
+        )}
+
+        {view.screen !== "products" && (
+          <div className="back-row">
+            <button type="button" className="back-btn" onClick={goBack}>
+              ← 뒤로
+            </button>
+            <Breadcrumb
+              view={view}
+              product={currentProduct}
+              keyword={currentKeyword}
+              onNavigate={setView}
+            />
+          </div>
+        )}
+
+        {view.screen === "products" && (
+          <ProductsGrid
+            products={DEMO_PRODUCTS}
+            onSelect={(id) => setView({ screen: "product-detail", productId: id })}
           />
-          <button type="submit">적용</button>
-        </form>
-      )}
+        )}
 
-      <Breadcrumb
-        view={view}
-        product={currentProduct}
-        keyword={currentKeyword}
-        onNavigate={setView}
-      />
+        {view.screen === "product-detail" && currentProduct && (
+          <ProductDetail
+            product={currentProduct}
+            onKeywordSelect={(kwId) =>
+              setView({ screen: "keyword-report", productId: currentProduct.id, keywordId: kwId })
+            }
+          />
+        )}
 
-      {view.screen === "products" && (
-        <ProductsGrid
-          products={DEMO_PRODUCTS}
-          onSelect={(id) => setView({ screen: "product-detail", productId: id })}
-        />
-      )}
-
-      {view.screen === "product-detail" && currentProduct && (
-        <ProductDetail
-          product={currentProduct}
-          onKeywordSelect={(kwId) =>
-            setView({ screen: "keyword-report", productId: currentProduct.id, keywordId: kwId })
-          }
-        />
-      )}
-
-      {view.screen === "keyword-report" && currentProduct && currentKeyword && (
-        <KeywordReportView keyword={currentKeyword} tenantId={tenantId} />
-      )}
+        {view.screen === "keyword-report" && currentProduct && currentKeyword && (
+          <KeywordReportView keyword={currentKeyword} tenantId={tenantId} />
+        )}
+      </div>
 
       <footer className="app-footer">
         <a href="/terms">이용약관</a>
         <a href="/privacy">개인정보처리방침</a>
         <a href="/about">사업자 정보</a>
+      </footer>
+    </div>
+  );
+}
+
+/* ══════════════════════ Landing Page ══════════════════════ */
+
+function LandingPage({ onEnter }: { onEnter: () => void }) {
+  const [showLogin, setShowLogin] = useState(false);
+
+  return (
+    <div className="landing">
+      <nav className="landing-nav">
+        <span className="nav-logo">GoldenCheck</span>
+        <div className="landing-nav-links">
+          <a href="#features">기능</a>
+          <a href="#how">분석 프로세스</a>
+          <a href="#pricing">요금제</a>
+          <a href="#faq">FAQ</a>
+          <button type="button" className="btn-login" onClick={() => setShowLogin(true)}>
+            로그인
+          </button>
+        </div>
+      </nav>
+
+      {showLogin && (
+        <div className="modal-overlay" onClick={() => setShowLogin(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h2>로그인</h2>
+            <form
+              className="login-form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                onEnter();
+              }}
+            >
+              <label>이메일</label>
+              <input type="email" placeholder="name@company.com" />
+              <label>비밀번호</label>
+              <input type="password" placeholder="비밀번호 입력" />
+              <button type="submit" className="btn-primary-lg">
+                로그인
+              </button>
+              <p className="login-sub">
+                계정이 없으신가요?{" "}
+                <span
+                  className="link"
+                  onClick={() => {
+                    onEnter();
+                  }}
+                >
+                  무료 체험 시작
+                </span>
+              </p>
+            </form>
+            <button type="button" className="modal-close" onClick={() => setShowLogin(false)}>
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
+      <section className="hero">
+        <h1>
+          교육상품 마케팅,
+          <br />
+          <span className="hero-accent">AI가 데이터로 답합니다</span>
+        </h1>
+        <p className="hero-sub">
+          제품별 키워드 여론을 실시간 모니터링하고,
+          <br />
+          투자할 키워드와 철수할 키워드를 데이터 기반으로 판단하세요.
+        </p>
+        <div className="hero-cta">
+          <button type="button" className="btn-primary-lg" onClick={onEnter}>
+            무료로 시작하기
+          </button>
+          <button type="button" className="btn-secondary-lg" onClick={() => setShowLogin(true)}>
+            로그인
+          </button>
+        </div>
+      </section>
+
+      <section className="trust-bar">
+        <div className="trust-item">
+          <div className="trust-value">150만원</div>
+          <div className="trust-label">월 구독료</div>
+        </div>
+        <div className="trust-item">
+          <div className="trust-value">5개</div>
+          <div className="trust-label">AI 분석 모듈</div>
+        </div>
+        <div className="trust-item">
+          <div className="trust-value">실시간</div>
+          <div className="trust-label">여론 모니터링</div>
+        </div>
+        <div className="trust-item">
+          <div className="trust-value">10분</div>
+          <div className="trust-label">리포트 생성</div>
+        </div>
+      </section>
+
+      <section className="features" id="features">
+        <h2>핵심 기능</h2>
+        <div className="feature-grid">
+          <div className="feature-card">
+            <div className="feature-icon">01</div>
+            <h3>키워드 포트폴리오</h3>
+            <p>
+              제품별 수십 개 키워드의 검색량, 감성, 트렌드를 한눈에 비교하고 투자/철수를 판단합니다.
+            </p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon">02</div>
+            <h3>SOV 점유율 분석</h3>
+            <p>경쟁사 대비 우리 브랜드의 온라인 언급 점유율을 실시간으로 추적합니다.</p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon">03</div>
+            <h3>감성 분석 리포트</h3>
+            <p>
+              네이버 뉴스/블로그/카페의 여론을 AI가 분석하여 긍정/부정/중립 비율과 핵심 키워드를
+              도출합니다.
+            </p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon">04</div>
+            <h3>콘텐츠 갭 분석</h3>
+            <p>경쟁사가 다루고 우리가 놓치고 있는 마케팅 토픽과 채널을 자동으로 식별합니다.</p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon">05</div>
+            <h3>실행 전략 자동 생성</h3>
+            <p>
+              분석 결과를 기반으로 주간 콘텐츠 캘린더, 캠페인 초안, 채널 우선순위를 AI가 제안합니다.
+            </p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon">06</div>
+            <h3>리스크 시그널 알림</h3>
+            <p>
+              부정 여론 급증, 경쟁사 움직임 등 위험 신호를 조기 감지하고 대응 방안을 제시합니다.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="how-section" id="how">
+        <h2>분석 프로세스</h2>
+        <div className="process-steps">
+          <div className="step">
+            <div className="step-num">1</div>
+            <h3>제품 등록</h3>
+            <p>유통 중인 교육상품과 마케팅 키워드를 등록합니다.</p>
+          </div>
+          <div className="step-arrow">→</div>
+          <div className="step">
+            <div className="step-num">2</div>
+            <h3>데이터 수집</h3>
+            <p>네이버, 유튜브, 커뮤니티에서 관련 게시물을 자동 수집합니다.</p>
+          </div>
+          <div className="step-arrow">→</div>
+          <div className="step">
+            <div className="step-num">3</div>
+            <h3>AI 분석</h3>
+            <p>5개 모듈이 감성, SOV, 콘텐츠 갭, 전략, 리스크를 분석합니다.</p>
+          </div>
+          <div className="step-arrow">→</div>
+          <div className="step">
+            <div className="step-num">4</div>
+            <h3>의사결정</h3>
+            <p>키워드별 투자/유지/철수 판단과 실행 전략을 확인합니다.</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="pricing-section" id="pricing">
+        <h2>요금제</h2>
+        <div className="pricing-grid">
+          <div className="price-card">
+            <h3>Starter</h3>
+            <div className="price">월 50만원</div>
+            <ul>
+              <li>제품 5개</li>
+              <li>키워드 20개</li>
+              <li>월 10회 분석</li>
+              <li>기본 리포트</li>
+            </ul>
+            <button type="button" className="btn-primary" onClick={onEnter}>
+              시작하기
+            </button>
+          </div>
+          <div className="price-card price-featured">
+            <div className="price-badge">추천</div>
+            <h3>Professional</h3>
+            <div className="price">월 150만원</div>
+            <ul>
+              <li>제품 20개</li>
+              <li>키워드 100개</li>
+              <li>무제한 분석</li>
+              <li>전체 리포트 + 캠페인 생성</li>
+              <li>리스크 알림</li>
+              <li>전담 매니저</li>
+            </ul>
+            <button type="button" className="btn-primary" onClick={onEnter}>
+              무료 체험
+            </button>
+          </div>
+          <div className="price-card">
+            <h3>Enterprise</h3>
+            <div className="price">문의</div>
+            <ul>
+              <li>무제한 제품/키워드</li>
+              <li>API 연동</li>
+              <li>커스텀 리포트</li>
+              <li>SLA 보장</li>
+            </ul>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={() => (window.location.href = "mailto:hello@goldencheck.kr")}
+            >
+              문의하기
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section className="faq-section" id="faq">
+        <h2>자주 묻는 질문</h2>
+        <div className="faq-list">
+          <details className="faq-item">
+            <summary>어떤 데이터를 수집하나요?</summary>
+            <p>
+              네이버 뉴스, 블로그, 카페와 주요 커뮤니티의 공개 게시물을 수집합니다. 비공개 글이나
+              개인정보는 수집하지 않습니다.
+            </p>
+          </details>
+          <details className="faq-item">
+            <summary>분석에 얼마나 걸리나요?</summary>
+            <p>키워드당 약 10분 내외로 수집부터 AI 분석 리포트 생성까지 완료됩니다.</p>
+          </details>
+          <details className="faq-item">
+            <summary>경쟁사 분석도 가능한가요?</summary>
+            <p>
+              네, SOV(점유율) 분석과 경쟁사 갭 분석을 통해 경쟁 브랜드 대비 우리의 위치와 기회를
+              파악할 수 있습니다.
+            </p>
+          </details>
+          <details className="faq-item">
+            <summary>무료 체험 기간은 얼마인가요?</summary>
+            <p>
+              14일간 Professional 플랜의 모든 기능을 무료로 체험할 수 있습니다. 카드 등록 없이 시작
+              가능합니다.
+            </p>
+          </details>
+          <details className="faq-item">
+            <summary>교육 업종 외에도 사용할 수 있나요?</summary>
+            <p>현재는 교육상품 유통사에 최적화되어 있으며, 향후 다른 업종으로 확장할 예정입니다.</p>
+          </details>
+        </div>
+      </section>
+
+      <section className="cta-section">
+        <h2>지금 시작하세요</h2>
+        <p>14일 무료 체험. 카드 등록 없이 바로 시작할 수 있습니다.</p>
+        <button type="button" className="btn-primary-lg" onClick={onEnter}>
+          무료로 시작하기
+        </button>
+      </section>
+
+      <footer className="landing-footer">
+        <div className="footer-left">GoldenCheck &copy; 2026</div>
+        <div className="footer-links">
+          <a href="/terms">이용약관</a>
+          <a href="/privacy">개인정보처리방침</a>
+          <a href="/about">사업자 정보</a>
+          <a href="mailto:hello@goldencheck.kr">문의</a>
+        </div>
       </footer>
     </div>
   );
