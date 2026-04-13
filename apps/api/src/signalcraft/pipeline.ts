@@ -3,6 +3,8 @@ import { getPool } from "../infra/db.ts";
 import { COLLECTORS } from "./collectors.ts";
 import { runModule } from "../llm/modules/runner.ts";
 import { sentimentModuleConfig } from "../llm/modules/sentiment.ts";
+import { opportunityModuleConfig } from "../llm/modules/opportunity.ts";
+import { strategyModuleConfig } from "../llm/modules/strategy.ts";
 import { macroViewModuleConfig } from "../llm/modules/macro-view.ts";
 import { summaryModuleConfig } from "../llm/modules/summary.ts";
 import { integratedModuleConfig, type IntegratedOutput } from "../llm/modules/integrated.ts";
@@ -251,15 +253,20 @@ async function runStage3(input: PipelineInput): Promise<Stage3Result> {
   const ran: string[] = [];
   const failed: string[] = [];
 
-  // Phase 4 W10–W11: #01 + #03 are independent and run first; #08
-  // (Executive Summary) reads upstream #01 and #03 results.
-  // Order matters because each module's output is appended to
-  // ctx.upstreamResults for subsequent modules.
+  // v2.0 module execution order (PRD v2.0 §5, Tech Spec v2.0 §4.1):
+  //   #03 Sentiment  → "잘 되고 있나?" (감정 분포)
+  //   #06 Opportunity → "뭘 수정해야 하나?" (기회 발굴, reads #03)
+  //   #07 Strategy    → "더 좋은 방법은?" (실행 전략, reads #03 + #06)
+  //   #08 Summary     → BLUF + 액션 (reads all above)
+  //   #01 Macro View  → 여론 서사 (독립)
+  //   #13 Integrated  → 통합 리포트 (reads everything)
   const modules: ModuleConfig<unknown>[] = [
-    macroViewModuleConfig as ModuleConfig<unknown>, // #01
     sentimentModuleConfig as ModuleConfig<unknown>, // #03
-    summaryModuleConfig as ModuleConfig<unknown>, // #08 — reads upstream
-    integratedModuleConfig as ModuleConfig<unknown>, // #13 — runs last, sees everything
+    opportunityModuleConfig as ModuleConfig<unknown>, // #06
+    strategyModuleConfig as ModuleConfig<unknown>, // #07
+    summaryModuleConfig as ModuleConfig<unknown>, // #08
+    macroViewModuleConfig as ModuleConfig<unknown>, // #01
+    integratedModuleConfig as ModuleConfig<unknown>, // #13
   ];
 
   let integratedOutput: IntegratedOutput | null = null;
