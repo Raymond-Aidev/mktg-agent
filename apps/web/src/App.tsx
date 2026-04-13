@@ -405,7 +405,12 @@ export function App() {
     <div className="app">
       <nav className="global-nav">
         <div className="nav-left">
-          <span className="nav-logo" onClick={() => setView({ screen: "products" })}>
+          <span
+            className="nav-logo"
+            onClick={() => {
+              setView({ screen: "landing" });
+            }}
+          >
             GoldenCheck
           </span>
         </div>
@@ -580,7 +585,13 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
   return (
     <div className="landing">
       <nav className="landing-nav">
-        <span className="nav-logo">GoldenCheck</span>
+        <span
+          className="nav-logo"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          style={{ cursor: "pointer" }}
+        >
+          GoldenCheck
+        </span>
         <div className="landing-nav-links">
           <a href="#features">기능</a>
           <a href="#sample">분석 샘플</a>
@@ -660,7 +671,7 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
                         setAuthError(null);
                       }}
                     >
-                      무료 체험 시작
+                      회원가입
                     </span>
                   </>
                 )}
@@ -698,7 +709,7 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
               setIsRegister(true);
             }}
           >
-            무료로 시작하기
+            시작하기
           </button>
           <button
             type="button"
@@ -881,7 +892,7 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
                 setIsRegister(true);
               }}
             >
-              무료 체험
+              시작하기
             </button>
           </div>
           <div className="price-card">
@@ -926,13 +937,6 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
             </p>
           </details>
           <details className="faq-item">
-            <summary>무료 체험 기간은 얼마인가요?</summary>
-            <p>
-              14일간 Professional 플랜의 모든 기능을 무료로 체험할 수 있습니다. 카드 등록 없이 시작
-              가능합니다.
-            </p>
-          </details>
-          <details className="faq-item">
             <summary>교육 업종 외에도 사용할 수 있나요?</summary>
             <p>현재는 교육상품 유통사에 최적화되어 있으며, 향후 다른 업종으로 확장할 예정입니다.</p>
           </details>
@@ -941,7 +945,7 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
 
       <section className="cta-section">
         <h2>지금 시작하세요</h2>
-        <p>14일 무료 체험. 카드 등록 없이 바로 시작할 수 있습니다.</p>
+        <p>AI 기반 교육 마케팅 자동화, 지금 바로 시작하세요.</p>
         <button
           type="button"
           className="btn-primary-lg"
@@ -950,7 +954,7 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
             setIsRegister(true);
           }}
         >
-          무료로 시작하기
+          시작하기
         </button>
       </section>
 
