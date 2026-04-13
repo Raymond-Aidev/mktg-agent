@@ -21,6 +21,282 @@ import {
 
 const DEFAULT_TENANT = "00000000-0000-0000-0000-0000000000ee";
 
+/* ══════════════════════ Types & Demo Data ══════════════════════ */
+
+type View =
+  | { screen: "products" }
+  | { screen: "product-detail"; productId: string }
+  | { screen: "keyword-report"; productId: string; keywordId: string };
+
+interface DemoKeyword {
+  id: string;
+  keyword: string;
+  searchVolume: number;
+  sentimentScore: number;
+  postCount30d: number;
+  trendDirection: "up" | "flat" | "down";
+  competitorDensity: "low" | "medium" | "high";
+  recommendation: "invest" | "maintain" | "abandon";
+  lastAnalyzed: string | null;
+  reportId: string | null;
+}
+
+interface DemoProduct {
+  id: string;
+  name: string;
+  description: string;
+  keywords: DemoKeyword[];
+}
+
+const DEMO_PRODUCTS: DemoProduct[] = [
+  {
+    id: "prod-1",
+    name: "어린이AI 지휘자",
+    description: "AI 동작인식 기반 클래식 음악 지휘 체험 앱",
+    keywords: [
+      {
+        id: "kw-1a",
+        keyword: "어린이AI 지휘자",
+        searchVolume: 8200,
+        sentimentScore: 0.58,
+        postCount30d: 165,
+        trendDirection: "up",
+        competitorDensity: "low",
+        recommendation: "invest",
+        lastAnalyzed: "2026-04-13T05:20:00Z",
+        reportId: "demo",
+      },
+      {
+        id: "kw-1b",
+        keyword: "어린이 음악교육 앱",
+        searchVolume: 14500,
+        sentimentScore: 0.45,
+        postCount30d: 320,
+        trendDirection: "up",
+        competitorDensity: "high",
+        recommendation: "invest",
+        lastAnalyzed: "2026-04-12T10:00:00Z",
+        reportId: null,
+      },
+      {
+        id: "kw-1c",
+        keyword: "AI 클래식 교육",
+        searchVolume: 3200,
+        sentimentScore: 0.52,
+        postCount30d: 85,
+        trendDirection: "flat",
+        competitorDensity: "low",
+        recommendation: "maintain",
+        lastAnalyzed: "2026-04-10T14:00:00Z",
+        reportId: null,
+      },
+      {
+        id: "kw-1d",
+        keyword: "초등 음악 수업 앱",
+        searchVolume: 9800,
+        sentimentScore: 0.38,
+        postCount30d: 210,
+        trendDirection: "flat",
+        competitorDensity: "high",
+        recommendation: "maintain",
+        lastAnalyzed: "2026-04-08T09:00:00Z",
+        reportId: null,
+      },
+      {
+        id: "kw-1e",
+        keyword: "유아 리듬 게임",
+        searchVolume: 6100,
+        sentimentScore: 0.22,
+        postCount30d: 145,
+        trendDirection: "down",
+        competitorDensity: "high",
+        recommendation: "abandon",
+        lastAnalyzed: "2026-04-05T11:00:00Z",
+        reportId: null,
+      },
+    ],
+  },
+  {
+    id: "prod-2",
+    name: "초등 영어 말하기 캠프",
+    description: "초등 3-6학년 대상 영어 스피킹 집중 캠프",
+    keywords: [
+      {
+        id: "kw-2a",
+        keyword: "초등 영어캠프",
+        searchVolume: 12400,
+        sentimentScore: 0.62,
+        postCount30d: 340,
+        trendDirection: "up",
+        competitorDensity: "high",
+        recommendation: "invest",
+        lastAnalyzed: "2026-04-11T09:00:00Z",
+        reportId: null,
+      },
+      {
+        id: "kw-2b",
+        keyword: "어린이 영어 말하기",
+        searchVolume: 5800,
+        sentimentScore: 0.45,
+        postCount30d: 120,
+        trendDirection: "flat",
+        competitorDensity: "medium",
+        recommendation: "maintain",
+        lastAnalyzed: "2026-04-09T14:00:00Z",
+        reportId: null,
+      },
+      {
+        id: "kw-2c",
+        keyword: "초등 스피킹 학원",
+        searchVolume: 7200,
+        sentimentScore: 0.55,
+        postCount30d: 185,
+        trendDirection: "up",
+        competitorDensity: "high",
+        recommendation: "invest",
+        lastAnalyzed: "2026-04-10T10:00:00Z",
+        reportId: null,
+      },
+      {
+        id: "kw-2d",
+        keyword: "영어캠프 후기",
+        searchVolume: 4300,
+        sentimentScore: 0.68,
+        postCount30d: 95,
+        trendDirection: "flat",
+        competitorDensity: "medium",
+        recommendation: "maintain",
+        lastAnalyzed: "2026-04-07T16:00:00Z",
+        reportId: null,
+      },
+    ],
+  },
+  {
+    id: "prod-3",
+    name: "수학 사고력 워크북",
+    description: "초등 저학년 수학 사고력 향상 워크북 시리즈",
+    keywords: [
+      {
+        id: "kw-3a",
+        keyword: "초등 사고력 수학",
+        searchVolume: 18500,
+        sentimentScore: 0.51,
+        postCount30d: 420,
+        trendDirection: "up",
+        competitorDensity: "high",
+        recommendation: "invest",
+        lastAnalyzed: "2026-04-12T08:00:00Z",
+        reportId: null,
+      },
+      {
+        id: "kw-3b",
+        keyword: "수학 워크북 추천",
+        searchVolume: 9200,
+        sentimentScore: 0.58,
+        postCount30d: 210,
+        trendDirection: "flat",
+        competitorDensity: "high",
+        recommendation: "maintain",
+        lastAnalyzed: "2026-04-10T12:00:00Z",
+        reportId: null,
+      },
+      {
+        id: "kw-3c",
+        keyword: "저학년 수학 문제집",
+        searchVolume: 11000,
+        sentimentScore: 0.42,
+        postCount30d: 280,
+        trendDirection: "down",
+        competitorDensity: "high",
+        recommendation: "maintain",
+        lastAnalyzed: "2026-04-09T09:00:00Z",
+        reportId: null,
+      },
+      {
+        id: "kw-3d",
+        keyword: "영재 수학 교재",
+        searchVolume: 3800,
+        sentimentScore: 0.35,
+        postCount30d: 65,
+        trendDirection: "down",
+        competitorDensity: "medium",
+        recommendation: "abandon",
+        lastAnalyzed: "2026-04-06T14:00:00Z",
+        reportId: null,
+      },
+    ],
+  },
+  {
+    id: "prod-4",
+    name: "그림책 정기구독 박스",
+    description: "0-6세 연령별 큐레이션 그림책 월간 배송",
+    keywords: [
+      {
+        id: "kw-4a",
+        keyword: "그림책 구독 서비스",
+        searchVolume: 7600,
+        sentimentScore: 0.65,
+        postCount30d: 190,
+        trendDirection: "up",
+        competitorDensity: "medium",
+        recommendation: "invest",
+        lastAnalyzed: "2026-04-11T11:00:00Z",
+        reportId: null,
+      },
+      {
+        id: "kw-4b",
+        keyword: "유아 그림책 추천",
+        searchVolume: 22000,
+        sentimentScore: 0.55,
+        postCount30d: 510,
+        trendDirection: "flat",
+        competitorDensity: "high",
+        recommendation: "invest",
+        lastAnalyzed: "2026-04-10T09:00:00Z",
+        reportId: null,
+      },
+      {
+        id: "kw-4c",
+        keyword: "아기 보드북",
+        searchVolume: 15800,
+        sentimentScore: 0.48,
+        postCount30d: 380,
+        trendDirection: "flat",
+        competitorDensity: "high",
+        recommendation: "maintain",
+        lastAnalyzed: "2026-04-09T15:00:00Z",
+        reportId: null,
+      },
+      {
+        id: "kw-4d",
+        keyword: "그림책 선물세트",
+        searchVolume: 5400,
+        sentimentScore: 0.6,
+        postCount30d: 130,
+        trendDirection: "up",
+        competitorDensity: "low",
+        recommendation: "invest",
+        lastAnalyzed: "2026-04-08T10:00:00Z",
+        reportId: null,
+      },
+      {
+        id: "kw-4e",
+        keyword: "창작 동화책",
+        searchVolume: 4100,
+        sentimentScore: 0.3,
+        postCount30d: 70,
+        trendDirection: "down",
+        competitorDensity: "medium",
+        recommendation: "abandon",
+        lastAnalyzed: "2026-04-04T14:00:00Z",
+        reportId: null,
+      },
+    ],
+  },
+];
+
+/* ══════════════════════ Utilities ══════════════════════ */
+
 function formatPct(value: number): string {
   if (!Number.isFinite(value)) return "—";
   return `${(value * 100).toFixed(1)}%`;
@@ -35,56 +311,57 @@ function formatKrw(value: number): string {
   return `${Math.round(value).toLocaleString()} KRW`;
 }
 
+function relativeDate(iso: string | null): string {
+  if (!iso) return "—";
+  const diff = Date.now() - new Date(iso).getTime();
+  const days = Math.floor(diff / 86400000);
+  if (days === 0) return "오늘";
+  if (days === 1) return "어제";
+  if (days < 7) return `${days}일 전`;
+  return new Date(iso).toLocaleDateString();
+}
+
+function sentimentColor(score: number): string {
+  if (score >= 0.5) return "var(--success)";
+  if (score >= 0.3) return "var(--warning)";
+  return "var(--danger)";
+}
+
+/* ══════════════════════ App Root ══════════════════════ */
+
 export function App() {
-  const [tenantId, setTenantId] = useState<string>(DEFAULT_TENANT);
-  const [pendingTenant, setPendingTenant] = useState<string>(DEFAULT_TENANT);
-  const [overview, setOverview] = useState<DashboardOverview | null>(null);
-  const [data, setData] = useState<DashboardKpis | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [showOperator, setShowOperator] = useState<boolean>(false);
-
-  const load = useCallback(async (id: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const [ov, kpis] = await Promise.all([fetchOverview(id), fetchKpis(id)]);
-      setOverview(ov);
-      setData(kpis);
-    } catch (err) {
-      setError((err as Error).message);
-      setOverview(null);
-      setData(null);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void load(tenantId);
-  }, [tenantId, load]);
+  const [tenantId, setTenantId] = useState(DEFAULT_TENANT);
+  const [pendingTenant, setPendingTenant] = useState(DEFAULT_TENANT);
+  const [view, setView] = useState<View>({ screen: "products" });
+  const [showSettings, setShowSettings] = useState(false);
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (pendingTenant.trim().length > 0) {
-      setTenantId(pendingTenant.trim());
-    }
+    if (pendingTenant.trim().length > 0) setTenantId(pendingTenant.trim());
   };
 
-  const [showSettings, setShowSettings] = useState(false);
+  const currentProduct =
+    view.screen !== "products"
+      ? (DEMO_PRODUCTS.find((p) => p.id === view.productId) ?? null)
+      : null;
+  const currentKeyword =
+    view.screen === "keyword-report" && currentProduct
+      ? (currentProduct.keywords.find((k) => k.id === view.keywordId) ?? null)
+      : null;
 
   return (
     <div className="app">
       <header className="app-header">
         <div className="header-left">
-          <h1>GoldenCheck</h1>
+          <h1 className="header-logo" onClick={() => setView({ screen: "products" })}>
+            GoldenCheck
+          </h1>
           <p className="header-subtitle">교육상품 마케팅 AI 분석</p>
         </div>
         <button
           type="button"
           className="settings-toggle"
           onClick={() => setShowSettings(!showSettings)}
-          title="계정 설정"
         >
           설정
         </button>
@@ -104,43 +381,32 @@ export function App() {
         </form>
       )}
 
-      {loading && <div className="status-loading">데이터를 불러오는 중…</div>}
-      {error && <div className="status-error">{error}</div>}
+      <Breadcrumb
+        view={view}
+        product={currentProduct}
+        keyword={currentKeyword}
+        onNavigate={setView}
+      />
 
-      {!loading && !error && overview && (
-        <BusinessOverview overview={overview} tenantId={tenantId} />
+      {view.screen === "products" && (
+        <ProductsGrid
+          products={DEMO_PRODUCTS}
+          onSelect={(id) => setView({ screen: "product-detail", productId: id })}
+        />
       )}
 
-      {/* ── 질문 2: 뭘 수정해야 하나? ── */}
-      <ChannelCard tenantId={tenantId} />
-      <CompetitorCard tenantId={tenantId} />
+      {view.screen === "product-detail" && currentProduct && (
+        <ProductDetail
+          product={currentProduct}
+          onKeywordSelect={(kwId) =>
+            setView({ screen: "keyword-report", productId: currentProduct.id, keywordId: kwId })
+          }
+        />
+      )}
 
-      {/* ── 질문 3: 더 좋은 방법은? ── */}
-      <section className="section-header">
-        <h2>시장 반응 분석하기</h2>
-        <p>
-          키워드를 입력하면 네이버 뉴스·블로그·카페에서 자동으로 여론을 수집하고, AI가 분석 리포트를
-          생성합니다.
-        </p>
-      </section>
-      <SignalcraftPanel tenantId={tenantId} />
-
-      {/* ── 상세 (접기) ── */}
-      <section className="panel collapse-section">
-        <div className="op-header">
-          <h2>상세 데이터</h2>
-          <button type="button" onClick={() => setShowOperator(!showOperator)}>
-            {showOperator ? "접기" : "바이어 · 캠페인 · 관리자"}
-          </button>
-        </div>
-        {showOperator && (
-          <>
-            <BuyersPanel tenantId={tenantId} />
-            {data && <Panels data={data} />}
-            <OperatorPanel />
-          </>
-        )}
-      </section>
+      {view.screen === "keyword-report" && currentProduct && currentKeyword && (
+        <KeywordReportView keyword={currentKeyword} tenantId={tenantId} />
+      )}
 
       <footer className="app-footer">
         <a href="/terms">이용약관</a>
@@ -151,9 +417,378 @@ export function App() {
   );
 }
 
-/* ----------------------------- Business v2 ----------------------------- */
+/* ══════════════════════ Breadcrumb ══════════════════════ */
 
-function BusinessOverview({ overview }: { overview: DashboardOverview; tenantId: string }) {
+function Breadcrumb({
+  view,
+  product,
+  keyword,
+  onNavigate,
+}: {
+  view: View;
+  product: DemoProduct | null;
+  keyword: DemoKeyword | null;
+  onNavigate: (v: View) => void;
+}) {
+  if (view.screen === "products") return null;
+  return (
+    <nav className="breadcrumb">
+      <span className="bc-link" onClick={() => onNavigate({ screen: "products" })}>
+        내 제품
+      </span>
+      <span className="bc-sep">/</span>
+      {view.screen === "product-detail" && product && (
+        <span className="bc-current">{product.name}</span>
+      )}
+      {view.screen === "keyword-report" && product && (
+        <>
+          <span
+            className="bc-link"
+            onClick={() => onNavigate({ screen: "product-detail", productId: product.id })}
+          >
+            {product.name}
+          </span>
+          <span className="bc-sep">/</span>
+          <span className="bc-current">{keyword?.keyword ?? ""}</span>
+        </>
+      )}
+    </nav>
+  );
+}
+
+/* ══════════════════════ Products Grid ══════════════════════ */
+
+function ProductsGrid({
+  products,
+  onSelect,
+}: {
+  products: DemoProduct[];
+  onSelect: (id: string) => void;
+}) {
+  return (
+    <>
+      <div className="page-title">
+        <h2>내 제품</h2>
+        <p>제품별 키워드 성과를 모니터링하고 투자 전략을 수립하세요.</p>
+      </div>
+      <div className="products-grid">
+        {products.map((p) => {
+          const investCount = p.keywords.filter((k) => k.recommendation === "invest").length;
+          const abandonCount = p.keywords.filter((k) => k.recommendation === "abandon").length;
+          const avgSentiment =
+            p.keywords.reduce((s, k) => s + k.sentimentScore, 0) / p.keywords.length;
+          return (
+            <div key={p.id} className="product-card" onClick={() => onSelect(p.id)}>
+              <h3>{p.name}</h3>
+              <p className="product-desc">{p.description}</p>
+              <div className="product-meta">
+                <span className="product-kw-count">{p.keywords.length}개 키워드</span>
+                <span className="product-sentiment" style={{ color: sentimentColor(avgSentiment) }}>
+                  감성 {(avgSentiment * 100).toFixed(0)}%
+                </span>
+              </div>
+              <div className="product-tags">
+                {investCount > 0 && (
+                  <span className="rec-badge rec-invest">투자 {investCount}</span>
+                )}
+                {abandonCount > 0 && (
+                  <span className="rec-badge rec-abandon">철수 {abandonCount}</span>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </>
+  );
+}
+
+/* ══════════════════════ Product Detail ══════════════════════ */
+
+type SortKey =
+  | "keyword"
+  | "searchVolume"
+  | "sentimentScore"
+  | "postCount30d"
+  | "trendDirection"
+  | "recommendation";
+
+function ProductDetail({
+  product,
+  onKeywordSelect,
+}: {
+  product: DemoProduct;
+  onKeywordSelect: (kwId: string) => void;
+}) {
+  const [sortKey, setSortKey] = useState<SortKey>("recommendation");
+  const [sortAsc, setSortAsc] = useState(true);
+
+  const onSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortAsc(!sortAsc);
+    } else {
+      setSortKey(key);
+      setSortAsc(true);
+    }
+  };
+
+  const recOrder: Record<string, number> = { invest: 0, maintain: 1, abandon: 2 };
+  const trendOrder: Record<string, number> = { up: 0, flat: 1, down: 2 };
+
+  const sorted = [...product.keywords].sort((a, b) => {
+    let cmp = 0;
+    switch (sortKey) {
+      case "keyword":
+        cmp = a.keyword.localeCompare(b.keyword);
+        break;
+      case "searchVolume":
+        cmp = a.searchVolume - b.searchVolume;
+        break;
+      case "sentimentScore":
+        cmp = a.sentimentScore - b.sentimentScore;
+        break;
+      case "postCount30d":
+        cmp = a.postCount30d - b.postCount30d;
+        break;
+      case "trendDirection":
+        cmp = (trendOrder[a.trendDirection] ?? 1) - (trendOrder[b.trendDirection] ?? 1);
+        break;
+      case "recommendation":
+        cmp = (recOrder[a.recommendation] ?? 1) - (recOrder[b.recommendation] ?? 1);
+        break;
+    }
+    return sortAsc ? cmp : -cmp;
+  });
+
+  const investCount = product.keywords.filter((k) => k.recommendation === "invest").length;
+  const maintainCount = product.keywords.filter((k) => k.recommendation === "maintain").length;
+  const abandonCount = product.keywords.filter((k) => k.recommendation === "abandon").length;
+  const avgSentiment =
+    product.keywords.reduce((s, k) => s + k.sentimentScore, 0) / product.keywords.length;
+  const upCount = product.keywords.filter((k) => k.trendDirection === "up").length;
+
+  const recLabel: Record<string, string> = { invest: "투자", maintain: "유지", abandon: "철수" };
+  const trendLabel: Record<string, string> = { up: "상승", flat: "보합", down: "하락" };
+  const densityLabel: Record<string, string> = { low: "낮음", medium: "보통", high: "높음" };
+
+  const SortHeader = ({ label, field }: { label: string; field: SortKey }) => (
+    <th
+      className={`sortable ${sortKey === field ? "sort-active" : ""}`}
+      onClick={() => onSort(field)}
+    >
+      {label} {sortKey === field ? (sortAsc ? "↑" : "↓") : ""}
+    </th>
+  );
+
+  return (
+    <>
+      <div className="page-title">
+        <h2>{product.name}</h2>
+        <p>{product.description}</p>
+      </div>
+
+      <div className="summary-strip">
+        <div className="summary-item">
+          <div className="summary-value">{product.keywords.length}</div>
+          <div className="summary-label">전체 키워드</div>
+        </div>
+        <div className="summary-item">
+          <div className="summary-value" style={{ color: "var(--success)" }}>
+            {investCount}
+          </div>
+          <div className="summary-label">투자 권장</div>
+        </div>
+        <div className="summary-item">
+          <div className="summary-value" style={{ color: "var(--warning)" }}>
+            {maintainCount}
+          </div>
+          <div className="summary-label">유지</div>
+        </div>
+        <div className="summary-item">
+          <div className="summary-value" style={{ color: "var(--danger)" }}>
+            {abandonCount}
+          </div>
+          <div className="summary-label">철수 권장</div>
+        </div>
+        <div className="summary-item">
+          <div className="summary-value">{(avgSentiment * 100).toFixed(0)}%</div>
+          <div className="summary-label">평균 감성</div>
+        </div>
+        <div className="summary-item">
+          <div className="summary-value" style={{ color: "var(--success)" }}>
+            {upCount}
+          </div>
+          <div className="summary-label">상승 트렌드</div>
+        </div>
+      </div>
+
+      <section className="panel">
+        <h2>키워드 포트폴리오</h2>
+        <table className="portfolio-table">
+          <thead>
+            <tr>
+              <SortHeader label="키워드" field="keyword" />
+              <SortHeader label="검색량" field="searchVolume" />
+              <SortHeader label="언급(30일)" field="postCount30d" />
+              <SortHeader label="감성" field="sentimentScore" />
+              <SortHeader label="트렌드" field="trendDirection" />
+              <th>경쟁</th>
+              <SortHeader label="판단" field="recommendation" />
+              <th>최근 분석</th>
+              <th>액션</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sorted.map((kw) => (
+              <tr key={kw.id} className="portfolio-row" onClick={() => onKeywordSelect(kw.id)}>
+                <td className="kw-name">{kw.keyword}</td>
+                <td className="num">{kw.searchVolume.toLocaleString()}</td>
+                <td className="num">{kw.postCount30d}</td>
+                <td>
+                  <div className="sentiment-mini">
+                    <div
+                      className="sentiment-mini-bar"
+                      style={{
+                        width: `${kw.sentimentScore * 100}%`,
+                        background: sentimentColor(kw.sentimentScore),
+                      }}
+                    />
+                  </div>
+                  <span className="sentiment-mini-val">
+                    {(kw.sentimentScore * 100).toFixed(0)}%
+                  </span>
+                </td>
+                <td>
+                  <span className={`trend-indicator trend-${kw.trendDirection}`}>
+                    {kw.trendDirection === "up" ? "▲" : kw.trendDirection === "down" ? "▼" : "—"}{" "}
+                    {trendLabel[kw.trendDirection]}
+                  </span>
+                </td>
+                <td>
+                  <span className={`density-badge density-${kw.competitorDensity}`}>
+                    {densityLabel[kw.competitorDensity]}
+                  </span>
+                </td>
+                <td>
+                  <span className={`rec-badge rec-${kw.recommendation}`}>
+                    {recLabel[kw.recommendation]}
+                  </span>
+                </td>
+                <td className="date-cell">{relativeDate(kw.lastAnalyzed)}</td>
+                <td>
+                  <button
+                    type="button"
+                    className="table-action-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onKeywordSelect(kw.id);
+                    }}
+                  >
+                    분석 보기
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+    </>
+  );
+}
+
+/* ══════════════════════ Keyword Report View ══════════════════════ */
+
+function KeywordReportView({ keyword, tenantId }: { keyword: DemoKeyword; tenantId: string }) {
+  const [overview, setOverview] = useState<DashboardOverview | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [showOperator, setShowOperator] = useState(false);
+  const [data, setData] = useState<DashboardKpis | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    Promise.all([fetchOverview(tenantId), fetchKpis(tenantId)])
+      .then(([ov, kpis]) => {
+        if (!cancelled) {
+          setOverview(ov);
+          setData(kpis);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) setError((err as Error).message);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [tenantId]);
+
+  return (
+    <>
+      <div className="kw-report-header">
+        <div>
+          <span className={`rec-badge rec-${keyword.recommendation}`}>
+            {keyword.recommendation === "invest"
+              ? "투자"
+              : keyword.recommendation === "maintain"
+                ? "유지"
+                : "철수"}
+          </span>
+          <span className={`trend-indicator trend-${keyword.trendDirection}`}>
+            {keyword.trendDirection === "up"
+              ? "▲ 상승"
+              : keyword.trendDirection === "down"
+                ? "▼ 하락"
+                : "— 보합"}
+          </span>
+        </div>
+        <div className="kw-metrics-row">
+          <span>검색량 {keyword.searchVolume.toLocaleString()}</span>
+          <span>언급 {keyword.postCount30d}건</span>
+          <span>감성 {(keyword.sentimentScore * 100).toFixed(0)}%</span>
+        </div>
+      </div>
+
+      {loading && <div className="status-loading">데이터를 불러오는 중...</div>}
+      {error && <div className="status-error">{error}</div>}
+
+      {!loading && !error && overview && <BusinessOverview overview={overview} />}
+
+      <ChannelCard tenantId={tenantId} />
+      <CompetitorCard tenantId={tenantId} />
+
+      <section className="section-header">
+        <h2>시장 반응 분석하기</h2>
+        <p>이 키워드에 대한 네이버 뉴스/블로그/카페 여론을 수집하고 AI가 분석합니다.</p>
+      </section>
+      <SignalcraftPanel tenantId={tenantId} initialKeyword={keyword.keyword} />
+
+      <section className="panel collapse-section">
+        <div className="op-header">
+          <h2>상세 데이터</h2>
+          <button type="button" onClick={() => setShowOperator(!showOperator)}>
+            {showOperator ? "접기" : "바이어 / 캠페인 / 관리자"}
+          </button>
+        </div>
+        {showOperator && (
+          <>
+            <BuyersPanel tenantId={tenantId} />
+            {data && <Panels data={data} />}
+            <OperatorPanel />
+          </>
+        )}
+      </section>
+    </>
+  );
+}
+
+/* ══════════════════════ Business Overview ══════════════════════ */
+
+function BusinessOverview({ overview }: { overview: DashboardOverview }) {
   return (
     <>
       <div className="grid">
@@ -176,8 +811,8 @@ function BusinessOverview({ overview }: { overview: DashboardOverview; tenantId:
                 />
               </div>
               <div className="subtitle">
-                긍정 {(overview.brandSentiment.positive * 100).toFixed(0)}% · 부정{" "}
-                {(overview.brandSentiment.negative * 100).toFixed(0)}% · 중립{" "}
+                긍정 {(overview.brandSentiment.positive * 100).toFixed(0)}% / 부정{" "}
+                {(overview.brandSentiment.negative * 100).toFixed(0)}% / 중립{" "}
                 {(overview.brandSentiment.neutral * 100).toFixed(0)}%
               </div>
               {overview.brandSentiment.oneLiner && (
@@ -218,7 +853,6 @@ function BusinessOverview({ overview }: { overview: DashboardOverview; tenantId:
             </ul>
           </section>
         )}
-
         {overview.recentReports.length > 0 && (
           <section className="card">
             <h3>최근 리포트</h3>
@@ -238,7 +872,7 @@ function BusinessOverview({ overview }: { overview: DashboardOverview; tenantId:
 
       {overview.lastAnalyzedAt && (
         <div className="data-freshness">
-          마지막 분석: {new Date(overview.lastAnalyzedAt).toLocaleString()} · 키워드: "
+          마지막 분석: {new Date(overview.lastAnalyzedAt).toLocaleString()} / 키워드: "
           {overview.latestKeyword}"
         </div>
       )}
@@ -246,12 +880,11 @@ function BusinessOverview({ overview }: { overview: DashboardOverview; tenantId:
   );
 }
 
-/* ------------------------------ Channels ------------------------------- */
+/* ══════════════════════ Channels ══════════════════════ */
 
 function ChannelCard({ tenantId }: { tenantId: string }) {
   const [data, setData] = useState<ChannelData | null>(null);
   const [loading, setLoading] = useState(false);
-
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
@@ -267,11 +900,8 @@ function ChannelCard({ tenantId }: { tenantId: string }) {
       cancelled = true;
     };
   }, [tenantId]);
-
   if (loading || !data || data.totalPosts === 0) return null;
-
   const maxPosts = Math.max(...data.channels.map((c) => c.postCount), 1);
-
   return (
     <section className="panel">
       <h2>채널별 성과 (최근 30일, 총 {data.totalPosts}건)</h2>
@@ -287,22 +917,15 @@ function ChannelCard({ tenantId }: { tenantId: string }) {
           </div>
         ))}
       </div>
-      {data.email && data.email.sent > 0 && (
-        <div className="ch-email">
-          <strong>이메일</strong>: 발송 {data.email.sent} · 열람 {data.email.opened} · 클릭{" "}
-          {data.email.clicked} · 열람률 {(data.email.openRate * 100).toFixed(1)}%
-        </div>
-      )}
     </section>
   );
 }
 
-/* ----------------------------- Competitors ----------------------------- */
+/* ══════════════════════ Competitors ══════════════════════ */
 
 function CompetitorCard({ tenantId }: { tenantId: string }) {
   const [data, setData] = useState<CompetitorData | null>(null);
   const [loading, setLoading] = useState(false);
-
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
@@ -318,9 +941,7 @@ function CompetitorCard({ tenantId }: { tenantId: string }) {
       cancelled = true;
     };
   }, [tenantId]);
-
   if (loading || !data || data.competitors.length === 0) return null;
-
   return (
     <section className="panel">
       <h2>경쟁사 현황 ({data.totalTracked}사 추적)</h2>
@@ -329,18 +950,18 @@ function CompetitorCard({ tenantId }: { tenantId: string }) {
           <div key={c.name} className="comp-card">
             <div className="comp-name">{c.name}</div>
             <div className="comp-meta">
-              {c.country ?? "—"} · {c.genres.slice(0, 3).join(", ") || "—"}
+              {c.country ?? "—"} / {c.genres.slice(0, 3).join(", ") || "—"}
             </div>
             <div className="comp-stat">
               신작 {c.recentTitleCount}건
-              {c.topTitle && <span className="comp-title"> · {c.topTitle}</span>}
+              {c.topTitle && <span className="comp-title"> / {c.topTitle}</span>}
             </div>
           </div>
         ))}
       </div>
       {data.competitorGaps.length > 0 && (
         <div className="comp-gaps">
-          <h3>경쟁사 약점 & 우리의 기회</h3>
+          <h3>경쟁사 약점 &amp; 우리의 기회</h3>
           {data.competitorGaps.map((g, i) => (
             <div key={i} className="gap-item">
               <strong>{g.competitor}</strong>
@@ -354,7 +975,7 @@ function CompetitorCard({ tenantId }: { tenantId: string }) {
   );
 }
 
-/* ----------------------------- SignalCraft ----------------------------- */
+/* ══════════════════════ SignalCraft ══════════════════════ */
 
 const STATUS_LABEL: Record<SignalcraftJob["status"], string> = {
   queued: "대기 중",
@@ -364,26 +985,28 @@ const STATUS_LABEL: Record<SignalcraftJob["status"], string> = {
   done: "완료",
   failed: "실패",
 };
-
 const TERMINAL: SignalcraftJob["status"][] = ["done", "failed"];
 
-function SignalcraftPanel({ tenantId }: { tenantId: string }) {
-  const [keyword, setKeyword] = useState<string>("children's books");
+function SignalcraftPanel({
+  tenantId,
+  initialKeyword,
+}: {
+  tenantId: string;
+  initialKeyword?: string;
+}) {
+  const [keyword, setKeyword] = useState(initialKeyword ?? "");
   const [jobId, setJobId] = useState<string | null>(null);
   const [job, setJob] = useState<SignalcraftJob | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState<boolean>(false);
+  const [submitting, setSubmitting] = useState(false);
   const pollTimer = useRef<number | null>(null);
-
   const clearPoll = useCallback(() => {
     if (pollTimer.current !== null) {
       window.clearInterval(pollTimer.current);
       pollTimer.current = null;
     }
   }, []);
-
   useEffect(() => clearPoll, [clearPoll]);
-
   useEffect(() => {
     if (!jobId) return;
     let cancelled = false;
@@ -392,9 +1015,7 @@ function SignalcraftPanel({ tenantId }: { tenantId: string }) {
         const fresh = await fetchSignalcraftJob(jobId);
         if (cancelled) return;
         setJob(fresh);
-        if (TERMINAL.includes(fresh.status)) {
-          clearPoll();
-        }
+        if (TERMINAL.includes(fresh.status)) clearPoll();
       } catch (err) {
         if (cancelled) return;
         setSubmitError((err as Error).message);
@@ -424,7 +1045,6 @@ function SignalcraftPanel({ tenantId }: { tenantId: string }) {
       setSubmitting(false);
     }
   };
-
   const onReset = () => {
     clearPoll();
     setJobId(null);
@@ -443,10 +1063,10 @@ function SignalcraftPanel({ tenantId }: { tenantId: string }) {
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
           disabled={submitting || (job !== null && !TERMINAL.includes(job.status))}
-          placeholder="예: children's books"
+          placeholder="키워드 입력"
         />
         <button type="submit" disabled={submitting || !keyword.trim()}>
-          {submitting ? "제출 중…" : "실행"}
+          {submitting ? "제출 중..." : "실행"}
         </button>
         {(job || submitError) && (
           <button type="button" onClick={onReset} className="btn-secondary">
@@ -454,9 +1074,7 @@ function SignalcraftPanel({ tenantId }: { tenantId: string }) {
           </button>
         )}
       </form>
-
       {submitError && <div className="status-error">Error: {submitError}</div>}
-
       {job && (
         <div className="sc-status">
           <div className="sc-status-row">
@@ -471,7 +1089,7 @@ function SignalcraftPanel({ tenantId }: { tenantId: string }) {
             />
           </div>
           <div className="sc-meta">
-            <span>jobId {job.id.slice(0, 8)}…</span>
+            <span>jobId {job.id.slice(0, 8)}...</span>
             <span>keyword "{job.keyword}"</span>
             {Object.entries(job.rawPostsBySource).map(([src, c]) => (
               <span key={src}>
@@ -488,16 +1106,16 @@ function SignalcraftPanel({ tenantId }: { tenantId: string }) {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  새 탭에서 열기 ↗
+                  리포트 보기
                 </a>
                 <a href={`/api/v1/reports/${job.reportId}`} target="_blank" rel="noreferrer">
-                  JSON 보기
+                  JSON
                 </a>
               </div>
               <ActionButtons jobId={job.id} tenantId={job.tenant_id} />
               <iframe
                 key={job.reportId}
-                title="SignalCraft integrated report"
+                title="SignalCraft report"
                 className="sc-report-frame"
                 src={`/api/v1/reports/${job.reportId}?format=html`}
               />
@@ -509,27 +1127,24 @@ function SignalcraftPanel({ tenantId }: { tenantId: string }) {
   );
 }
 
-/* ------------------------------ Action Buttons ----------------------------- */
+/* ══════════════════════ Action Buttons ══════════════════════ */
 
 function ActionButtons({ jobId, tenantId }: { jobId: string; tenantId: string }) {
   const [generating, setGenerating] = useState<string | null>(null);
   const [result, setResult] = useState<ActionResult | null>(null);
   const [err, setErr] = useState<string | null>(null);
-
   const onGenerate = async (actionType: "campaign_draft" | "content_calendar") => {
     setGenerating(actionType);
     setErr(null);
     setResult(null);
     try {
-      const res = await generateAction({ jobId, tenantId, actionType });
-      setResult(res);
+      setResult(await generateAction({ jobId, tenantId, actionType }));
     } catch (e) {
       setErr((e as Error).message.slice(0, 200));
     } finally {
       setGenerating(null);
     }
   };
-
   return (
     <div className="action-buttons">
       <div className="action-btn-row">
@@ -539,7 +1154,7 @@ function ActionButtons({ jobId, tenantId }: { jobId: string; tenantId: string })
           disabled={generating !== null}
           className="action-btn"
         >
-          {generating === "campaign_draft" ? "생성 중…" : "캠페인 초안 생성"}
+          {generating === "campaign_draft" ? "생성 중..." : "캠페인 초안 생성"}
         </button>
         <button
           type="button"
@@ -547,7 +1162,7 @@ function ActionButtons({ jobId, tenantId }: { jobId: string; tenantId: string })
           disabled={generating !== null}
           className="action-btn"
         >
-          {generating === "content_calendar" ? "생성 중…" : "콘텐츠 캘린더 생성"}
+          {generating === "content_calendar" ? "생성 중..." : "콘텐츠 캘린더 생성"}
         </button>
       </div>
       {err && <div className="status-error">{err}</div>}
@@ -561,25 +1176,22 @@ function ActionButtons({ jobId, tenantId }: { jobId: string; tenantId: string })
   );
 }
 
-/* -------------------------------- Buyers -------------------------------- */
+/* ══════════════════════ Buyers ══════════════════════ */
 
 function BuyersPanel({ tenantId }: { tenantId: string }) {
   const [data, setData] = useState<{ total: number; buyers: Buyer[] } | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
-
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
     setErr(null);
     fetchBuyers(tenantId, 25)
       .then((res) => {
-        if (cancelled) return;
-        setData({ total: res.total, buyers: res.buyers });
+        if (!cancelled) setData({ total: res.total, buyers: res.buyers });
       })
       .catch((e) => {
-        if (cancelled) return;
-        setErr((e as Error).message);
+        if (!cancelled) setErr((e as Error).message);
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -588,19 +1200,15 @@ function BuyersPanel({ tenantId }: { tenantId: string }) {
       cancelled = true;
     };
   }, [tenantId]);
-
   return (
     <section className="panel">
       <h2>
         Buyers (top {data?.buyers.length ?? 0} of {data?.total ?? 0})
       </h2>
-      {loading && <div className="status-loading">Loading buyers…</div>}
+      {loading && <div className="status-loading">Loading buyers...</div>}
       {err && <div className="status-error">{err}</div>}
       {!loading && !err && data && data.buyers.length === 0 && (
-        <div className="status-empty">
-          No buyers for this tenant yet. Phase 2 buyers:bologna crawler is gated on legal review
-          (OI-04).
-        </div>
+        <div className="status-empty">No buyers for this tenant yet.</div>
       )}
       {!loading && !err && data && data.buyers.length > 0 && (
         <table>
@@ -630,39 +1238,35 @@ function BuyersPanel({ tenantId }: { tenantId: string }) {
   );
 }
 
-/* ------------------------------- Operator ------------------------------- */
+/* ══════════════════════ Operator ══════════════════════ */
 
 function OperatorPanel() {
-  const [open, setOpen] = useState<boolean>(false);
+  const [open, setOpen] = useState(false);
   const [data, setData] = useState<OperatorOverview | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
-
   const load = useCallback(async () => {
     setLoading(true);
     setErr(null);
     try {
-      const res = await fetchOperatorOverview();
-      setData(res);
+      setData(await fetchOperatorOverview());
     } catch (e) {
       setErr((e as Error).message);
     } finally {
       setLoading(false);
     }
   }, []);
-
   const onToggle = () => {
     const next = !open;
     setOpen(next);
     if (next && !data) void load();
   };
-
   return (
     <section className="panel">
       <div className="op-header">
         <h2>운영자 오버뷰</h2>
         <button type="button" onClick={onToggle}>
-          {open ? "닫기" : "열기 (basic auth)"}
+          {open ? "닫기" : "열기"}
         </button>
         {open && (
           <button type="button" onClick={load} className="btn-secondary">
@@ -670,7 +1274,7 @@ function OperatorPanel() {
           </button>
         )}
       </div>
-      {open && loading && <div className="status-loading">Loading…</div>}
+      {open && loading && <div className="status-loading">Loading...</div>}
       {open && err && <div className="status-error">{err}</div>}
       {open && data && (
         <div className="op-grid">
@@ -686,8 +1290,7 @@ function OperatorPanel() {
             <h3>Queues</h3>
             {Object.entries(data.queues).map(([name, c]) => (
               <div key={name}>
-                <strong>{name}</strong>: w={c.waiting} a={c.active} c={c.completed} f=
-                {c.failed}
+                <strong>{name}</strong>: w={c.waiting} a={c.active} c={c.completed} f={c.failed}
               </div>
             ))}
           </div>
@@ -708,7 +1311,7 @@ function OperatorPanel() {
                   <th>Table</th>
                   <th className="num">Rows</th>
                   <th className="num">Stale</th>
-                  <th>Newest last_seen</th>
+                  <th>Newest</th>
                 </tr>
               </thead>
               <tbody>
@@ -725,8 +1328,9 @@ function OperatorPanel() {
           </div>
           <div className="op-card op-wide">
             <h3>LLM cost (7d)</h3>
-            {data.llmCost.length === 0 && <div>No calls.</div>}
-            {data.llmCost.length > 0 && (
+            {data.llmCost.length === 0 ? (
+              <div>No calls.</div>
+            ) : (
               <table>
                 <thead>
                   <tr>
@@ -734,7 +1338,7 @@ function OperatorPanel() {
                     <th className="num">Calls</th>
                     <th className="num">Input</th>
                     <th className="num">Output</th>
-                    <th className="num">Cost (USD)</th>
+                    <th className="num">Cost</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -752,9 +1356,10 @@ function OperatorPanel() {
             )}
           </div>
           <div className="op-card op-wide">
-            <h3>Recent crawler failures (24h)</h3>
-            {data.crawlerFailures.length === 0 && <div>No failures.</div>}
-            {data.crawlerFailures.length > 0 && (
+            <h3>Crawler failures (24h)</h3>
+            {data.crawlerFailures.length === 0 ? (
+              <div>No failures.</div>
+            ) : (
               <table>
                 <thead>
                   <tr>
@@ -803,9 +1408,8 @@ function Panels({ data }: { data: DashboardKpis }) {
           <div className="subtitle">rolling KPI window</div>
         </div>
       </div>
-
       <section className="panel">
-        <h2>FX rates → KRW (live)</h2>
+        <h2>FX rates (KRW)</h2>
         <div className="fx-strip">
           {Object.entries(data.fxToKrw).map(([cur, rate]) => (
             <span key={cur} className="fx-chip">
@@ -814,11 +1418,10 @@ function Panels({ data }: { data: DashboardKpis }) {
           ))}
         </div>
       </section>
-
       <section className="panel">
         <h2>Email campaigns</h2>
         {data.campaigns.length === 0 ? (
-          <div className="status-empty">No campaign events in window.</div>
+          <div className="status-empty">No campaign events.</div>
         ) : (
           <table>
             <thead>
@@ -835,7 +1438,7 @@ function Panels({ data }: { data: DashboardKpis }) {
             <tbody>
               {data.campaigns.map((c) => (
                 <tr key={c.campaignId}>
-                  <td>{c.campaignId.slice(0, 8)}…</td>
+                  <td>{c.campaignId.slice(0, 8)}...</td>
                   <td className="num">{formatInt(c.sent)}</td>
                   <td className="num">{formatInt(c.opened)}</td>
                   <td className="num">{formatInt(c.clicked)}</td>
@@ -848,11 +1451,10 @@ function Panels({ data }: { data: DashboardKpis }) {
           </table>
         )}
       </section>
-
       <section className="panel">
         <h2>Agent adoption</h2>
         {data.adoption.length === 0 ? (
-          <div className="status-empty">No adoption events in window.</div>
+          <div className="status-empty">No adoption events.</div>
         ) : (
           <table>
             <thead>
@@ -878,11 +1480,10 @@ function Panels({ data }: { data: DashboardKpis }) {
           </table>
         )}
       </section>
-
       <section className="panel">
         <h2>LLM cost by model</h2>
         {data.llmCost.length === 0 ? (
-          <div className="status-empty">No LLM calls in window.</div>
+          <div className="status-empty">No LLM calls.</div>
         ) : (
           <table>
             <thead>
