@@ -8,12 +8,12 @@
 MVP 목표: 2026년 10월 (볼로냐 북페어 시즌 대비).
 
 ## 레포 구조
-- `apps/api` — Express + BullMQ API 서버
-- `apps/web` — React 대시보드 (Vite)
+- `apps/api` — Express + BullMQ API 서버 (18개 라우트, JWT 인증, admin API)
+- `apps/web` — React SPA (Vite) — 랜딩 페이지, 제품/키워드 포트폴리오, 분석 리포트, 어드민 패널
 - `apps/workers` — BullMQ 워커 (queue:batch + queue:signalcraft)
 - `packages/shared` — 공통 타입·Zod 스키마·유틸
 - `packages/crawlers` — 카테고리 A/B 크롤러 모듈
-- `db/migrations` — Postgres 마이그레이션 (번호 체계 엄격 관리)
+- `db/migrations` — Postgres 마이그레이션 (0001~0012, 번호 체계 엄격 관리)
 - `docs/` — PRD, Technical Spec, Implementation Plan, Prompt Playbook
 - `.claude/` — hooks, agents, settings (Claude Code 프로젝트 설정)
 
@@ -27,6 +27,49 @@ MVP 목표: 2026년 10월 (볼로냐 북페어 시즌 대비).
 
 ## 현재 Phase
 Phase 7 — W22 — 관측성 (Prometheus /metrics · Sentry · 부하 테스트 · DLQ 플레이북)
+
+## 구현 완료 현황 (2026-04-13 기준)
+
+### DB 스키마 (12 마이그레이션)
+- 0001 extensions · 0002 master tables (buyers/competitors/market_trends/fx_rates/rights_deals/bestsellers)
+- 0003 signalcraft (jobs/raw_posts/reports) · 0004 events+ops · 0005 llm_usage · 0006 roles
+- 0007 master triggers · 0008 module_outputs · 0009 actions · 0010 campaigns · 0011 users · 0012 products
+
+### 인증 시스템
+- JWT 기반 인증 (bcryptjs + jsonwebtoken)
+- 회원가입 (POST /api/v1/auth/register) — 자동 tenant 발급
+- 로그인 (POST /api/v1/auth/login) — JWT 7일 만료
+- authMiddleware 전역 적용, role 기반 접근 제어 (admin/owner/member)
+
+### API 라우트 (18개)
+- 인증: auth (register/login/me)
+- 대시보드: dashboard, dashboard-v2, channels, competitors-v2
+- SignalCraft: signalcraft (run/jobs), reports, actions
+- 데이터: buyers, campaigns, products (CRUD + keywords)
+- 어드민: admin-users (회원 관리/통계), admin-batch, operator
+- 기타: events, email-webhook, metrics, legal (terms/privacy/about/pricing)
+
+### 프론트엔드 (React SPA, 19개 컴포넌트)
+- 랜딩 페이지: 히어로, 기능 소개, 분석 프로세스, 3단계 요금제, FAQ, 로그인/회원가입 모달
+- 글로벌 네비게이션: sticky 상단 바, 대시보드/리포트/설정/관리자, 사용자명, 로그아웃
+- 제품/키워드 포트폴리오: 3단계 드릴다운 (제품 목록 → 키워드 테이블 → 분석 리포트)
+- 제품 CRUD: 추가/삭제, 키워드 추가/삭제 (API 연동)
+- 분석 리포트: 시각화 (도넛 차트, SOV 바, 포지셔닝 맵, 콘텐츠 갭, 리스크 시그널, 타임라인)
+- 어드민 패널: 시스템 통계, 회원 목록, 계정 생성, 권한 변경, 삭제
+
+### LLM 모듈 (6개 구현)
+- #01 Macro View · #03 Sentiment · #06 Market Intelligence (SOV/포지셔닝/콘텐츠갭/리스크)
+- #07 Strategy · #08 Summary · #13 Integrated Report
+
+### 크롤러 (7개)
+- Category A: fx-rates, bestsellers, competitors, market-trends, rights-deals
+- Category B: naver, hackernews
+
+### 인프라
+- Railway 호스팅 (API + Workers + Postgres + Redis)
+- Sentry 에러 추적, Prometheus /metrics
+- BullMQ 큐 분리 (batch/signalcraft), DB Role 강제 (getPoolForRole)
+- 법적 문서 v1.0 (이용약관/개인정보처리방침/사업자정보/요금제)
 
 ## 팀 역할
 - **FSL (풀스택 리드)**: 인프라·BullMQ·DB 스키마·API·배포·코드 리뷰
@@ -43,8 +86,8 @@ Phase 7 — W22 — 관측성 (Prometheus /metrics · Sentry · 부하 테스트
 ## 기술 스택
 - Node.js 22 LTS, pnpm 10, TypeScript 5.7+
 - PostgreSQL 15, Redis 7, BullMQ, Playwright
-- Express, React 18 + Vite, Chart.js, Puppeteer
-- Sentry (에러 추적), Grafana Cloud (무료 티어, 메트릭/로그)
+- Express, React 18 + Vite, bcryptjs, jsonwebtoken
+- Sentry (에러 추적), Prometheus (prom-client), Grafana Cloud
 
 ## 인프라 (Railway 기반)
 - **호스팅**: Railway — API / workers / web 서비스, GitHub 연동 자동 배포
