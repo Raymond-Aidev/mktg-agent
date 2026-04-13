@@ -181,6 +181,33 @@ export async function fetchCompetitors(tenantId: string): Promise<CompetitorData
   return (await res.json()) as CompetitorData;
 }
 
+/* -------------------------------- Channels -------------------------------- */
+
+export interface ChannelData {
+  totalPosts: number;
+  channels: Array<{
+    source: string;
+    label: string;
+    postCount: number;
+    avgLikes: number;
+    avgComments: number;
+    totalLikes: number;
+    engagementScore: number;
+  }>;
+  email: {
+    sent: number;
+    opened: number;
+    clicked: number;
+    openRate: number;
+  } | null;
+}
+
+export async function fetchChannels(tenantId: string): Promise<ChannelData> {
+  const res = await fetch(`/api/v2/dashboard/channels?tenantId=${encodeURIComponent(tenantId)}`);
+  if (!res.ok) throw new Error(`channels HTTP ${res.status}`);
+  return (await res.json()) as ChannelData;
+}
+
 /* -------------------------------- Buyers -------------------------------- */
 
 export interface Buyer {

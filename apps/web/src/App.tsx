@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   fetchBuyers,
+  fetchChannels,
   fetchCompetitors,
   fetchKpis,
   fetchOperatorOverview,
@@ -10,6 +11,7 @@ import {
   runSignalcraft,
   type ActionResult,
   type Buyer,
+  type ChannelData,
   type CompetitorData,
   type DashboardKpis,
   type DashboardOverview,
@@ -215,6 +217,7 @@ function BusinessOverview({
         )}
       </div>
 
+      <ChannelCard tenantId={tenantId} />
       <CompetitorCard tenantId={tenantId} />
 
       {overview.lastAnalyzedAt && (
@@ -224,6 +227,57 @@ function BusinessOverview({
         </div>
       )}
     </>
+  );
+}
+
+/* ------------------------------ Channels ------------------------------- */
+
+function ChannelCard({ tenantId }: { tenantId: string }) {
+  const [data, setData] = useState<ChannelData | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    fetchChannels(tenantId)
+      .then((d) => {
+        if (!cancelled) setData(d);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [tenantId]);
+
+  if (loading || !data || data.totalPosts === 0) return null;
+
+  const maxPosts = Math.max(...data.channels.map((c) => c.postCount), 1);
+
+  return (
+    <section className="panel">
+      <h2>채널별 성과 (최근 30일, 총 {data.totalPosts}건)</h2>
+      <div className="channel-list">
+        {data.channels.map((ch) => (
+          <div key={ch.source} className="channel-row">
+            <div className="ch-label">{ch.label}</div>
+            <div className="ch-bar-wrap">
+              <div className="ch-bar" style={{ width: `${(ch.postCount / maxPosts) * 100}%` }} />
+              <span className="ch-count">{ch.postCount}건</span>
+            </div>
+            <div className="ch-engage">참여 {ch.engagementScore}</div>
+          </div>
+        ))}
+      </div>
+      {data.email && data.email.sent > 0 && (
+        <div className="ch-email">
+          <strong>이메일</strong>: 발송 {data.email.sent} · 열람 {data.email.opened} · 클릭{" "}
+          {data.email.clicked} · 열람률 {(data.email.openRate * 100).toFixed(1)}%
+        </div>
+      )}
+    </section>
   );
 }
 
