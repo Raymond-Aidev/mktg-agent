@@ -1,5 +1,51 @@
-EduRights AI  ·  Technical Specification  |  v1.1
-EduRights AI
+GoldenCheck  ·  Technical Specification  |  v1.1 → v2.0
+
+> **v2.0 업데이트 (2026-04-13)**: 실제 구현 상태를 반영하여 아키텍처 변경사항을 기록합니다.
+
+## v2.0 아키텍처 변경 사항
+
+### 인프라 변경
+| 설계 (v1.1) | 현재 구현 (v2.0) |
+|------------|-----------------|
+| AWS ECS + RDS + ElastiCache | **Railway** (Postgres 15 + Redis 7) |
+| S3 (PDF/아카이브) | **Cloudflare R2** (예정, 미연동) |
+| Terraform IaC | **railway.json** + Railway CLI |
+| GitHub Actions CI/CD | GitHub push → **Railway 자동 빌드** (buildCommand: web build 포함) |
+| AWS Secrets Manager | **Railway Variables** |
+
+### DB 스키마 추가 (설계 외)
+| 테이블 | 용도 | 마이그레이션 |
+|--------|------|-------------|
+| `users` | JWT 인증, 회원가입/로그인, role 관리 | 0011 |
+| `products` | 제품 CRUD (테넌트별) | 0012 |
+| `product_keywords` | 키워드 등록/관리 (제품별) | 0012 |
+| `campaigns` | 이메일 캠페인 (email_events FK) | 0010 |
+
+### DB Role 강제 구현
+- `getPoolForRole("batch_worker")` — Category A 핸들러 5개에 적용
+- `getPoolForRole("signalcraft_worker")` — SignalCraft pipeline에 적용
+- Pool `connect` 이벤트에서 자동 `SET ROLE`
+
+### #06 모듈 프레임워크 변경
+- **설계**: SWOT (Strengths/Weaknesses/Opportunities/Threats)
+- **현재**: **Market Intelligence** (SOV 점유율, 포지셔닝 맵, 콘텐츠 갭 분석, 리스크 시그널)
+- **변경 사유**: SWOT의 S/W는 내부 요인으로 키워드 검색 데이터에서 도출 불가. Brandwatch/Meltwater급 분석 프레임워크로 교체
+
+### 인증 아키텍처 (신규)
+- JWT (jsonwebtoken) + bcryptjs, 7일 만료
+- `authMiddleware` 전역 적용 (backward compatible)
+- Role: admin/owner/member
+- Admin API: 회원 관리, 시스템 통계
+
+### 프론트엔드 아키텍처 (신규)
+- React SPA (단일 App.tsx, state 기반 네비게이션)
+- View: landing → products → product-detail → keyword-report / admin
+- 글로벌 네비게이션 바 (sticky), 브레드크럼, 뒤로가기
+- 리포트 HTML: 서버 렌더링 (render-html.ts), 시각화 포함
+
+---
+
+GoldenCheck (구 EduRights AI)
 Technical Specification
 
 
@@ -7,15 +53,15 @@ Technical Specification
 
 
 문서 버전
-	v1.1 — 데이터 수집 파이프라인 전면 보완
+	v1.1 — 데이터 수집 파이프라인 전면 보완 (아래 원본은 이력 보존용)
 작성일
 	2026년 4월
 분류
 	내부용 (INTERNAL)
 연관 문서
-	EduRights AI PRD v1.0
+	GoldenCheck PRD v1.0
 독자
-	개발팀 4인 (풀스택 리드·프론트엔드·AI 엔지니어·PM)
+	개발팀
 목적
 	PRD에서 명세되지 않은 수집·계산·보고서 생성 로직을 개발 가능한 수준으로 정의
 v1.1 변경

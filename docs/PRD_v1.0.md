@@ -1,23 +1,46 @@
-EduRights AI  ·  Marketing Agent Platform  |  PRD v1.0
-EduRights AI
-Marketing Agent Platform
+GoldenCheck  ·  AI Marketing Agent Platform  |  PRD v1.0 → v2.0
+
+> **v2.0 업데이트 (2026-04-13)**: 제품명 GoldenCheck로 확정. 아래 구현 현황은 실제 배포 상태를 반영합니다.
+
+## 구현 현황 요약
+
+| 항목 | PRD 설계 | 현재 상태 |
+|------|---------|----------|
+| 제품명 | EduRights AI | **GoldenCheck** (www.goldencheck.kr) |
+| 인프라 | AWS ECS + RDS | **Railway** (Postgres + Redis) |
+| 타겟 | 교육 콘텐츠 기업 · 아동 도서 출판사 | **교육상품 유통사** (범위 확장) |
+| 5개 AI 에이전트 | Research/Marketing/Translation/CRM/Analytics | Marketing Agent 부분 구현 (캠페인 초안, 콘텐츠 캘린더), 나머지 미구현 |
+| 14모듈 SignalCraft | 14개 모듈 전체 | **6개 구현** (#01 Macro View, #03 Sentiment, #06 Market Intelligence, #07 Strategy, #08 Summary, #13 Integrated) |
+| 인증 | 미정의 | **JWT + bcrypt** (회원가입/로그인/역할 관리) |
+| 제품/키워드 관리 | 미정의 | **CRUD 구현** (products + product_keywords 테이블) |
+| 랜딩 페이지 | 미정의 | **구현 완료** (히어로, 기능소개, 요금제, FAQ, 로그인 모달) |
+| 어드민 패널 | 미정의 | **구현 완료** (회원 관리, 시스템 모니터링, 계정 생성, 권한 부여) |
+| 법적 문서 | 미정의 | **v1.0 완료** (이용약관, 개인정보처리방침, 사업자정보, 요금제) |
+| #06 분석 프레임워크 | SWOT | **SOV/포지셔닝/콘텐츠갭/리스크시그널** (SWOT은 부적합하여 교체) |
+| 리포트 시각화 | 텍스트 기반 | **시각화 완료** (도넛차트, SOV바, 포지셔닝맵, 타임라인, SWOT→갭분석) |
+| 결제 | 미정의 | **요금제 페이지** (Starter 50만/Professional 150만/Enterprise 문의) — PG 연동 미구현 |
+
+---
+
+GoldenCheck (구 EduRights AI)
+AI Marketing Agent Platform
 
 
 Product Requirements Document
 
 
 문서 버전
-	v1.0 — 초안
+	v1.0 — 초안 (아래 원본은 이력 보존용)
 	작성일
 	2026년 4월
 	분류
 	대외비 (CONFIDENTIAL)
 	제품명
-	EduRights AI — Marketing Agent Platform
+	GoldenCheck (구 EduRights AI) — AI Marketing Agent Platform
 	타겟 시장
-	교육 콘텐츠 기업 · 아동 도서 출판사 (볼로냐 북페어)
+	교육상품 유통사 · 교육 콘텐츠 기업 · 아동 도서 출판사
 	MVP 일정
-	2026년 10월 (6개월 개발)
+	2026년 10월 (볼로냐 북페어 시즌 대비)
 	
 
 제품 한 줄 요약
