@@ -421,6 +421,38 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .op-card table { font-size: 12px; }
 .op-card td, .op-card th { padding: 6px 8px; }
 
+/* ----------------------------- Competitors (Phase F) ----------------------------- */
+.competitor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.comp-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.comp-name { font-weight: 600; font-size: 14px; margin-bottom: 2px; }
+.comp-meta { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+.comp-stat { font-size: 12px; }
+.comp-title { color: var(--text-muted); }
+.comp-gaps { margin-top: 12px; }
+.comp-gaps h3 {
+  font-size: 13px; font-weight: 600; margin: 0 0 8px;
+  color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.03em;
+}
+.gap-item {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 8px 0; border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.gap-item:last-child { border-bottom: none; }
+.gap-item strong { font-size: 14px; }
+.gap-detail { color: var(--danger); }
+.gap-advantage { color: var(--success); }
+
 /* ============================== Mobile (Phase E) ============================== */
 
 /* Tables: horizontal scroll on narrow screens */

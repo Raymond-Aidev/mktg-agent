@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   fetchBuyers,
+  fetchCompetitors,
   fetchKpis,
   fetchOperatorOverview,
   fetchOverview,
@@ -9,6 +10,7 @@ import {
   runSignalcraft,
   type ActionResult,
   type Buyer,
+  type CompetitorData,
   type DashboardKpis,
   type DashboardOverview,
   type OperatorOverview,
@@ -89,7 +91,9 @@ export function App() {
       {loading && <div className="status-loading">Loading…</div>}
       {error && <div className="status-error">Error: {error}</div>}
 
-      {!loading && !error && overview && <BusinessOverview overview={overview} />}
+      {!loading && !error && overview && (
+        <BusinessOverview overview={overview} tenantId={tenantId} />
+      )}
 
       <SignalcraftPanel tenantId={tenantId} />
 
@@ -114,7 +118,13 @@ export function App() {
 
 /* ----------------------------- Business v2 ----------------------------- */
 
-function BusinessOverview({ overview }: { overview: DashboardOverview }) {
+function BusinessOverview({
+  overview,
+  tenantId,
+}: {
+  overview: DashboardOverview;
+  tenantId: string;
+}) {
   return (
     <>
       <div className="grid">
@@ -205,6 +215,8 @@ function BusinessOverview({ overview }: { overview: DashboardOverview }) {
         )}
       </div>
 
+      <CompetitorCard tenantId={tenantId} />
+
       {overview.lastAnalyzedAt && (
         <div className="data-freshness">
           마지막 분석: {new Date(overview.lastAnalyzedAt).toLocaleString()} · 키워드: "
@@ -212,6 +224,63 @@ function BusinessOverview({ overview }: { overview: DashboardOverview }) {
         </div>
       )}
     </>
+  );
+}
+
+/* ----------------------------- Competitors ----------------------------- */
+
+function CompetitorCard({ tenantId }: { tenantId: string }) {
+  const [data, setData] = useState<CompetitorData | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    fetchCompetitors(tenantId)
+      .then((d) => {
+        if (!cancelled) setData(d);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [tenantId]);
+
+  if (loading || !data || data.competitors.length === 0) return null;
+
+  return (
+    <section className="panel">
+      <h2>경쟁사 현황 ({data.totalTracked}사 추적)</h2>
+      <div className="competitor-grid">
+        {data.competitors.map((c) => (
+          <div key={c.name} className="comp-card">
+            <div className="comp-name">{c.name}</div>
+            <div className="comp-meta">
+              {c.country ?? "—"} · {c.genres.slice(0, 3).join(", ") || "—"}
+            </div>
+            <div className="comp-stat">
+              신작 {c.recentTitleCount}건
+              {c.topTitle && <span className="comp-title"> · {c.topTitle}</span>}
+            </div>
+          </div>
+        ))}
+      </div>
+      {data.competitorGaps.length > 0 && (
+        <div className="comp-gaps">
+          <h3>경쟁사 약점 & 우리의 기회</h3>
+          {data.competitorGaps.map((g, i) => (
+            <div key={i} className="gap-item">
+              <strong>{g.competitor}</strong>
+              <span className="gap-detail">약점: {g.gap}</span>
+              <span className="gap-advantage">우리 기회: {g.ourAdvantage}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
   );
 }
 

@@ -157,6 +157,30 @@ export async function generateAction(body: {
   return (await res.json()) as ActionResult;
 }
 
+/* ----------------------------- Competitors v2 ----------------------------- */
+
+export interface CompetitorData {
+  competitors: Array<{
+    name: string;
+    country: string | null;
+    genres: string[];
+    recentTitleCount: number;
+    topTitle: string | null;
+  }>;
+  competitorGaps: Array<{
+    competitor: string;
+    gap: string;
+    ourAdvantage: string;
+  }>;
+  totalTracked: number;
+}
+
+export async function fetchCompetitors(tenantId: string): Promise<CompetitorData> {
+  const res = await fetch(`/api/v2/dashboard/competitors?tenantId=${encodeURIComponent(tenantId)}`);
+  if (!res.ok) throw new Error(`competitors HTTP ${res.status}`);
+  return (await res.json()) as CompetitorData;
+}
+
 /* -------------------------------- Buyers -------------------------------- */
 
 export interface Buyer {
