@@ -20,217 +20,217 @@ if (!DATABASE_URL) {
 const TENANT = "00000000-0000-0000-0000-0000000000ee";
 const JOB_ID = randomUUID();
 const REPORT_ID = randomUUID();
-const KEYWORD = "어린이 그림책";
+const KEYWORD = "어린이AI 지휘자";
 const NOW = new Date().toISOString();
 
 const RAW_POSTS = [
   {
     source: "naver_news",
     postId: "naver-001",
-    author: "키즈북리뷰",
+    author: "에듀테크리뷰",
     content:
-      "올해 상반기 어린이 그림책 시장이 전년 대비 15% 성장했다. 특히 한국 창작 그림책의 해외 수출이 크게 늘었으며, 볼로냐 북페어에서 한국관이 역대 최대 규모로 참가했다.",
-    likes: 342,
-    commentsCnt: 45,
-    viewCnt: 12400,
+      "어린이AI 지휘자가 출시 3개월 만에 누적 다운로드 5만 건을 돌파했다. AI가 아이의 손동작을 인식해 오케스트라를 지휘하는 콘셉트가 학부모들 사이에서 큰 호응을 얻고 있다.",
+    likes: 387,
+    commentsCnt: 52,
+    viewCnt: 14200,
     publishedAt: "2026-04-10T09:00:00Z",
     url: "https://example.com/news/001",
   },
   {
     source: "naver_news",
     postId: "naver-002",
-    author: "출판저널",
+    author: "키즈앱매거진",
     content:
-      "교육부의 독서교육 강화 정책에 따라 학교 도서관 예산이 20% 증액되면서 어린이 그림책 수요가 급증하고 있다. 출판사들은 신간 출간 속도를 높이고 있다.",
-    likes: 218,
-    commentsCnt: 32,
-    viewCnt: 8900,
+      "교육부 디지털 교과서 시범 사업에 어린이AI 지휘자가 음악 교육 보조 도구로 선정됐다. 전국 120개 초등학교에서 시범 운영을 시작하며 AI 음악 교육의 가능성을 보여주고 있다.",
+    likes: 445,
+    commentsCnt: 67,
+    viewCnt: 18900,
     publishedAt: "2026-04-09T14:30:00Z",
     url: "https://example.com/news/002",
   },
   {
     source: "naver_news",
     postId: "naver-003",
-    author: "북스타트뉴스",
+    author: "음악교육신문",
     content:
-      "아동 심리 전문가들은 그림책이 유아기 정서 발달에 핵심적 역할을 한다고 강조했다. 다만 디지털 매체 선호 증가로 종이책 판매는 정체 추세다.",
-    likes: 156,
-    commentsCnt: 28,
-    viewCnt: 6700,
+      "아동 음악 전문가들은 AI 지휘 체험이 리듬감과 표현력 발달에 긍정적이라고 평가했다. 다만 실제 악기 연주를 대체할 수는 없다는 한계도 지적됐다.",
+    likes: 198,
+    commentsCnt: 41,
+    viewCnt: 8400,
     publishedAt: "2026-04-08T11:00:00Z",
     url: "https://example.com/news/003",
   },
   {
     source: "naver_news",
     postId: "naver-004",
-    author: "에듀프레스",
+    author: "맘카페뉴스",
     content:
-      "2026 볼로냐 아동도서전에서 한국 그림책 저작권 거래가 120건을 돌파했다. 특히 동남아와 중동 시장에서의 수요가 급증하고 있다.",
-    likes: 487,
-    commentsCnt: 67,
-    viewCnt: 18200,
+      "7세 아들이 어린이AI 지휘자 쓰면서 클래식 음악에 관심을 갖기 시작했어요. 베토벤, 모차르트 이름을 줄줄 외우네요. 다만 월 구독료 9,900원이 좀 부담이라는 의견도 있어요.",
+    likes: 623,
+    commentsCnt: 128,
+    viewCnt: 25600,
     publishedAt: "2026-04-07T10:00:00Z",
     url: "https://example.com/news/004",
   },
   {
     source: "naver_news",
     postId: "naver-005",
-    author: "한국출판문화산업진흥원",
+    author: "스타트업데일리",
     content:
-      "정부의 K-Book 해외 진출 지원 사업이 올해 150억원 규모로 확대됐다. 그림책 분야가 전체 지원의 35%를 차지하며 가장 높은 비중을 보였다.",
-    likes: 298,
-    commentsCnt: 41,
-    viewCnt: 11500,
+      "어린이AI 지휘자 개발사가 시리즈A 투자 30억원을 유치했다. 동작 인식 AI 기술과 음악 교육 콘텐츠의 결합이 투자자들의 관심을 끌었으며, 글로벌 진출도 준비 중이다.",
+    likes: 312,
+    commentsCnt: 38,
+    viewCnt: 12700,
     publishedAt: "2026-04-06T15:00:00Z",
     url: "https://example.com/news/005",
   },
   {
     source: "naver_news",
     postId: "naver-006",
-    author: "맘스홀릭",
+    author: "학부모커뮤니티",
     content:
-      "육아맘들 사이에서 '매일 그림책 한 권' 챌린지가 유행하면서 그림책 정기구독 서비스 가입자가 3배 증가했다. 특히 0-3세 보드북이 인기다.",
-    likes: 523,
-    commentsCnt: 89,
-    viewCnt: 22100,
+      "어린이AI 지휘자 체험단 후기: 아이가 화면 속 오케스트라를 지휘하면서 박자 개념을 자연스럽게 익혔어요. 문제는 태블릿 화면 크기. TV 미러링하면 훨씬 몰입감이 좋습니다.",
+    likes: 534,
+    commentsCnt: 95,
+    viewCnt: 21300,
     publishedAt: "2026-04-05T09:30:00Z",
     url: "https://example.com/news/006",
   },
   {
     source: "hackernews",
     postId: "hn-001",
-    author: "techparent",
+    author: "edtech_insider",
     content:
-      "Korean picture books are gaining traction globally. The Bologna Book Fair 2026 saw record licensing deals for Korean titles. AI-assisted translation is making cross-border publishing faster.",
-    likes: 89,
-    commentsCnt: 23,
-    viewCnt: 3400,
+      "Korean startup launches AI Conductor for Kids - uses computer vision to track hand gestures and lets children conduct a virtual orchestra. 50K downloads in 3 months. Interesting EdTech approach.",
+    likes: 134,
+    commentsCnt: 42,
+    viewCnt: 5600,
     publishedAt: "2026-04-09T18:00:00Z",
     url: "https://example.com/hn/001",
   },
   {
     source: "hackernews",
     postId: "hn-002",
-    author: "edtech_watcher",
+    author: "music_ai_dev",
     content:
-      "Interesting trend: Korean children's book publishers are using AI for market analysis and content localization. GoldenCheck platform seems to be leading this space.",
-    likes: 67,
-    commentsCnt: 15,
-    viewCnt: 2800,
+      "The gesture recognition tech behind 어린이AI 지휘자 is impressive. MediaPipe-based hand tracking with custom ML model for conducting gestures. Latency under 50ms. Wonder about their training data.",
+    likes: 89,
+    commentsCnt: 31,
+    viewCnt: 3800,
     publishedAt: "2026-04-08T20:00:00Z",
     url: "https://example.com/hn/002",
   },
   {
     source: "naver_news",
     postId: "naver-007",
-    author: "도서비평",
+    author: "디지털교육비평",
     content:
-      "일부 전문가들은 그림책 시장의 과열을 우려했다. 신생 출판사의 난립으로 품질 저하 문제가 제기되고 있으며, 번역 품질도 여전히 과제로 남아 있다.",
-    likes: 134,
-    commentsCnt: 52,
-    viewCnt: 7300,
+      "AI 음악 교육 앱의 한계를 지적하는 목소리도 있다. 실제 지휘와 달리 화면 속 반응이 제한적이며, 악기별 뉘앙스 표현이 부족하다. 교육적 깊이보다 흥미 위주라는 비판도 있다.",
+    likes: 156,
+    commentsCnt: 63,
+    viewCnt: 7800,
     publishedAt: "2026-04-04T13:00:00Z",
     url: "https://example.com/news/007",
   },
   {
     source: "naver_news",
     postId: "naver-008",
-    author: "서점인사이드",
+    author: "앱스토어분석",
     content:
-      "대형 서점 3사의 어린이 그림책 매출이 전년 대비 22% 증가했다. 온라인 채널 비중이 60%를 돌파하며 오프라인 서점의 위기감도 커지고 있다.",
-    likes: 201,
-    commentsCnt: 35,
-    viewCnt: 9100,
+      "어린이 교육 앱 카테고리에서 어린이AI 지휘자가 매출 TOP 5에 진입했다. 경쟁 앱 대비 세션당 체류시간이 2.3배 길어 높은 몰입도를 보여주고 있다.",
+    likes: 267,
+    commentsCnt: 33,
+    viewCnt: 11400,
     publishedAt: "2026-04-03T16:00:00Z",
     url: "https://example.com/news/008",
   },
   {
     source: "hackernews",
     postId: "hn-003",
-    author: "globalpub",
+    author: "ai_education",
     content:
-      "The children's picture book market in East Asia is booming. Korean publishers are particularly aggressive in rights trading, with AI tools helping identify market opportunities.",
-    likes: 45,
-    commentsCnt: 8,
-    viewCnt: 1900,
+      "AI Conductor for Kids just got selected for Korea's digital textbook pilot. 120 schools. This could be a model for how AI-powered creative education scales in public school systems.",
+    likes: 76,
+    commentsCnt: 18,
+    viewCnt: 3200,
     publishedAt: "2026-04-07T22:00:00Z",
     url: "https://example.com/hn/003",
   },
   {
     source: "naver_news",
     postId: "naver-009",
-    author: "퍼블리싱위클리",
+    author: "클래식음악FM",
     content:
-      "그림책 작가 수입이 5년 만에 처음으로 상승 전환했다. 해외 인세 수입이 국내 매출의 40%에 달하는 작가도 등장하면서 창작 생태계에 활력이 불고 있다.",
-    likes: 367,
-    commentsCnt: 58,
-    viewCnt: 14600,
+      "서울시립교향악단이 어린이AI 지휘자와 콜라보 공연을 발표했다. 아이들이 앱으로 실제 오케스트라를 지휘하는 참여형 공연으로, 2,000석이 10분 만에 매진됐다.",
+    likes: 578,
+    commentsCnt: 87,
+    viewCnt: 23400,
     publishedAt: "2026-04-02T10:00:00Z",
     url: "https://example.com/news/009",
   },
   {
     source: "naver_news",
     postId: "naver-010",
-    author: "유아교육신문",
+    author: "유치원교사모임",
     content:
-      "초등 저학년 학부모 설문조사 결과, 86%가 '종이 그림책이 태블릿보다 교육 효과가 높다'고 응답했다. 다만 구매 채널은 온라인이 압도적이었다.",
-    likes: 412,
-    commentsCnt: 73,
-    viewCnt: 16800,
+      "유치원 수업에 어린이AI 지휘자를 도입한 사례가 늘고 있다. 아이들의 집중력이 높아지고 협동 학습 효과도 관찰됐다. 다만 기기 보급과 Wi-Fi 환경이 과제다.",
+    likes: 345,
+    commentsCnt: 72,
+    viewCnt: 15100,
     publishedAt: "2026-04-01T08:00:00Z",
     url: "https://example.com/news/010",
   },
   {
     source: "naver_news",
     postId: "naver-011",
-    author: "인디출판연합",
+    author: "IT조선",
     content:
-      "소규모 독립출판사들의 그림책이 SNS 입소문을 타며 베스트셀러에 진입하는 사례가 늘고 있다. 인스타그램 북스타그램 해시태그 게시물이 월 50만 건을 돌파했다.",
-    likes: 278,
+      "어린이AI 지휘자 영어·일본어 버전 출시가 예고됐다. 일본 소니뮤직과 콘텐츠 라이선싱 협의 중이며, 미국 시장은 Roblox 내 미니게임 형태로 진출을 검토 중이다.",
+    likes: 289,
     commentsCnt: 44,
-    viewCnt: 10200,
+    viewCnt: 12100,
     publishedAt: "2026-03-31T11:00:00Z",
     url: "https://example.com/news/011",
   },
   {
     source: "hackernews",
     postId: "hn-004",
-    author: "asia_biz",
+    author: "startup_asia",
     content:
-      "Seoul Book Fair numbers are impressive - 35% growth in international rights deals for children's books. The Korean government's K-Culture push is paying dividends in publishing.",
-    likes: 112,
-    commentsCnt: 19,
-    viewCnt: 4200,
+      "Korean AI Conductor for Kids raised $2.3M Series A. Sony Music licensing deal in the works. The Roblox integration idea is smart - meet kids where they already are.",
+    likes: 102,
+    commentsCnt: 22,
+    viewCnt: 4500,
     publishedAt: "2026-04-06T14:00:00Z",
     url: "https://example.com/hn/004",
   },
 ];
 
 const SENTIMENT_OUTPUT = {
-  sentimentRatio: { positive: 0.62, negative: 0.14, neutral: 0.24 },
+  sentimentRatio: { positive: 0.58, negative: 0.18, neutral: 0.24 },
   topKeywords: [
-    { term: "그림책", count: 48, sentiment: "positive" },
-    { term: "해외수출", count: 32, sentiment: "positive" },
-    { term: "볼로냐", count: 28, sentiment: "positive" },
-    { term: "저작권거래", count: 25, sentiment: "positive" },
-    { term: "교육정책", count: 22, sentiment: "positive" },
-    { term: "디지털매체", count: 18, sentiment: "negative" },
-    { term: "품질저하", count: 15, sentiment: "negative" },
-    { term: "정기구독", count: 14, sentiment: "positive" },
-    { term: "온라인채널", count: 13, sentiment: "neutral" },
-    { term: "창작생태계", count: 12, sentiment: "positive" },
-    { term: "K-Book", count: 11, sentiment: "positive" },
-    { term: "번역품질", count: 10, sentiment: "negative" },
-    { term: "학교도서관", count: 9, sentiment: "positive" },
-    { term: "북스타그램", count: 8, sentiment: "positive" },
-    { term: "독립출판", count: 7, sentiment: "neutral" },
+    { term: "AI 지휘", count: 52, sentiment: "positive" },
+    { term: "음악교육", count: 38, sentiment: "positive" },
+    { term: "동작인식", count: 28, sentiment: "positive" },
+    { term: "클래식", count: 25, sentiment: "positive" },
+    { term: "몰입도", count: 22, sentiment: "positive" },
+    { term: "구독료", count: 19, sentiment: "negative" },
+    { term: "태블릿", count: 17, sentiment: "neutral" },
+    { term: "교육부시범", count: 16, sentiment: "positive" },
+    { term: "체류시간", count: 14, sentiment: "positive" },
+    { term: "실제악기", count: 13, sentiment: "negative" },
+    { term: "글로벌진출", count: 12, sentiment: "positive" },
+    { term: "흥미위주", count: 11, sentiment: "negative" },
+    { term: "콜라보공연", count: 10, sentiment: "positive" },
+    { term: "유치원도입", count: 9, sentiment: "positive" },
+    { term: "Wi-Fi환경", count: 7, sentiment: "negative" },
   ],
   frameCompetition: [
-    { label: "시장 성장·수출 확대", share: 0.42 },
-    { label: "교육 효과·정책 지원", share: 0.25 },
-    { label: "디지털 전환 우려", share: 0.14 },
-    { label: "창작자 생태계", share: 0.12 },
-    { label: "품질·번역 이슈", share: 0.07 },
+    { label: "AI 기술 혁신·교육 효과", share: 0.38 },
+    { label: "음악 흥미 유발·몰입 체험", share: 0.27 },
+    { label: "가격·접근성 이슈", share: 0.15 },
+    { label: "실제 음악 교육 대체 한계", share: 0.12 },
+    { label: "글로벌 확장·투자 소식", share: 0.08 },
   ],
   confidence: "high",
   disclaimer: "네이버 뉴스 및 HackerNews 기반 분석으로, 전체 여론을 대표하지 않을 수 있습니다.",
@@ -239,114 +239,123 @@ const SENTIMENT_OUTPUT = {
 const MACRO_VIEW_OUTPUT = {
   overallDirection: "positive",
   summary:
-    "어린이 그림책 시장은 정부 지원 확대, 해외 수출 급증, 학교 도서관 예산 증액 등 복합적 성장 동력에 힘입어 뚜렷한 상승세를 보이고 있다. 볼로냐 북페어에서의 저작권 거래 120건 돌파와 K-Book 지원 사업 150억원 규모 확대가 핵심 지표다. 다만 디지털 매체 선호 증가와 신생 출판사 난립에 따른 품질 이슈는 중기적 리스크 요인으로 주시가 필요하다.",
+    "어린이AI 지휘자는 AI 동작 인식과 클래식 음악 교육을 결합한 혁신적 에듀테크 제품으로, 출시 3개월 만에 5만 다운로드를 달성하며 빠른 성장세를 보이고 있다. 교육부 디지털 교과서 시범 선정(120개교)과 시리즈A 30억 투자 유치가 핵심 성장 신호이며, 서울시향 콜라보 공연 매진 등 오프라인 연계까지 확장되고 있다. 다만 구독료 부담, 실제 악기 대체 한계, 교육적 깊이 부족이라는 비판은 지속적으로 모니터링이 필요하다.",
   inflectionPoints: [
-    { date: "2026-04-07", event: "볼로냐 북페어 한국 저작권 거래 120건 돌파", impact: "high" },
-    { date: "2026-04-06", event: "K-Book 해외 진출 지원 150억 규모 확정", impact: "high" },
-    { date: "2026-04-05", event: "그림책 정기구독 가입자 3배 증가 보도", impact: "medium" },
-    { date: "2026-04-03", event: "대형 서점 3사 매출 22% 성장 발표", impact: "medium" },
-    { date: "2026-04-01", event: "학부모 설문 — 종이책 선호 86% 결과", impact: "low" },
+    { date: "2026-04-09", event: "교육부 디지털 교과서 시범 사업 선정 (120개교)", impact: "high" },
+    { date: "2026-04-06", event: "시리즈A 30억원 투자 유치 발표", impact: "high" },
+    { date: "2026-04-02", event: "서울시향 콜라보 공연 2,000석 10분 매진", impact: "high" },
+    { date: "2026-04-03", event: "앱스토어 교육 카테고리 매출 TOP 5 진입", impact: "medium" },
+    { date: "2026-04-04", event: "교육적 깊이 부족 비판 기사 게재", impact: "low" },
   ],
   dailyMentionTrend: [
-    { date: "2026-04-01", count: 23, sentiment: "positive" },
-    { date: "2026-04-02", count: 18, sentiment: "positive" },
-    { date: "2026-04-03", count: 31, sentiment: "positive" },
-    { date: "2026-04-04", count: 15, sentiment: "negative" },
-    { date: "2026-04-05", count: 42, sentiment: "positive" },
-    { date: "2026-04-06", count: 38, sentiment: "positive" },
-    { date: "2026-04-07", count: 55, sentiment: "positive" },
-    { date: "2026-04-08", count: 29, sentiment: "neutral" },
-    { date: "2026-04-09", count: 35, sentiment: "positive" },
-    { date: "2026-04-10", count: 27, sentiment: "positive" },
+    { date: "2026-04-01", count: 18, sentiment: "positive" },
+    { date: "2026-04-02", count: 45, sentiment: "positive" },
+    { date: "2026-04-03", count: 28, sentiment: "positive" },
+    { date: "2026-04-04", count: 22, sentiment: "negative" },
+    { date: "2026-04-05", count: 35, sentiment: "positive" },
+    { date: "2026-04-06", count: 52, sentiment: "positive" },
+    { date: "2026-04-07", count: 38, sentiment: "positive" },
+    { date: "2026-04-08", count: 24, sentiment: "neutral" },
+    { date: "2026-04-09", count: 61, sentiment: "positive" },
+    { date: "2026-04-10", count: 33, sentiment: "positive" },
   ],
   confidence: "high",
 };
 
 const OPPORTUNITY_OUTPUT = {
   shareOfVoice: [
-    { brand: "우리 그림책", mentions: 32, sentimentPositive: 0.72, isOurs: true },
-    { brand: "사파리출판사", mentions: 18, sentimentPositive: 0.55, isOurs: false },
-    { brand: "비룡소", mentions: 24, sentimentPositive: 0.61, isOurs: false },
-    { brand: "창비교육", mentions: 14, sentimentPositive: 0.48, isOurs: false },
-    { brand: "길벗어린이", mentions: 11, sentimentPositive: 0.64, isOurs: false },
+    { brand: "어린이AI 지휘자", mentions: 38, sentimentPositive: 0.68, isOurs: true },
+    { brand: "JoyTunes (Simply Piano)", mentions: 22, sentimentPositive: 0.52, isOurs: false },
+    { brand: "야마하 스마트피아니스트", mentions: 16, sentimentPositive: 0.58, isOurs: false },
+    { brand: "뮤직몬스터", mentions: 12, sentimentPositive: 0.45, isOurs: false },
+    { brand: "리틀뮤지션", mentions: 8, sentimentPositive: 0.62, isOurs: false },
   ],
   positioning: [
-    { brand: "우리 그림책", mentionVolume: 32, positiveRate: 0.72, distinctKeyword: "해외 수출" },
-    { brand: "비룡소", mentionVolume: 24, positiveRate: 0.61, distinctKeyword: "전집 세트" },
-    { brand: "사파리출판사", mentionVolume: 18, positiveRate: 0.55, distinctKeyword: "자연 관찰" },
-    { brand: "창비교육", mentionVolume: 14, positiveRate: 0.48, distinctKeyword: "교과 연계" },
-    { brand: "길벗어린이", mentionVolume: 11, positiveRate: 0.64, distinctKeyword: "창작 동화" },
+    {
+      brand: "어린이AI 지휘자",
+      mentionVolume: 38,
+      positiveRate: 0.68,
+      distinctKeyword: "AI 동작인식",
+    },
+    { brand: "JoyTunes", mentionVolume: 22, positiveRate: 0.52, distinctKeyword: "피아노 연습" },
+    { brand: "야마하", mentionVolume: 16, positiveRate: 0.58, distinctKeyword: "악기 연동" },
+    { brand: "뮤직몬스터", mentionVolume: 12, positiveRate: 0.45, distinctKeyword: "게임형 학습" },
+    { brand: "리틀뮤지션", mentionVolume: 8, positiveRate: 0.62, distinctKeyword: "유아 리듬" },
   ],
   contentGaps: [
     {
-      topic: "학부모 후기 영상 콘텐츠",
-      competitorActivity: "비룡소가 유튜브에서 학부모 리뷰 시리즈 운영 (월 4회, 평균 2만 조회)",
-      ourStatus: "absent" as const,
-      suggestedAction: "학부모 리뷰 숏폼 영상 시리즈 런칭 + 인스타 릴스 동시 배포",
-      estimatedImpact: "high" as const,
-    },
-    {
-      topic: "연령별 추천 큐레이션 블로그",
-      competitorActivity: "사파리출판사 네이버 블로그 '월령별 추천' 시리즈 (주 2회, 상위 노출)",
+      topic: "학부모 체험 후기 영상",
+      competitorActivity: "JoyTunes가 유튜브에서 학부모 리뷰 시리즈 운영 (월 8회, 평균 5만 조회)",
       ourStatus: "weak" as const,
-      suggestedAction: "0-3세/4-6세/7-9세 큐레이션 콘텐츠 SEO 최적화 발행",
+      suggestedAction: "앱 사용 아이 반응 숏폼 영상 + 학부모 인터뷰 시리즈 런칭",
       estimatedImpact: "high" as const,
     },
     {
-      topic: "교사 대상 B2B 뉴스레터",
-      competitorActivity: "창비교육이 교사 대상 월간 뉴스레터 발행 (구독자 3,000+)",
+      topic: "음악 교육 효과 블로그 콘텐츠",
+      competitorActivity:
+        "야마하가 네이버 블로그에서 '음악이 두뇌에 미치는 영향' 시리즈 (주 2회, SEO 상위)",
       ourStatus: "absent" as const,
-      suggestedAction: "교사·사서 대상 월간 도서 추천 뉴스레터 런칭",
+      suggestedAction: "AI 지휘 체험이 리듬감·집중력에 미치는 효과 연구 기반 콘텐츠 발행",
+      estimatedImpact: "high" as const,
+    },
+    {
+      topic: "교사용 수업 가이드",
+      competitorActivity:
+        "뮤직몬스터가 교사 대상 무료 수업 지도안 배포 (월 3회, 교사 커뮤니티 활성)",
+      ourStatus: "absent" as const,
+      suggestedAction: "초등 음악 교과 연계 수업 지도안 + 교사 워크숍 운영",
       estimatedImpact: "medium" as const,
     },
     {
-      topic: "작가 비하인드 인스타그램",
-      competitorActivity: "길벗어린이 작가 인터뷰 릴스 시리즈 (회당 5,000+ 좋아요)",
-      ourStatus: "weak" as const,
-      suggestedAction: "소속 작가 작업실 비하인드 + 그림 과정 타임랩스 콘텐츠",
+      topic: "클래식 음악 해설 인스타",
+      competitorActivity: "리틀뮤지션 인스타에서 '오늘의 클래식' 카드뉴스 (일 1회, 팔로워 2.5만)",
+      ourStatus: "absent" as const,
+      suggestedAction: "지휘곡 해설 + 작곡가 스토리 카드뉴스 시리즈",
       estimatedImpact: "medium" as const,
     },
   ],
   riskSignals: [
     {
-      signal: "디지털 매체 선호 증가로 종이책 수요 정체 우려",
+      signal: "월 구독료 9,900원에 대한 가격 저항",
       severity: "warning" as const,
-      evidence: "최근 10일간 '디지털 vs 종이' 관련 부정 언급 6건, 전월 대비 2배",
-      suggestedResponse: "종이책 고유 가치(정서 발달·집중력) 강조 콘텐츠 + 연구 데이터 인용 캠페인",
+      evidence: "맘카페에서 '비싸다' '무료 체험 후 해지' 관련 언급 14건, 전주 대비 2.5배 증가",
+      suggestedResponse: "연간 결제 30% 할인 + 형제 할인 도입, 무료 체험 기간 7일→14일 연장",
     },
     {
-      signal: "신생 출판사 난립에 따른 품질 저하 이슈",
+      signal: "실제 악기 교육 대체 불가 비판",
       severity: "watch" as const,
-      evidence: "품질·번역 관련 부정 키워드 15건 관측, 업계 전반에 대한 신뢰 하락 조짐",
-      suggestedResponse: "품질 인증·수상 경력 강조 + '믿을 수 있는 출판사' 브랜딩 차별화",
+      evidence: "음악 교육 전문가 부정 리뷰 4건 — '흥미 유발은 좋지만 실기 대체는 안 된다'",
+      suggestedResponse:
+        "포지셔닝 명확화: '악기 교육 입문 도우미'로 메시지 전환, 음악학원 제휴 프로모션",
     },
     {
-      signal: "경쟁사 비룡소의 정기구독 서비스 런칭 임박",
+      signal: "경쟁사 JoyTunes 한국어 버전 강화 움직임",
       severity: "warning" as const,
-      evidence: "비룡소 블로그에서 구독 서비스 티저 콘텐츠 3건 발견",
-      suggestedResponse: "선제적 구독 서비스 MVP 런칭으로 시장 선점 + 기존 고객 전환 프로모션",
+      evidence: "JoyTunes 앱스토어에 한국어 업데이트 공지 + 인스타 한국 계정 개설",
+      suggestedResponse:
+        "차별점(지휘 체험·동작인식) 강조 캠페인 + 교육부 시범 선정 레퍼런스 적극 홍보",
     },
   ],
   competitorGaps: [
     {
-      competitor: "사파리출판사",
-      gap: "동남아 시장 진출 부재",
-      ourAdvantage: "GoldenCheck 바이어 DB로 현지 파트너 매칭 가능",
+      competitor: "JoyTunes",
+      gap: "피아노 한정, 오케스트라 체험 없음",
+      ourAdvantage: "AI 동작인식 기반 풀 오케스트라 지휘 체험 — 유일한 지휘 콘셉트",
     },
     {
-      competitor: "비룡소",
-      gap: "AI 기반 마케팅 분석 도구 미사용",
-      ourAdvantage: "SignalCraft 실시간 여론 분석으로 데이터 기반 의사결정",
+      competitor: "야마하",
+      gap: "자사 악기 중심, 소프트웨어 단독 사용 불가",
+      ourAdvantage: "별도 기기 불필요, 태블릿/스마트폰만으로 즉시 체험",
     },
     {
-      competitor: "창비교육",
-      gap: "SNS 채널 운영 비일관적 (월 2-3회)",
-      ourAdvantage: "Marketing Agent 자동 콘텐츠 캘린더로 주 5회 일관 운영",
+      competitor: "뮤직몬스터",
+      gap: "게이미피케이션 과다, 교육 심도 부족",
+      ourAdvantage: "실제 클래식 곡 + 교육부 인증으로 교육적 신뢰도 확보",
     },
     {
-      competitor: "길벗어린이",
-      gap: "해외 번역 파이프라인 수동 (출시까지 6개월)",
-      ourAdvantage: "Translation Agent 6개국어 동시 번역으로 출시 속도 3배",
+      competitor: "리틀뮤지션",
+      gap: "유아 전용, 초등 고학년 커버리지 없음",
+      ourAdvantage: "5-12세 전 연령 커버 + 난이도 AI 자동 조절",
     },
   ],
   confidence: "high",
@@ -354,51 +363,46 @@ const OPPORTUNITY_OUTPUT = {
 
 const STRATEGY_OUTPUT = {
   messageStrategy: {
-    primaryMessage: "K-그림책, 세계 아이들의 첫 친구가 되다",
+    primaryMessage: "손끝으로 오케스트라를 지휘하는 아이, AI가 여는 음악의 세계",
     supportingMessages: [
-      "볼로냐가 인정한 한국 그림책의 힘",
-      "AI가 연결하는 창작자와 글로벌 독자",
-      "아이의 첫 책장을 채우는 정기구독",
-      "데이터로 찾는 다음 베스트셀러",
+      "교육부가 선택한 AI 음악 교육 — 전국 120개교 시범 운영",
+      "서울시향 2,000석을 10분 만에 매진시킨 아이들의 지휘",
+      "클래식이 어려운 게 아니라 재미있다는 걸 알려주는 앱",
+      "5만 가정이 선택한 우리 아이 첫 클래식 경험",
     ],
-    tone: "따뜻하고 전문적인 — 교육적 가치를 강조하되 비즈니스 인사이트를 겸비",
-    avoidTopics: [
-      "경쟁사 직접 비교",
-      "품질 저하 이슈 확대",
-      "디지털 vs 종이 이분법",
-      "정치적 정책 평가",
-    ],
+    tone: "신뢰감 있으면서 따뜻한 — 기술 혁신보다 아이의 성장과 즐거움을 앞세움",
+    avoidTopics: ["실제 악기 대체 주장", "경쟁 앱 직접 비교", "과도한 기술 용어", "학습 성과 과장"],
   },
   contentStrategy: {
     weeklyTopics: [
       {
-        topic: "볼로냐 북페어 성과 분석 리포트",
+        topic: "이번 주 지휘곡 해설 — 비발디 '사계' 중 봄",
         channel: "naver_blog",
-        format: "장문 분석 포스트",
+        format: "장문 해설 + 앱 연동 가이드",
         timing: "월요일 오전 10시",
       },
       {
-        topic: "이주의 추천 그림책 큐레이션",
+        topic: "우리 아이 지휘 챌린지 하이라이트",
         channel: "instagram",
-        format: "캐러셀 카드 5장",
+        format: "릴스 30초 (아이 지휘 장면 모음)",
         timing: "화요일 오후 2시",
       },
       {
-        topic: "해외 바이어 인터뷰 — 왜 한국 그림책인가",
+        topic: "음악 교사가 말하는 AI 지휘 수업 효과",
         channel: "youtube",
-        format: "숏폼 인터뷰 3분",
+        format: "교사 인터뷰 숏폼 3분",
         timing: "수요일 오후 6시",
       },
       {
-        topic: "그림책 시장 데이터 인사이트",
+        topic: "이 주의 음악 교육 인사이트 뉴스레터",
         channel: "email",
         format: "뉴스레터",
         timing: "목요일 오전 9시",
       },
       {
-        topic: "작가 비하인드 스토리",
+        topic: "클래식 작곡가 비하인드 — 베토벤의 하루",
         channel: "instagram",
-        format: "릴스 60초",
+        format: "캐러셀 카드 5장",
         timing: "금요일 오후 1시",
       },
     ],
@@ -407,52 +411,56 @@ const STRATEGY_OUTPUT = {
     {
       channel: "네이버 블로그",
       priority: 9,
-      reason: "국내 학부모·교육자 핵심 검색 채널, SEO 효과 극대",
+      reason: "학부모 핵심 검색 채널 — '어린이 음악 교육' SEO 선점 필수",
     },
     {
       channel: "인스타그램",
-      priority: 8,
-      reason: "북스타그램 50만 게시물, 시각적 콘텐츠에 최적화",
+      priority: 9,
+      reason: "아이 지휘 영상의 바이럴 잠재력 극대, 육아맘 핵심 채널",
+    },
+    {
+      channel: "유튜브",
+      priority: 7,
+      reason: "교사·학부모 대상 교육 효과 콘텐츠 + 글로벌 진출 시 영문 자막 활용",
     },
     {
       channel: "이메일 뉴스레터",
-      priority: 8,
-      reason: "B2B 바이어·서점 대상 직접 커뮤니케이션, 전환율 높음",
+      priority: 7,
+      reason: "B2B (학교·유치원) + 기존 구독자 리텐션, 전환율 높음",
     },
-    { channel: "유튜브", priority: 6, reason: "글로벌 도달 범위, 영문 자막으로 해외 바이어 접근" },
-    { channel: "링크드인", priority: 5, reason: "출판 업계 B2B 네트워킹, 해외 파트너 발굴" },
+    { channel: "틱톡", priority: 6, reason: "아이 지휘 챌린지 바이럴 가능성, Z세대 부모 접근" },
   ],
   riskMitigation: [
     {
-      risk: "번역 품질 논란으로 브랜드 신뢰도 하락",
-      action: "Translation Agent BLEU 점수 기반 품질 검증 프로세스 의무화",
+      risk: "구독료 저항으로 이탈률 증가",
+      action: "연간 결제 30% 할인 + 14일 무료 체험 + 형제 추가 50% 할인 도입",
     },
     {
-      risk: "구독 모델 초기 이탈률 높을 가능성",
-      action: "첫 달 무료 체험 + 3개월 약정 시 20% 할인으로 록인",
+      risk: "'흥미 위주' 비판으로 교육적 신뢰 저하",
+      action: "음대 교수진 자문단 구성 + 교육 효과 연구 논문 후원 및 결과 공유",
     },
     {
-      risk: "SNS 부정 여론 확산",
-      action: "CRM Agent 실시간 모니터링 + 24시간 내 공식 대응 프로토콜",
+      risk: "JoyTunes 한국어 버전 강화로 경쟁 심화",
+      action: "지휘 체험 독점성 + 교육부 레퍼런스 강조 차별화 캠페인 선제 집행",
     },
   ],
   confidence: "high",
 };
 
 const SUMMARY_OUTPUT = {
-  oneLiner: "어린이 그림책 시장, 해외 수출과 구독 경제로 황금기 진입",
+  oneLiner: "어린이AI 지휘자, AI 동작인식으로 클래식 교육의 문턱을 낮추다",
   keyTakeaways: [
-    "볼로냐 북페어 저작권 거래 120건 돌파 — 동남아·중동이 핵심 신규 시장",
-    "그림책 정기구독 가입자 3배 증가, 0-3세 보드북이 견인",
-    "정부 K-Book 지원 150억 확대로 해외 진출 인프라 강화",
-    "디지털 전환 우려에도 학부모 86%가 종이 그림책 선호",
-    "북스타그램 월 50만 게시물 — SNS가 신규 발견 채널로 부상",
+    "출시 3개월 만에 5만 다운로드 — 에듀테크 앱 중 가장 빠른 성장세",
+    "교육부 디지털 교과서 시범 선정 (전국 120개교) — B2B 확장 신호",
+    "서울시향 콜라보 공연 2,000석 10분 매진 — 오프라인 연계 성공",
+    "구독료 9,900원/월에 대한 가격 저항 존재 — 요금 체계 개선 필요",
+    "경쟁사 JoyTunes 한국어 강화 움직임 — 차별화 포지셔닝 시급",
   ],
   criticalActions: [
-    { action: "동남아·중동 현지 파트너십 3개사 확보 (Q2 목표)", priority: "high" },
-    { action: "연령별 큐레이션 정기구독 서비스 MVP 런칭", priority: "high" },
-    { action: "인스타그램 북스타그래머 시딩 프로그램 20명 선정", priority: "high" },
-    { action: "AI 번역 파이프라인 6개국어 확장 (베트남·아랍어 우선)", priority: "medium" },
+    { action: "연간 결제 할인 + 형제 할인 + 14일 무료 체험 요금 체계 개편", priority: "high" },
+    { action: "학부모 체험 후기 숏폼 영상 시리즈 런칭 (월 8회)", priority: "high" },
+    { action: "교사용 수업 지도안 배포 + 교사 워크숍 프로그램 개시", priority: "high" },
+    { action: "음악 교육 효과 연구 논문 후원 착수 (음대 자문단 구성)", priority: "medium" },
     { action: "네이버 블로그 SEO 콘텐츠 주 2회 발행 체계 구축", priority: "medium" },
   ],
   confidence: "high",
@@ -570,7 +578,7 @@ const INTEGRATED_SECTIONS = [
 ];
 
 const INTEGRATED_OUTPUT = {
-  title: `"${KEYWORD}" 여론 분석 통합 리포트`,
+  title: `"${KEYWORD}" 마케팅 분석 리포트`,
   sections: INTEGRATED_SECTIONS,
   metadata: {
     keyword: KEYWORD,
@@ -594,17 +602,10 @@ const MODULE_OUTPUTS: Array<{ moduleId: string; output: unknown; durationMs: num
 async function main(): Promise<void> {
   const client = new Client({ connectionString: DATABASE_URL });
   await client.connect();
-
   try {
     await client.query("BEGIN");
-
-    // 1. signalcraft_jobs
     await client.query(
-      `INSERT INTO signalcraft_jobs
-         (id, tenant_id, keyword, regions, modules_requested, status,
-          current_stage, progress_pct, created_at, started_at, finished_at)
-       VALUES ($1, $2, $3, $4, $5, 'done', 'done', 100, $6, $6, $7)
-       ON CONFLICT (id) DO NOTHING`,
+      `INSERT INTO signalcraft_jobs (id, tenant_id, keyword, regions, modules_requested, status, current_stage, progress_pct, created_at, started_at, finished_at) VALUES ($1, $2, $3, $4, $5, 'done', 'done', 100, $6, $6, $7) ON CONFLICT (id) DO NOTHING`,
       [
         JOB_ID,
         TENANT,
@@ -616,15 +617,10 @@ async function main(): Promise<void> {
       ],
     );
     console.log(`[seed] signalcraft_jobs inserted: ${JOB_ID}`);
-
-    // 2. raw_posts
     let postCount = 0;
     for (const p of RAW_POSTS) {
       await client.query(
-        `INSERT INTO raw_posts
-           (job_id, tenant_id, source, keyword, post_id, author, content,
-            likes, dislikes, comments_cnt, view_cnt, published_at, url)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 0, $9, $10, $11, $12)`,
+        `INSERT INTO raw_posts (job_id, tenant_id, source, keyword, post_id, author, content, likes, dislikes, comments_cnt, view_cnt, published_at, url) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 0, $9, $10, $11, $12)`,
         [
           JOB_ID,
           TENANT,
@@ -643,32 +639,20 @@ async function main(): Promise<void> {
       postCount++;
     }
     console.log(`[seed] raw_posts inserted: ${postCount} rows`);
-
-    // 3. signalcraft_module_outputs
     for (const m of MODULE_OUTPUTS) {
       await client.query(
-        `INSERT INTO signalcraft_module_outputs
-           (job_id, tenant_id, module_id, status, output, attempts, duration_ms, model_name)
-         VALUES ($1, $2, $3, 'success', $4, 1, $5, 'claude-sonnet-4-6')
-         ON CONFLICT (job_id, module_id) DO UPDATE SET
-           output = EXCLUDED.output, duration_ms = EXCLUDED.duration_ms`,
+        `INSERT INTO signalcraft_module_outputs (job_id, tenant_id, module_id, status, output, attempts, duration_ms, model_name) VALUES ($1, $2, $3, 'success', $4, 1, $5, 'claude-sonnet-4-6') ON CONFLICT (job_id, module_id) DO UPDATE SET output = EXCLUDED.output, duration_ms = EXCLUDED.duration_ms`,
         [JOB_ID, TENANT, m.moduleId, JSON.stringify(m.output), m.durationMs],
       );
     }
     console.log(`[seed] signalcraft_module_outputs inserted: ${MODULE_OUTPUTS.length} modules`);
-
-    // 4. reports
     await client.query(
-      `INSERT INTO reports
-         (id, tenant_id, job_id, kind, title, sections, metadata)
-       VALUES ($1, $2, $3, 'signalcraft_integrated', $4, $5, $6)
-       ON CONFLICT (id) DO UPDATE SET
-         sections = EXCLUDED.sections, metadata = EXCLUDED.metadata`,
+      `INSERT INTO reports (id, tenant_id, job_id, kind, title, sections, metadata) VALUES ($1, $2, $3, 'signalcraft_integrated', $4, $5, $6) ON CONFLICT (id) DO UPDATE SET sections = EXCLUDED.sections, metadata = EXCLUDED.metadata`,
       [
         REPORT_ID,
         TENANT,
         JOB_ID,
-        INTEGRATED_OUTPUT.title,
+        "샘플 분석결과",
         JSON.stringify(INTEGRATED_OUTPUT.sections),
         JSON.stringify({
           keyword: KEYWORD,
@@ -680,29 +664,22 @@ async function main(): Promise<void> {
       ],
     );
     console.log(`[seed] reports inserted: ${REPORT_ID}`);
-
-    // 5. signalcraft_actions (campaign_draft + content_calendar)
     await client.query(
-      `INSERT INTO signalcraft_actions
-         (tenant_id, job_id, action_type, input, output, status, model_name, duration_ms)
-       VALUES ($1, $2, 'campaign_draft', $3, $4, 'done', 'claude-sonnet-4-6', 7200)`,
+      `INSERT INTO signalcraft_actions (tenant_id, job_id, action_type, input, output, status, model_name, duration_ms) VALUES ($1, $2, 'campaign_draft', $3, $4, 'done', 'claude-sonnet-4-6', 7200)`,
       [
         TENANT,
         JOB_ID,
         JSON.stringify({ keyword: KEYWORD, modules: ["#03", "#07", "#08"] }),
         JSON.stringify({
-          subject: "K-그림책이 세계를 만날 때 — 볼로냐 북페어 인사이트 리포트",
-          body: "안녕하세요, GoldenCheck입니다.\n\n2026 볼로냐 아동도서전에서 한국 그림책의 저작권 거래가 120건을 돌파했습니다.\n특히 동남아·중동 시장의 수요가 폭발적으로 증가하며, 새로운 기회가 열리고 있습니다.\n\n본 리포트에서는 시장 트렌드, 경쟁사 갭 분석, 그리고 즉시 실행 가능한 전략을 확인하실 수 있습니다.\n\n주요 인사이트:\n• 동남아·중동 현지 파트너십 구축 적기\n• 정기구독 모델 가입자 3배 급증\n• 북스타그램 월 50만 게시물 — SNS 마케팅 최적 시점\n\n자세한 분석은 첨부 리포트를 참조하세요.",
-          cta: "리포트 전문 확인하기",
-          targetSegment: "해외 저작권 거래 관심 출판사",
+          subject: "AI가 여는 음악의 세계 — 어린이AI 지휘자 교육 효과 리포트",
+          body: "안녕하세요, GoldenCheck입니다.\n\n어린이AI 지휘자가 교육부 디지털 교과서 시범 사업에 선정되며 전국 120개 초등학교에서 운영을 시작했습니다.\n\n출시 3개월 만에 5만 다운로드를 돌파하고, 서울시향 콜라보 공연이 10분 만에 매진되는 등 시장의 뜨거운 반응이 이어지고 있습니다.\n\n본 리포트에서 확인하실 수 있는 내용:\n• 경쟁사 대비 SOV 점유율 분석 (38건, 1위)\n• 콘텐츠 갭 4건 — 즉시 실행 가능한 마케팅 기회\n• 가격 저항 리스크와 대응 전략\n\n자세한 분석은 첨부 리포트를 참조하세요.",
+          cta: "분석 리포트 전문 확인하기",
+          targetSegment: "에듀테크 마케팅 담당자",
         }),
       ],
     );
-
     await client.query(
-      `INSERT INTO signalcraft_actions
-         (tenant_id, job_id, action_type, input, output, status, model_name, duration_ms)
-       VALUES ($1, $2, 'content_calendar', $3, $4, 'done', 'claude-sonnet-4-6', 5800)`,
+      `INSERT INTO signalcraft_actions (tenant_id, job_id, action_type, input, output, status, model_name, duration_ms) VALUES ($1, $2, 'content_calendar', $3, $4, 'done', 'claude-sonnet-4-6', 5800)`,
       [
         TENANT,
         JOB_ID,
@@ -713,39 +690,38 @@ async function main(): Promise<void> {
             {
               day: "월",
               channel: "네이버 블로그",
-              topic: "볼로냐 북페어 성과 분석 — 저작권 거래 120건의 의미",
-              format: "장문 분석 (2000자)",
+              topic: "비발디 '사계' 중 봄 — 어린이AI 지휘자로 배우는 클래식",
+              format: "장문 해설 + 앱 연동 가이드 (2000자)",
             },
             {
               day: "화",
               channel: "인스타그램",
-              topic: "이주의 추천 그림책 TOP 5",
-              format: "캐러셀 카드 5장",
+              topic: "우리 아이 지휘 챌린지 하이라이트 모음",
+              format: "릴스 30초",
             },
             {
               day: "수",
               channel: "유튜브",
-              topic: "해외 바이어가 말하는 한국 그림책의 매력",
-              format: "숏폼 인터뷰 3분",
+              topic: "초등 음악 교사가 말하는 AI 지휘 수업 효과",
+              format: "교사 인터뷰 숏폼 3분",
             },
             {
               day: "목",
               channel: "이메일",
-              topic: "그림책 시장 주간 인사이트 뉴스레터",
+              topic: "이 주의 음악 교육 인사이트 뉴스레터",
               format: "뉴스레터 (HTML)",
             },
             {
               day: "금",
               channel: "인스타그램",
-              topic: "그림책 작가 작업실 비하인드",
-              format: "릴스 60초",
+              topic: "베토벤의 하루 — 클래식 작곡가 비하인드",
+              format: "캐러셀 카드 5장",
             },
           ],
         }),
       ],
     );
     console.log("[seed] signalcraft_actions inserted: 2 (campaign_draft + content_calendar)");
-
     await client.query("COMMIT");
     console.log("\n[seed] done — all data committed");
     console.log(`  Job ID:    ${JOB_ID}`);
