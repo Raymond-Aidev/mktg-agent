@@ -58,4 +58,16 @@ export const macroViewModuleConfig: ModuleConfig<MacroViewOutput> = {
   temperature: 0.2,
   schema: MacroViewSchema,
   schemaName: "MacroViewSchema",
+  outputExample: `{
+  "overallDirection": "mixed",
+  "summary": "수집된 데이터에서 교육 관련 관심이 지속되며 긍정적 변곡점이 관찰되었다.",
+  "inflectionPoints": [
+    { "date": "2026-04-10", "event": "새 교육과정 발표", "impact": "high" }
+  ],
+  "dailyMentionTrend": [
+    { "date": "2026-04-10", "count": 24, "sentiment": "positive" },
+    { "date": "2026-04-11", "count": 18, "sentiment": "neutral" }
+  ],
+  "confidence": "medium"
+}`,
 };

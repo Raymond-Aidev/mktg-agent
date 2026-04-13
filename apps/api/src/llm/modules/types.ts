@@ -55,6 +55,12 @@ export interface ModuleConfig<TOutput> {
   schema: z.ZodType<TOutput>;
   /** Display name for the schema (logged when validation fails). */
   schemaName: string;
+  /**
+   * A minimal valid JSON example string that demonstrates the exact field
+   * names and structure Claude must follow. Included verbatim in the system
+   * prompt so the model never has to guess field names.
+   */
+  outputExample: string;
 }
 
 export interface ModuleRunResult<TOutput> {

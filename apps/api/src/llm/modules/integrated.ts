@@ -59,4 +59,18 @@ export const integratedModuleConfig: ModuleConfig<IntegratedOutput> = {
   temperature: 0.2,
   schema: IntegratedSchema,
   schemaName: "IntegratedSchema",
+  outputExample: `{
+  "title": "GoldenCheck SignalCraft — 아동 도서 교육 통합 리포트",
+  "sections": [
+    { "id": "section-1", "title": "한 줄 요약", "content": "...", "sourceModule": "#08" },
+    { "id": "section-2", "title": "여론 흐름", "content": "...", "sourceModule": "#01" },
+    { "id": "section-3", "title": "감정 분포", "content": "...", "sourceModule": "#03" }
+  ],
+  "metadata": {
+    "keyword": "아동 도서 교육",
+    "generatedAt": "2026-04-13T00:00:00.000Z",
+    "modulesUsed": ["#01", "#03", "#08"]
+  },
+  "confidence": "medium"
+}`,
 };

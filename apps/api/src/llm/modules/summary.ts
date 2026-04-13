@@ -50,4 +50,17 @@ export const summaryModuleConfig: ModuleConfig<SummaryOutput> = {
   temperature: 0.3,
   schema: SummarySchema,
   schemaName: "SummarySchema",
+  outputExample: `{
+  "oneLiner": "교육 콘텐츠에 대한 긍정 여론이 우세하나 가격 민감도에 주의 필요",
+  "keyTakeaways": [
+    "온라인 교육 콘텐츠에 대한 학부모 관심 증가 추세",
+    "가격 대비 품질에 대한 논쟁이 주요 프레임"
+  ],
+  "criticalActions": [
+    { "action": "학부모 대상 무료 체험 캠페인 기획", "priority": "high" },
+    { "action": "가격 정당성 콘텐츠 제작 (교육 효과 데이터 활용)", "priority": "high" },
+    { "action": "경쟁사 프로모션 동향 모니터링 강화", "priority": "medium" }
+  ],
+  "confidence": "medium"
+}`,
 };

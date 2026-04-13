@@ -57,8 +57,12 @@ export function buildModuleMessages(opts: BuildOptions): LLMMessage[] {
     `- 아래 OUTPUT FORMAT의 JSON 스키마를 정확히 따를 것. 추가 필드 금지.`,
     ``,
     `## OUTPUT FORMAT`,
-    `반드시 다음 Zod 스키마(${config.schemaName})와 1:1 매칭되는 JSON만 응답하라.`,
-    `JSON 외의 텍스트, 마크다운 코드펜스, 주석은 포함하지 말 것.`,
+    `반드시 아래 JSON 구조를 정확히 따를 것. 필드명은 영어 camelCase 그대로 사용.`,
+    `JSON 외의 텍스트, 마크다운 코드펜스, 설명, 주석은 절대 포함하지 말 것.`,
+    `응답 전체가 { 로 시작하고 } 로 끝나는 순수 JSON이어야 한다.`,
+    ``,
+    `예시 구조 (값은 실제 분석 결과로 채울 것):`,
+    config.outputExample,
   ].join("\n");
 
   const user = [

@@ -62,4 +62,16 @@ export const sentimentModuleConfig: ModuleConfig<SentimentOutput> = {
   temperature: 0.2,
   schema: SentimentSchema,
   schemaName: "SentimentSchema",
+  outputExample: `{
+  "sentimentRatio": { "positive": 0.55, "negative": 0.20, "neutral": 0.25 },
+  "topKeywords": [
+    { "term": "교육", "count": 12, "sentiment": "positive" },
+    { "term": "가격", "count": 8, "sentiment": "negative" }
+  ],
+  "frameCompetition": [
+    { "label": "교육 가치 vs 가격 부담", "share": 0.6 }
+  ],
+  "confidence": "medium",
+  "disclaimer": "수집 건수가 적어 대표성에 한계가 있습니다."
+}`,
 };
