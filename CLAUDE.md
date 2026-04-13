@@ -28,7 +28,7 @@ MVP 목표: 2026년 10월 (볼로냐 북페어 시즌 대비).
 ## 현재 Phase
 Phase 7 — W22 — 관측성 (Prometheus /metrics · Sentry · 부하 테스트 · DLQ 플레이북)
 
-## 구현 완료 현황 (2026-04-13 기준)
+## 구현 완료 현황 (2026-04-14 기준)
 
 ### DB 스키마 (12 마이그레이션)
 - 0001 extensions · 0002 master tables (buyers/competitors/market_trends/fx_rates/rights_deals/bestsellers)
@@ -40,8 +40,9 @@ Phase 7 — W22 — 관측성 (Prometheus /metrics · Sentry · 부하 테스트
 - 회원가입 (POST /api/v1/auth/register) — 자동 tenant 발급
 - 로그인 (POST /api/v1/auth/login) — JWT 7일 만료
 - authMiddleware 전역 적용, role 기반 접근 제어 (admin/owner/member)
+- 어드민 계정: bebedium@gmail.com (role: admin)
 
-### API 라우트 (18개)
+### API 라우트 (19개)
 - 인증: auth (register/login/me)
 - 대시보드: dashboard, dashboard-v2, channels, competitors-v2
 - SignalCraft: signalcraft (run/jobs), reports, actions
@@ -49,17 +50,20 @@ Phase 7 — W22 — 관측성 (Prometheus /metrics · Sentry · 부하 테스트
 - 어드민: admin-users (회원 관리/통계), admin-batch, operator
 - 기타: events, email-webhook, metrics, legal (terms/privacy/about/pricing)
 
-### 프론트엔드 (React SPA, 19개 컴포넌트)
-- 랜딩 페이지: 히어로, 기능 소개, 분석 프로세스, 3단계 요금제, FAQ, 로그인/회원가입 모달
-- 글로벌 네비게이션: sticky 상단 바, 대시보드/리포트/설정/관리자, 사용자명, 로그아웃
+### 프론트엔드 (React SPA, 21개 컴포넌트)
+- 랜딩 페이지: 히어로, 기능 소개, 분석 샘플 (iframe), 3단계 요금제, FAQ, 로그인/회원가입 모달
+- 글로벌 네비게이션: sticky 상단 바, 대시보드/분석 샘플/설정/관리자, 사용자명, 로그아웃
 - 제품/키워드 포트폴리오: 3단계 드릴다운 (제품 목록 → 키워드 테이블 → 분석 리포트)
-- 제품 CRUD: 추가/삭제, 키워드 추가/삭제 (API 연동)
+- 제품 CRUD: API 연동 추가/삭제 + 데모 제품 병렬 표시
 - 분석 리포트: 시각화 (도넛 차트, SOV 바, 포지셔닝 맵, 콘텐츠 갭, 리스크 시그널, 타임라인)
-- 어드민 패널: 시스템 통계, 회원 목록, 계정 생성, 권한 변경, 삭제
+- 분석 샘플: 랜딩 페이지 + 로그인 후 탭에서 "어린이AI 지휘자" 리포트 표시
+- 어드민 패널: 시스템 통계 7개, 회원 목록/생성/권한 변경/삭제
+- 디자인: FlareLane 스타일 (인디고 블루 #4F46E5, 순백 배경, Inter 폰트)
 
 ### LLM 모듈 (6개 구현)
 - #01 Macro View · #03 Sentiment · #06 Market Intelligence (SOV/포지셔닝/콘텐츠갭/리스크)
 - #07 Strategy · #08 Summary · #13 Integrated Report
+- #06은 SWOT에서 Market Intelligence로 변경 (키워드 검색 데이터 기반 분석에 적합하도록)
 
 ### 크롤러 (7개)
 - Category A: fx-rates, bestsellers, competitors, market-trends, rights-deals
@@ -69,7 +73,13 @@ Phase 7 — W22 — 관측성 (Prometheus /metrics · Sentry · 부하 테스트
 - Railway 호스팅 (API + Workers + Postgres + Redis)
 - Sentry 에러 추적, Prometheus /metrics
 - BullMQ 큐 분리 (batch/signalcraft), DB Role 강제 (getPoolForRole)
+- railway.json: buildCommand로 web 빌드 포함
 - 법적 문서 v1.0 (이용약관/개인정보처리방침/사업자정보/요금제)
+
+### 시드/데모 데이터
+- "어린이AI 지휘자" 제품 기준 시드 스크립트 (seed-signalcraft.ts)
+- 15개 raw_posts, 6개 module outputs, 통합 리포트, 2개 actions
+- 데모 제품 4개 x 키워드 4~6개 (프론트엔드 하드코딩)
 
 ## 팀 역할
 - **FSL (풀스택 리드)**: 인프라·BullMQ·DB 스키마·API·배포·코드 리뷰

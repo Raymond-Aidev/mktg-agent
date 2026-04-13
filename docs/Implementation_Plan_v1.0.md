@@ -1,30 +1,49 @@
 GoldenCheck  ·  Implementation Plan  |  v1.0 → v2.0
 
-> **v2.0 업데이트 (2026-04-13)**: 실제 구현 진행 상황을 반영합니다.
+> **v2.0 업데이트 (2026-04-14)**: 실제 구현 진행 상황을 반영합니다.
 
-## Phase 진행 현황 (2026-04-13 기준)
+## Phase 진행 현황 (2026-04-14 기준)
 
 | Phase | 설계 기간 | 상태 | 달성도 | 비고 |
 |-------|----------|------|--------|------|
-| Phase 0. 프로젝트 셋업 | W01~W02 | 완료 | 90% | Railway로 변경 (AWS 아님), CI/CD는 Railway 자동 배포 |
-| Phase 1. 데이터 기반 | W03~W05 | 완료 | 95% | 12개 마이그레이션, BullMQ 2큐, DB Role 강제 적용 |
+| Phase 0. 프로젝트 셋업 | W01~W02 | 완료 | 90% | Railway로 변경 (AWS 아님), CI/CD는 Railway 자동 배포, buildCommand 설정 완료 |
+| Phase 1. 데이터 기반 | W03~W05 | 완료 | 95% | 12개 마이그레이션 (0001~0012), BullMQ 2큐, DB Role 강제 적용 |
 | Phase 2. Category A 파이프라인 | W06~W10 | 부분 완료 | 55% | 5/7 배치 구현, buyers:bologna/raw-posts:archive 미구현, DLQ 미구현 |
 | Phase 3. Category B 수집기 | W06~W09 | 부분 완료 | 30% | Naver+HN 구현, YouTube/DC/Clien/FM 미구현 |
-| Phase 4. LLM 14모듈 | W10~W15 | 부분 완료 | 45% | 6/14 모듈 구현 (#01,#03,#06,#07,#08,#13), SWOT→Market Intelligence 변경 |
-| Phase 5. KPI/리포트/PDF | W16~W19 | 부분 완료 | 60% | KPI 계산/리포트 HTML 시각화 완료, PDF 생성/S3 업로드 미구현 |
-| Phase 6. API/대시보드 통합 | W18~W22 | 대폭 확장 | 80% | 18개 API 라우트, 19개 React 컴포넌트, JWT 인증, 제품/키워드 CRUD |
+| Phase 4. LLM 14모듈 | W10~W15 | 부분 완료 | 45% | 6/14 모듈 구현 (#01,#03,#06,#07,#08,#13), #06 SWOT→Market Intelligence 변경 |
+| Phase 5. KPI/리포트/PDF | W16~W19 | 부분 완료 | 65% | KPI 계산, 리포트 HTML 시각화(도넛/SOV/포지셔닝맵/타임라인) 완료, PDF/R2 미구현 |
+| Phase 6. API/대시보드 통합 | W18~W22 | 대폭 확장 | 85% | 19개 API, 21개 React 컴포넌트, JWT 인증, 제품/키워드 CRUD, 어드민 패널 |
 | Phase 7. 관측성 | W22~W25 | 진행 중 | 25% | Prometheus /metrics + Sentry 기본. Grafana 대시보드/DLQ/부하테스트 미구현 |
 | Phase 8. MVP 릴리즈 | W25~W28 | 미시작 | 0% | |
 
-### 설계 외 추가 구현 (Phase A~D)
+### 설계 외 추가 구현 (Phase A~D + Admin + 샘플)
 
-| Phase | 내용 | 상태 |
-|-------|------|------|
-| Phase A | 랜딩 페이지 + 글로벌 네비게이션 + 뒤로가기 | 완료 |
-| Phase B | 회원가입/로그인 (JWT + bcrypt + users 테이블) | 완료 |
-| Phase C | 제품/키워드 CRUD (products + product_keywords) | 완료 |
-| Phase D | 법적 문서 v1.0 + 요금제 페이지 | 완료 |
-| Admin | 어드민 패널 (회원 관리, 시스템 모니터링, 계정 생성, 권한 관리) | 완료 |
+| Phase | 내용 | 상태 | 완료일 |
+|-------|------|------|--------|
+| Phase A | 랜딩 페이지 (히어로/기능/프로세스/요금제/FAQ) + 글로벌 네비게이션 + 뒤로가기 | 완료 | 2026-04-13 |
+| Phase B | 회원가입/로그인 (JWT + bcrypt + users 테이블 + localStorage 토큰) | 완료 | 2026-04-13 |
+| Phase C | 제품/키워드 CRUD (products + product_keywords 테이블 + API + UI) | 완료 | 2026-04-13 |
+| Phase D | 법적 문서 v1.0 (이용약관/개인정보/사업자정보) + 요금제 페이지 (/pricing) | 완료 | 2026-04-13 |
+| Admin | 어드민 패널 (회원 목록/생성/권한 변경/삭제, 시스템 통계 7개 지표) | 완료 | 2026-04-13 |
+| 분석 샘플 | 랜딩 페이지 + 로그인 후 네비게이션에 샘플 리포트 탭 (iframe) | 완료 | 2026-04-13 |
+| 디자인 | FlareLane 스타일 적용 (인디고 블루, Inter 폰트, 이모지 전량 제거) | 완료 | 2026-04-13 |
+| 시드 데이터 | "어린이AI 지휘자" 제품 기준 전체 파이프라인 더미 데이터 | 완료 | 2026-04-13 |
+
+### 잔여 작업 (MVP 전 필수)
+
+| 우선순위 | 항목 | Phase |
+|---------|------|-------|
+| HIGH | Category B 수집기 확장 (YouTube/DC/Clien/FM) | Phase 3 |
+| HIGH | LLM 모듈 8개 추가 (#02,#04,#05,#09,#10,#11,#12,#14) | Phase 4 |
+| HIGH | Grafana 대시보드 + 알림 규칙 7개 | Phase 7 |
+| HIGH | DLQ 플레이북 + Circuit Breaker | Phase 7 |
+| MEDIUM | PDF 생성 (Puppeteer) + R2 업로드 | Phase 5 |
+| MEDIUM | PG 연동 결제 시스템 | Phase D 후속 |
+| MEDIUM | 부하 테스트 (10 동시 SignalCraft) | Phase 7 |
+| MEDIUM | buyers:bologna 크롤러 | Phase 2 |
+| LOW | raw_posts S3 Parquet 아카이브 | Phase 2 |
+| LOW | i18n (한/영) | Phase 6 |
+| LOW | 이메일 인증 (회원가입 시) | Phase B 후속 |
 
 ---
 

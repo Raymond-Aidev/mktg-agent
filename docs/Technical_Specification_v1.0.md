@@ -1,6 +1,6 @@
 GoldenCheck  ·  Technical Specification  |  v1.1 → v2.0
 
-> **v2.0 업데이트 (2026-04-13)**: 실제 구현 상태를 반영하여 아키텍처 변경사항을 기록합니다.
+> **v2.0 업데이트 (2026-04-14)**: 실제 구현 상태를 반영하여 아키텍처 변경사항을 기록합니다.
 
 ## v2.0 아키텍처 변경 사항
 
@@ -38,10 +38,12 @@ GoldenCheck  ·  Technical Specification  |  v1.1 → v2.0
 - Admin API: 회원 관리, 시스템 통계
 
 ### 프론트엔드 아키텍처 (신규)
-- React SPA (단일 App.tsx, state 기반 네비게이션)
-- View: landing → products → product-detail → keyword-report / admin
-- 글로벌 네비게이션 바 (sticky), 브레드크럼, 뒤로가기
-- 리포트 HTML: 서버 렌더링 (render-html.ts), 시각화 포함
+- React SPA (단일 App.tsx ~2,500줄, state 기반 네비게이션, React Router 미사용)
+- View: landing → products → product-detail → keyword-report / sample / admin
+- 21개 컴포넌트: App, LandingPage, Breadcrumb, ProductsGrid, ProductDetail, RealProductDetail, KeywordReportView, SampleReportView, BusinessOverview, ChannelCard, CompetitorCard, SignalcraftPanel, ActionButtons, BuyersPanel, OperatorPanel, Panels, AdminPanel + 유틸리티
+- 글로벌 네비게이션 바 (sticky): 대시보드/분석 샘플/설정/관리자
+- 리포트 HTML: 서버 렌더링 (render-html.ts), CSS-only 시각화 (SVG 도넛, CSS 바, gradient 포지셔닝맵)
+- 디자인: FlareLane 스타일 (--accent: #4F46E5, Inter 폰트, 16px radius, 이모지 없음)
 
 ---
 
