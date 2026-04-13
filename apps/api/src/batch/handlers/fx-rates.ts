@@ -1,6 +1,6 @@
 import type { Job } from "bullmq";
 import { fetchFxRates } from "@eduright/crawlers/category-a/fx-rates";
-import { getPool } from "../../infra/db.ts";
+import { getPoolForRole } from "../../infra/db.ts";
 import type { BatchContext } from "../runner.ts";
 
 /**
@@ -16,7 +16,7 @@ export async function fxRatesHandler(_job: Job, _ctx: BatchContext) {
     return { source: "frankfurter", collected: 0 };
   }
 
-  const pool = getPool();
+  const pool = getPoolForRole("batch_worker");
   let inserted = 0;
   let skipped = 0;
 

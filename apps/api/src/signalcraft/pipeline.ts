@@ -1,5 +1,5 @@
 import type { CollectArgs } from "@eduright/crawlers/category-b/types";
-import { getPool } from "../infra/db.ts";
+import { getPoolForRole } from "../infra/db.ts";
 import { COLLECTORS } from "./collectors.ts";
 import { runModule } from "../llm/modules/runner.ts";
 import { sentimentModuleConfig } from "../llm/modules/sentiment.ts";
@@ -68,7 +68,7 @@ async function setStatus(
     finishedAt: boolean;
   }> = {},
 ): Promise<void> {
-  const pool = getPool();
+  const pool = getPoolForRole("signalcraft_worker");
   const fragments: string[] = ["status = $2"];
   const params: unknown[] = [jobId, status];
   let i = 3;
@@ -96,7 +96,7 @@ interface Stage1Result {
 }
 
 async function runStage1(input: PipelineInput): Promise<Stage1Result> {
-  const pool = getPool();
+  const pool = getPoolForRole("signalcraft_worker");
   const args: CollectArgs = {
     keyword: input.keyword,
     regions: input.regions,
@@ -172,7 +172,7 @@ async function runStage1(input: PipelineInput): Promise<Stage1Result> {
 }
 
 async function loadRawPostsForAnalysis(jobId: string): Promise<RawPostForAnalysis[]> {
-  const pool = getPool();
+  const pool = getPoolForRole("signalcraft_worker");
   const res = await pool.query<RawPostRow>(
     `SELECT source, author, content, likes, comments_cnt, published_at, url
        FROM raw_posts
@@ -197,7 +197,7 @@ async function persistModuleResult<T>(
   moduleId: string,
   result: ModuleRunResult<T>,
 ): Promise<void> {
-  const pool = getPool();
+  const pool = getPoolForRole("signalcraft_worker");
   await pool.query(
     `INSERT INTO signalcraft_module_outputs
        (job_id, tenant_id, module_id, status, output, error_msg,
@@ -299,7 +299,7 @@ async function persistReport(
   integrated: IntegratedOutput,
   modulesUsed: string[],
 ): Promise<string | null> {
-  const pool = getPool();
+  const pool = getPoolForRole("signalcraft_worker");
   try {
     const res = await pool.query<{ id: string }>(
       `INSERT INTO reports
