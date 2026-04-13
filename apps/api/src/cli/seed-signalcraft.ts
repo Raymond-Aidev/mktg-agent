@@ -263,60 +263,70 @@ const MACRO_VIEW_OUTPUT = {
 };
 
 const OPPORTUNITY_OUTPUT = {
-  untappedAreas: [
+  shareOfVoice: [
+    { brand: "우리 그림책", mentions: 32, sentimentPositive: 0.72, isOurs: true },
+    { brand: "사파리출판사", mentions: 18, sentimentPositive: 0.55, isOurs: false },
+    { brand: "비룡소", mentions: 24, sentimentPositive: 0.61, isOurs: false },
+    { brand: "창비교육", mentions: 14, sentimentPositive: 0.48, isOurs: false },
+    { brand: "길벗어린이", mentions: 11, sentimentPositive: 0.64, isOurs: false },
+  ],
+  positioning: [
+    { brand: "우리 그림책", mentionVolume: 32, positiveRate: 0.72, distinctKeyword: "해외 수출" },
+    { brand: "비룡소", mentionVolume: 24, positiveRate: 0.61, distinctKeyword: "전집 세트" },
+    { brand: "사파리출판사", mentionVolume: 18, positiveRate: 0.55, distinctKeyword: "자연 관찰" },
+    { brand: "창비교육", mentionVolume: 14, positiveRate: 0.48, distinctKeyword: "교과 연계" },
+    { brand: "길벗어린이", mentionVolume: 11, positiveRate: 0.64, distinctKeyword: "창작 동화" },
+  ],
+  contentGaps: [
     {
-      area: "동남아·중동 시장 현지화",
-      evidence: "볼로냐 저작권 거래에서 동남아·중동 수요 급증 확인",
-      estimatedImpact: "high",
-      suggestedAction: "베트남·인도네시아·사우디 현지 파트너십 체결 및 현지어 번역 파이프라인 구축",
+      topic: "학부모 후기 영상 콘텐츠",
+      competitorActivity: "비룡소가 유튜브에서 학부모 리뷰 시리즈 운영 (월 4회, 평균 2만 조회)",
+      ourStatus: "absent" as const,
+      suggestedAction: "학부모 리뷰 숏폼 영상 시리즈 런칭 + 인스타 릴스 동시 배포",
+      estimatedImpact: "high" as const,
     },
     {
-      area: "그림책 정기구독 서비스",
-      evidence: "구독 가입자 3배 증가, 0-3세 보드북 수요 폭증",
-      estimatedImpact: "high",
-      suggestedAction: "연령별 큐레이션 구독 박스 런칭, 월 2-3권 배송 모델",
+      topic: "연령별 추천 큐레이션 블로그",
+      competitorActivity: "사파리출판사 네이버 블로그 '월령별 추천' 시리즈 (주 2회, 상위 노출)",
+      ourStatus: "weak" as const,
+      suggestedAction: "0-3세/4-6세/7-9세 큐레이션 콘텐츠 SEO 최적화 발행",
+      estimatedImpact: "high" as const,
     },
     {
-      area: "AI 기반 번역·현지화",
-      evidence: "HackerNews에서 AI 번역 활용 트렌드 다수 언급",
-      estimatedImpact: "medium",
-      suggestedAction: "GoldenCheck Translation Agent 활용한 6개국어 동시 현지화 서비스 제안",
+      topic: "교사 대상 B2B 뉴스레터",
+      competitorActivity: "창비교육이 교사 대상 월간 뉴스레터 발행 (구독자 3,000+)",
+      ourStatus: "absent" as const,
+      suggestedAction: "교사·사서 대상 월간 도서 추천 뉴스레터 런칭",
+      estimatedImpact: "medium" as const,
     },
     {
-      area: "북스타그램 마케팅 채널",
-      evidence: "인스타 해시태그 월 50만 건, SNS 입소문 베스트셀러 사례 증가",
-      estimatedImpact: "medium",
-      suggestedAction: "인플루언서 시딩 프로그램 + 리뷰어 커뮤니티 구축",
+      topic: "작가 비하인드 인스타그램",
+      competitorActivity: "길벗어린이 작가 인터뷰 릴스 시리즈 (회당 5,000+ 좋아요)",
+      ourStatus: "weak" as const,
+      suggestedAction: "소속 작가 작업실 비하인드 + 그림 과정 타임랩스 콘텐츠",
+      estimatedImpact: "medium" as const,
     },
   ],
-  swotSummary: {
-    strengths: [
-      "K-Book 브랜드 글로벌 인지도 상승",
-      "정부 지원 사업 150억 규모",
-      "볼로냐 저작권 거래 네트워크",
-      "창작 그림책 품질 경쟁력",
-      "AI 마케팅 플랫폼 선점",
-    ],
-    weaknesses: [
-      "번역 품질 편차",
-      "소규모 출판사 영업력 부족",
-      "디지털 콘텐츠 전환 지연",
-      "해외 유통 채널 제한",
-    ],
-    opportunities: [
-      "동남아·중동 신규 시장",
-      "구독 경제 모델",
-      "학교 도서관 예산 증액",
-      "AI 번역 기술 성숙",
-      "독립출판 SNS 채널",
-    ],
-    threats: [
-      "디지털 매체 선호 증가",
-      "신생 출판사 품질 저하 리스크",
-      "글로벌 경쟁 심화",
-      "환율 변동성",
-    ],
-  },
+  riskSignals: [
+    {
+      signal: "디지털 매체 선호 증가로 종이책 수요 정체 우려",
+      severity: "warning" as const,
+      evidence: "최근 10일간 '디지털 vs 종이' 관련 부정 언급 6건, 전월 대비 2배",
+      suggestedResponse: "종이책 고유 가치(정서 발달·집중력) 강조 콘텐츠 + 연구 데이터 인용 캠페인",
+    },
+    {
+      signal: "신생 출판사 난립에 따른 품질 저하 이슈",
+      severity: "watch" as const,
+      evidence: "품질·번역 관련 부정 키워드 15건 관측, 업계 전반에 대한 신뢰 하락 조짐",
+      suggestedResponse: "품질 인증·수상 경력 강조 + '믿을 수 있는 출판사' 브랜딩 차별화",
+    },
+    {
+      signal: "경쟁사 비룡소의 정기구독 서비스 런칭 임박",
+      severity: "warning" as const,
+      evidence: "비룡소 블로그에서 구독 서비스 티저 콘텐츠 3건 발견",
+      suggestedResponse: "선제적 구독 서비스 MVP 런칭으로 시장 선점 + 기존 고객 전환 프로모션",
+    },
+  ],
   competitorGaps: [
     {
       competitor: "사파리출판사",
@@ -325,17 +335,17 @@ const OPPORTUNITY_OUTPUT = {
     },
     {
       competitor: "비룡소",
-      gap: "구독 서비스 미운영",
-      ourAdvantage: "CRM Agent로 구독자 세그먼테이션 및 개인화 추천 가능",
+      gap: "AI 기반 마케팅 분석 도구 미사용",
+      ourAdvantage: "SignalCraft 실시간 여론 분석으로 데이터 기반 의사결정",
     },
     {
       competitor: "창비교육",
-      gap: "SNS 마케팅 미약",
-      ourAdvantage: "Marketing Agent의 자동 콘텐츠 캘린더로 일관된 채널 운영",
+      gap: "SNS 채널 운영 비일관적 (월 2-3회)",
+      ourAdvantage: "Marketing Agent 자동 콘텐츠 캘린더로 주 5회 일관 운영",
     },
     {
       competitor: "길벗어린이",
-      gap: "해외 번역 파이프라인 수동",
+      gap: "해외 번역 파이프라인 수동 (출시까지 6개월)",
       ourAdvantage: "Translation Agent 6개국어 동시 번역으로 출시 속도 3배",
     },
   ],
@@ -482,23 +492,39 @@ const INTEGRATED_SECTIONS = [
   },
   {
     id: "section-5",
-    title: "기회 영역 (Opportunity Areas)",
-    content: OPPORTUNITY_OUTPUT.untappedAreas
+    title: "SOV 점유율 분석 (Share of Voice)",
+    content: OPPORTUNITY_OUTPUT.shareOfVoice
       .map(
-        (a) =>
-          `■ ${a.area} (영향: ${a.estimatedImpact})\n  근거: ${a.evidence}\n  제안: ${a.suggestedAction}`,
+        (s) =>
+          `${s.isOurs ? "★ " : ""}${s.brand}: ${s.mentions}건 (긍정률 ${Math.round(s.sentimentPositive * 100)}%)`,
+      )
+      .join("\n"),
+    sourceModule: "#06",
+  },
+  {
+    id: "section-6",
+    title: "콘텐츠 갭 분석",
+    content: OPPORTUNITY_OUTPUT.contentGaps
+      .map(
+        (g) =>
+          `■ ${g.topic} [${g.ourStatus}] → 영향: ${g.estimatedImpact}\n  경쟁사: ${g.competitorActivity}\n  제안: ${g.suggestedAction}`,
       )
       .join("\n\n"),
     sourceModule: "#06",
   },
   {
-    id: "section-6",
-    title: "SWOT 분석",
-    content: `강점:\n${OPPORTUNITY_OUTPUT.swotSummary.strengths.map((s) => `• ${s}`).join("\n")}\n\n약점:\n${OPPORTUNITY_OUTPUT.swotSummary.weaknesses.map((s) => `• ${s}`).join("\n")}\n\n기회:\n${OPPORTUNITY_OUTPUT.swotSummary.opportunities.map((s) => `• ${s}`).join("\n")}\n\n위협:\n${OPPORTUNITY_OUTPUT.swotSummary.threats.map((s) => `• ${s}`).join("\n")}`,
+    id: "section-7",
+    title: "리스크 시그널",
+    content: OPPORTUNITY_OUTPUT.riskSignals
+      .map(
+        (r) =>
+          `[${r.severity.toUpperCase()}] ${r.signal}\n  근거: ${r.evidence}\n  대응: ${r.suggestedResponse}`,
+      )
+      .join("\n\n"),
     sourceModule: "#06",
   },
   {
-    id: "section-7",
+    id: "section-7b",
     title: "경쟁사 갭 분석",
     content: OPPORTUNITY_OUTPUT.competitorGaps
       .map((c) => `■ ${c.competitor}\n  갭: ${c.gap}\n  우리 강점: ${c.ourAdvantage}`)

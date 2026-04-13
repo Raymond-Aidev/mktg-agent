@@ -199,39 +199,134 @@ function renderMacroView(mod: Record<string, unknown>): string {
 }
 
 function renderOpportunity(mod: Record<string, unknown>): string {
-  const areas =
-    (mod.untappedAreas as Array<{
-      area: string;
-      evidence: string;
-      estimatedImpact: string;
-      suggestedAction: string;
+  const sov =
+    (mod.shareOfVoice as Array<{
+      brand: string;
+      mentions: number;
+      sentimentPositive: number;
+      isOurs: boolean;
     }>) ?? [];
-  const swot = mod.swotSummary as
-    | { strengths: string[]; weaknesses: string[]; opportunities: string[]; threats: string[] }
-    | undefined;
+  const positioning =
+    (mod.positioning as Array<{
+      brand: string;
+      mentionVolume: number;
+      positiveRate: number;
+      distinctKeyword: string;
+    }>) ?? [];
+  const contentGaps =
+    (mod.contentGaps as Array<{
+      topic: string;
+      competitorActivity: string;
+      ourStatus: string;
+      suggestedAction: string;
+      estimatedImpact: string;
+    }>) ?? [];
+  const risks =
+    (mod.riskSignals as Array<{
+      signal: string;
+      severity: string;
+      evidence: string;
+      suggestedResponse: string;
+    }>) ?? [];
   const gaps =
     (mod.competitorGaps as Array<{ competitor: string; gap: string; ourAdvantage: string }>) ?? [];
 
+  const totalMentions = sov.reduce((sum, s) => sum + s.mentions, 1);
+  const severityColor: Record<string, string> = {
+    critical: "#dc2626",
+    warning: "#f59e0b",
+    watch: "#6b7280",
+  };
+  const statusLabel: Record<string, string> = { absent: "미진행", weak: "미흡", moderate: "보통" };
+  const statusColor: Record<string, string> = {
+    absent: "#dc2626",
+    weak: "#f59e0b",
+    moderate: "#6b7280",
+  };
   const impactIcon: Record<string, string> = { high: "🔴", medium: "🟡", low: "⚪" };
 
   return `
     <section class="card visual-card">
-      <header><h2>기회 영역</h2><span class="badge">#06</span></header>
+      <header><h2>시장 인텔리전스</h2><span class="badge">#06</span></header>
 
       ${
-        areas.length > 0
+        sov.length > 0
           ? `
-      <div class="opp-grid">
-        ${areas
+      <h3>SOV 점유율 (Share of Voice)</h3>
+      <div class="sov-chart">
+        <div class="sov-bar-stacked">
+          ${sov
+            .map((s) => {
+              const pct = Math.round((s.mentions / totalMentions) * 100);
+              const color = s.isOurs
+                ? "var(--c-accent)"
+                : `hsl(${sov.indexOf(s) * 60 + 180}, 40%, 65%)`;
+              return `<div class="sov-segment" style="width:${pct}%;background:${color}" title="${s.brand}: ${s.mentions}건 (${pct}%)"></div>`;
+            })
+            .join("")}
+        </div>
+        <div class="sov-legend">
+          ${sov
+            .map((s) => {
+              const pct = Math.round((s.mentions / totalMentions) * 100);
+              const color = s.isOurs
+                ? "var(--c-accent)"
+                : `hsl(${sov.indexOf(s) * 60 + 180}, 40%, 65%)`;
+              return `<div class="sov-legend-item${s.isOurs ? " sov-ours" : ""}">
+              <span class="dot" style="background:${color}"></span>
+              <span>${esc(s.brand)}${s.isOurs ? " ★" : ""}</span>
+              <strong>${pct}%</strong>
+              <span class="sov-detail">${s.mentions}건 · 긍정 ${Math.round(s.sentimentPositive * 100)}%</span>
+            </div>`;
+            })
+            .join("")}
+        </div>
+      </div>`
+          : ""
+      }
+
+      ${
+        positioning.length > 0
+          ? `
+      <h3>포지셔닝 맵</h3>
+      <div class="pos-map">
+        <div class="pos-axis-y">긍정률 ↑</div>
+        <div class="pos-grid">
+          ${positioning
+            .map((p) => {
+              const x = Math.round(
+                (p.mentionVolume / Math.max(...positioning.map((pp) => pp.mentionVolume))) * 85 + 5,
+              );
+              const y = Math.round((1 - p.positiveRate) * 80 + 5);
+              const isOurs = sov.find((s) => s.brand === p.brand)?.isOurs ?? false;
+              return `<div class="pos-dot${isOurs ? " pos-ours" : ""}" style="left:${x}%;top:${y}%">
+              <div class="pos-label">${esc(p.brand)}</div>
+              <div class="pos-kw">${esc(p.distinctKeyword)}</div>
+            </div>`;
+            })
+            .join("")}
+        </div>
+        <div class="pos-axis-x">언급량 →</div>
+      </div>`
+          : ""
+      }
+
+      ${
+        contentGaps.length > 0
+          ? `
+      <h3>콘텐츠 갭 분석</h3>
+      <div class="content-gaps">
+        ${contentGaps
           .map(
-            (a) => `
-          <div class="opp-item">
-            <div class="opp-header">
-              <span>${impactIcon[a.estimatedImpact] ?? "⚪"}</span>
-              <strong>${esc(a.area)}</strong>
+            (g) => `
+          <div class="cgap-item">
+            <div class="cgap-header">
+              <span>${impactIcon[g.estimatedImpact] ?? "⚪"}</span>
+              <strong>${esc(g.topic)}</strong>
+              <span class="cgap-status" style="background:${statusColor[g.ourStatus] ?? "#6b7280"}">${statusLabel[g.ourStatus] ?? g.ourStatus}</span>
             </div>
-            <div class="opp-evidence">${esc(a.evidence)}</div>
-            <div class="opp-action">→ ${esc(a.suggestedAction)}</div>
+            <div class="cgap-competitor">${esc(g.competitorActivity)}</div>
+            <div class="cgap-action">→ ${esc(g.suggestedAction)}</div>
           </div>`,
           )
           .join("")}
@@ -240,14 +335,23 @@ function renderOpportunity(mod: Record<string, unknown>): string {
       }
 
       ${
-        swot
+        risks.length > 0
           ? `
-      <h3>SWOT 분석</h3>
-      <div class="swot-grid">
-        <div class="swot-box swot-s"><h4>💪 강점</h4><ul>${swot.strengths.map((s) => `<li>${esc(s)}</li>`).join("")}</ul></div>
-        <div class="swot-box swot-w"><h4>⚠️ 약점</h4><ul>${swot.weaknesses.map((s) => `<li>${esc(s)}</li>`).join("")}</ul></div>
-        <div class="swot-box swot-o"><h4>🚀 기회</h4><ul>${swot.opportunities.map((s) => `<li>${esc(s)}</li>`).join("")}</ul></div>
-        <div class="swot-box swot-t"><h4>🛡️ 위협</h4><ul>${swot.threats.map((s) => `<li>${esc(s)}</li>`).join("")}</ul></div>
+      <h3>리스크 시그널</h3>
+      <div class="risk-signals">
+        ${risks
+          .map(
+            (r) => `
+          <div class="rsig-item" style="border-left:4px solid ${severityColor[r.severity] ?? "#6b7280"}">
+            <div class="rsig-header">
+              <span class="rsig-severity" style="background:${severityColor[r.severity] ?? "#6b7280"}">${esc(r.severity.toUpperCase())}</span>
+              <span>${esc(r.signal)}</span>
+            </div>
+            <div class="rsig-evidence">${esc(r.evidence)}</div>
+            <div class="rsig-response">→ ${esc(r.suggestedResponse)}</div>
+          </div>`,
+          )
+          .join("")}
       </div>`
           : ""
       }
@@ -255,7 +359,7 @@ function renderOpportunity(mod: Record<string, unknown>): string {
       ${
         gaps.length > 0
           ? `
-      <h3>경쟁사 갭 분석</h3>
+      <h3>경쟁사 약점 분석</h3>
       <div class="gap-table">
         <div class="gap-header"><span>경쟁사</span><span>갭</span><span>우리 강점</span></div>
         ${gaps
@@ -557,16 +661,42 @@ export function renderReportHtml(
     .opp-evidence { font-size:13px; color:#52525b; margin-bottom:8px; }
     .opp-action { font-size:13px; color:var(--c-accent); font-weight:600; }
 
-    /* SWOT */
-    .swot-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-    .swot-box { border-radius:10px; padding:16px; }
-    .swot-box h4 { margin:0 0 8px; font-size:14px; }
-    .swot-box ul { margin:0; padding-left:18px; font-size:13px; }
-    .swot-box li { margin-bottom:4px; }
-    .swot-s { background:#f0fdf4; border:1px solid #bbf7d0; }
-    .swot-w { background:#fef2f2; border:1px solid #fecaca; }
-    .swot-o { background:#eff6ff; border:1px solid #bfdbfe; }
-    .swot-t { background:#fffbeb; border:1px solid #fde68a; }
+    /* SOV */
+    .sov-chart { margin-bottom:16px; }
+    .sov-bar-stacked { display:flex; height:32px; border-radius:8px; overflow:hidden; margin-bottom:12px; }
+    .sov-segment { min-width:20px; transition:width .3s; }
+    .sov-legend { display:flex; flex-direction:column; gap:6px; }
+    .sov-legend-item { display:flex; align-items:center; gap:8px; font-size:13px; }
+    .sov-legend-item strong { min-width:36px; }
+    .sov-detail { color:#71717a; font-size:12px; }
+    .sov-ours { font-weight:700; }
+
+    /* Positioning map */
+    .pos-map { position:relative; margin:16px 0; }
+    .pos-axis-y { font-size:11px; color:#a1a1aa; margin-bottom:4px; }
+    .pos-axis-x { font-size:11px; color:#a1a1aa; text-align:right; margin-top:4px; }
+    .pos-grid { position:relative; width:100%; height:240px; background:linear-gradient(135deg,#f0fdf4 0%,#fefce8 50%,#fef2f2 100%); border:1px solid #e4e4e7; border-radius:12px; overflow:hidden; }
+    .pos-dot { position:absolute; transform:translate(-50%,-50%); text-align:center; cursor:default; }
+    .pos-dot::before { content:""; display:block; width:14px; height:14px; border-radius:50%; background:#a1a1aa; margin:0 auto 4px; border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,.15); }
+    .pos-ours::before { background:var(--c-accent); width:18px; height:18px; }
+    .pos-label { font-size:12px; font-weight:700; white-space:nowrap; }
+    .pos-kw { font-size:10px; color:#71717a; white-space:nowrap; }
+
+    /* Content gaps */
+    .content-gaps { display:flex; flex-direction:column; gap:12px; }
+    .cgap-item { padding:14px 16px; background:#fafafa; border:1px solid #e4e4e7; border-radius:10px; }
+    .cgap-header { display:flex; align-items:center; gap:8px; margin-bottom:8px; font-size:14px; }
+    .cgap-status { color:#fff; font-size:10px; font-weight:700; padding:2px 8px; border-radius:4px; letter-spacing:.04em; }
+    .cgap-competitor { font-size:13px; color:#52525b; margin-bottom:6px; }
+    .cgap-action { font-size:13px; color:var(--c-accent); font-weight:600; }
+
+    /* Risk signals */
+    .risk-signals { display:flex; flex-direction:column; gap:10px; }
+    .rsig-item { padding:14px 16px; background:#fff; border:1px solid #e4e4e7; border-radius:10px; }
+    .rsig-header { display:flex; align-items:center; gap:8px; margin-bottom:6px; font-size:14px; }
+    .rsig-severity { color:#fff; font-size:10px; font-weight:700; padding:2px 8px; border-radius:4px; letter-spacing:.04em; }
+    .rsig-evidence { font-size:13px; color:#52525b; margin-bottom:6px; }
+    .rsig-response { font-size:13px; color:var(--c-accent); font-weight:600; }
 
     /* Competitor gaps */
     .gap-table { font-size:13px; }
@@ -608,7 +738,8 @@ export function renderReportHtml(
     /* Print */
     @media print { body { background:#fff; } .card { break-inside:avoid; box-shadow:none; } }
     @media (max-width:600px) {
-      .swot-grid, .gap-header, .gap-row { grid-template-columns:1fr; }
+      .gap-header, .gap-row { grid-template-columns:1fr; }
+      .pos-grid { height:180px; }
       .sentiment-visual { flex-direction:column; }
       .h-bar-label { min-width:auto; text-align:left; }
     }
