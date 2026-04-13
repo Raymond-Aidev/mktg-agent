@@ -583,7 +583,7 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
         <span className="nav-logo">GoldenCheck</span>
         <div className="landing-nav-links">
           <a href="#features">기능</a>
-          <a href="#how">분석 프로세스</a>
+          <a href="#sample">분석 샘플</a>
           <a href="#pricing">요금제</a>
           <a href="#faq">FAQ</a>
           <button
@@ -804,6 +804,38 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
             <p>키워드별 투자/유지/철수 판단과 실행 전략을 확인합니다.</p>
           </div>
         </div>
+      </section>
+
+      <section className="features" id="sample">
+        <h2>분석 샘플</h2>
+        <p
+          style={{
+            textAlign: "center",
+            color: "var(--text-muted)",
+            marginBottom: 24,
+            marginTop: -24,
+            fontSize: 15,
+          }}
+        >
+          "어린이AI 지휘자" 제품의 실제 AI 마케팅 분석 리포트입니다.
+        </p>
+        <div style={{ display: "flex", justifyContent: "center", gap: 12, marginBottom: 20 }}>
+          <a
+            href={`/api/v1/reports/${SAMPLE_REPORT_ID}?format=html`}
+            target="_blank"
+            rel="noreferrer"
+            className="btn-primary"
+            style={{ width: "auto", padding: "12px 24px" }}
+          >
+            리포트 전체 보기
+          </a>
+        </div>
+        <iframe
+          title="샘플 분석 리포트"
+          className="sample-frame"
+          src={`/api/v1/reports/${SAMPLE_REPORT_ID}?format=html`}
+          style={{ maxWidth: 960, margin: "0 auto", display: "block" }}
+        />
       </section>
 
       <section className="pricing-section" id="pricing">
