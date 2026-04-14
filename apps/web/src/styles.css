@@ -259,8 +259,8 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .gap-advantage { color: var(--success); font-size: 13px; }
 
 /* ── Operator ── */
-.op-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
-.op-header h2 { margin: 0; flex: 1; }
+.op-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.op-header h2 { margin: 0; flex: 1; white-space: nowrap; min-width: max-content; }
 .op-header button {
   font-family: inherit; font-size: 13px; font-weight: 600; padding: 8px 16px;
   border: none; border-radius: var(--radius-xs); background: var(--accent); color: #fff;
