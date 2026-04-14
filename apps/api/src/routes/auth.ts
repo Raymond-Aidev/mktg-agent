@@ -63,11 +63,9 @@ authRouter.post("/register", async (req: Request, res: Response) => {
       `INSERT INTO email_verifications (user_id, code, expires_at) VALUES ($1, $2, $3)`,
       [existingUser.id, code, new Date(Date.now() + 10 * 60 * 1000)],
     );
-    try {
-      await sendVerificationEmail(email, code);
-    } catch (err) {
-      console.error("[register] resend failed:", err);
-    }
+    sendVerificationEmail(email, code).catch((err) =>
+      console.error("[register] resend failed:", err),
+    );
     return res
       .status(201)
       .json({ requireVerification: true, email, message: "인증 코드가 이메일로 발송되었습니다" });
@@ -98,11 +96,10 @@ authRouter.post("/register", async (req: Request, res: Response) => {
     [userId, code, codeExpiresAt],
   );
 
-  try {
-    await sendVerificationEmail(email, code);
-  } catch (err) {
-    console.error("[register] failed to send verification email:", err);
-  }
+  // fire-and-forget — 응답을 즉시 반환하고 이메일은 백그라운드로 발송
+  sendVerificationEmail(email, code).catch((err) =>
+    console.error("[register] failed to send verification email:", err),
+  );
 
   return res.status(201).json({
     requireVerification: true,
@@ -159,11 +156,9 @@ authRouter.post("/login", async (req: Request, res: Response) => {
       `INSERT INTO email_verifications (user_id, code, expires_at) VALUES ($1, $2, $3)`,
       [user.id, code, codeExpiresAt],
     );
-    try {
-      await sendVerificationEmail(user.email, code);
-    } catch (err) {
-      console.error("[login] failed to send verification email:", err);
-    }
+    sendVerificationEmail(user.email, code).catch((err) =>
+      console.error("[login] failed to send verification email:", err),
+    );
 
     return res.status(403).json({
       error: "email_not_verified",
@@ -274,7 +269,9 @@ authRouter.post("/resend-code", async (req: Request, res: Response) => {
     [userId, code, codeExpiresAt],
   );
 
-  await sendVerificationEmail(parsed.data.email, code);
+  sendVerificationEmail(parsed.data.email, code).catch((err) =>
+    console.error("[resend-code] failed:", err),
+  );
   return res.json({ message: "인증 코드가 발송되었습니다" });
 });
 
@@ -347,7 +344,9 @@ authRouter.post("/forgot-password", async (req: Request, res: Response) => {
     [userId, tokenHash, expiresAt],
   );
 
-  await sendPasswordResetEmail(parsed.data.email, token);
+  sendPasswordResetEmail(parsed.data.email, token).catch((err) =>
+    console.error("[forgot-password] failed:", err),
+  );
 
   return res.json({
     message: "재설정 링크가 이메일로 발송되었습니다",

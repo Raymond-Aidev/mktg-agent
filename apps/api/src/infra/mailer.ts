@@ -8,6 +8,9 @@ const transporter =
         port: 587,
         secure: false,
         auth: { user: env.SMTP_USER, pass: env.SMTP_PASS },
+        connectionTimeout: 5000,
+        greetingTimeout: 5000,
+        socketTimeout: 10000,
       })
     : null;
 
