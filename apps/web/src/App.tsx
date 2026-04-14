@@ -363,12 +363,10 @@ function sentimentColor(score: number): string {
 
 export function App() {
   const [tenantId, setTenantId] = useState(DEFAULT_TENANT);
-  const [pendingTenant, setPendingTenant] = useState(DEFAULT_TENANT);
   const hasToken = !!getToken();
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
   const [authLoading, setAuthLoading] = useState(hasToken);
   const [view, setView] = useState<View>(hasToken ? { screen: "products" } : { screen: "landing" });
-  const [showSettings, setShowSettings] = useState(false);
 
   // 페이지 새로고침 시 JWT에서 사용자 정보 복원
   useEffect(() => {
@@ -396,11 +394,6 @@ export function App() {
     apiLogout();
     setAuthUser(null);
     setView({ screen: "landing" });
-  };
-
-  const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (pendingTenant.trim().length > 0) setTenantId(pendingTenant.trim());
   };
 
   const goBack = () => {
@@ -465,9 +458,6 @@ export function App() {
           >
             분석 샘플
           </span>
-          <span className="nav-link" onClick={() => setShowSettings(!showSettings)}>
-            설정
-          </span>
           {authUser?.role === "admin" && (
             <span
               className={`nav-link ${view.screen === "admin" ? "nav-active" : ""}`}
@@ -486,20 +476,6 @@ export function App() {
       </nav>
 
       <div className="app-body">
-        {showSettings && (
-          <form className="tenant-switcher" onSubmit={onSubmit}>
-            <label htmlFor="tenant">계정 ID</label>
-            <input
-              id="tenant"
-              type="text"
-              value={pendingTenant}
-              onChange={(e) => setPendingTenant(e.target.value)}
-              placeholder="00000000-0000-0000-0000-000000000000"
-            />
-            <button type="submit">적용</button>
-          </form>
-        )}
-
         {view.screen !== "products" && view.screen !== "admin" && view.screen !== "sample" && (
           <div className="back-row">
             <button type="button" className="back-btn" onClick={goBack}>
@@ -2121,7 +2097,7 @@ function SignalcraftPanel({
           </button>
         )}
       </form>
-      {submitError && <div className="status-error">Error: {submitError}</div>}
+      {submitError && <div className="status-error">오류: {submitError}</div>}
       {job && (
         <div className="sc-status">
           <div className="sc-status-row">
@@ -2252,7 +2228,7 @@ function BuyersPanel({ tenantId }: { tenantId: string }) {
       <h2>
         Buyers (top {data?.buyers.length ?? 0} of {data?.total ?? 0})
       </h2>
-      {loading && <div className="status-loading">Loading buyers...</div>}
+      {loading && <div className="status-loading">바이어 불러오는 중...</div>}
       {err && <div className="status-error">{err}</div>}
       {!loading && !err && data && data.buyers.length === 0 && (
         <div className="status-empty">No buyers for this tenant yet.</div>
@@ -2321,12 +2297,12 @@ function OperatorPanel() {
           </button>
         )}
       </div>
-      {open && loading && <div className="status-loading">Loading...</div>}
+      {open && loading && <div className="status-loading">불러오는 중...</div>}
       {open && err && <div className="status-error">{err}</div>}
       {open && data && (
         <div className="op-grid">
           <div className="op-card">
-            <h3>Health</h3>
+            <h3>시스템 상태</h3>
             <div>
               postgres: {data.health.postgres.ok ? "OK" : "FAIL"} ({data.health.postgres.latencyMs}
               ms)
@@ -2334,7 +2310,7 @@ function OperatorPanel() {
             <div>redis: {data.health.redis.ok ? "OK" : "FAIL"}</div>
           </div>
           <div className="op-card">
-            <h3>Queues</h3>
+            <h3>큐 상태</h3>
             {Object.entries(data.queues).map(([name, c]) => (
               <div key={name}>
                 <strong>{name}</strong>: w={c.waiting} a={c.active} c={c.completed} f={c.failed}
@@ -2342,7 +2318,7 @@ function OperatorPanel() {
             ))}
           </div>
           <div className="op-card">
-            <h3>SignalCraft jobs (24h)</h3>
+            <h3>SignalCraft 작업 (24시간)</h3>
             {Object.entries(data.signalcraftJobs).length === 0 && <div>—</div>}
             {Object.entries(data.signalcraftJobs).map(([s, n]) => (
               <div key={s}>
@@ -2374,7 +2350,7 @@ function OperatorPanel() {
             </table>
           </div>
           <div className="op-card op-wide">
-            <h3>LLM cost (7d)</h3>
+            <h3>LLM 비용 (7일)</h3>
             {data.llmCost.length === 0 ? (
               <div>No calls.</div>
             ) : (
@@ -2403,7 +2379,7 @@ function OperatorPanel() {
             )}
           </div>
           <div className="op-card op-wide">
-            <h3>Crawler failures (24h)</h3>
+            <h3>크롤러 실패 (24시간)</h3>
             {data.crawlerFailures.length === 0 ? (
               <div>No failures.</div>
             ) : (
@@ -2499,7 +2475,7 @@ function Panels({ data }: { data: DashboardKpis }) {
         )}
       </section>
       <section className="panel">
-        <h2>Agent adoption</h2>
+        <h2>에이전트 채택률</h2>
         {data.adoption.length === 0 ? (
           <div className="status-empty">No adoption events.</div>
         ) : (
@@ -2528,7 +2504,7 @@ function Panels({ data }: { data: DashboardKpis }) {
         )}
       </section>
       <section className="panel">
-        <h2>LLM cost by model</h2>
+        <h2>모델별 LLM 비용</h2>
         {data.llmCost.length === 0 ? (
           <div className="status-empty">No LLM calls.</div>
         ) : (
@@ -2715,9 +2691,9 @@ function AdminPanel() {
                 onChange={(e) => setNewName(e.target.value)}
               />
               <select value={newRole} onChange={(e) => setNewRole(e.target.value)}>
-                <option value="member">member</option>
-                <option value="owner">owner</option>
-                <option value="admin">admin</option>
+                <option value="member">멤버</option>
+                <option value="owner">소유자</option>
+                <option value="admin">관리자</option>
               </select>
               <button type="submit" disabled={creating}>
                 {creating ? "생성 중..." : "생성"}

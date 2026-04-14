@@ -22,6 +22,7 @@
 
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--text); line-height: 1.6; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .app { max-width: 1200px; margin: 0 auto; padding: 0; }
 .app-body { max-width: 1080px; margin: 0 auto; padding: 0 24px 80px; }
@@ -510,9 +511,12 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 }
 .modal h2 { margin: 0 0 24px; font-size: 22px; font-weight: 800; }
 .modal-close {
-  position: absolute; top: 16px; right: 16px; background: none; border: none;
-  font-size: 24px; color: var(--text-muted); cursor: pointer;
+  position: absolute; top: 12px; right: 12px; background: none; border: none;
+  font-size: 20px; color: var(--text-muted); cursor: pointer;
+  width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
 }
+.modal-close:hover { background: var(--bg-subtle); color: var(--text); }
 .login-form { display: flex; flex-direction: column; gap: 12px; }
 .login-form label { font-size: 13px; font-weight: 600; color: var(--text-muted); }
 .login-form input {
