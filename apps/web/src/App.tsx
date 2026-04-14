@@ -505,12 +505,6 @@ export function App() {
             <button type="button" className="back-btn" onClick={goBack}>
               ← 뒤로
             </button>
-            <Breadcrumb
-              view={view}
-              product={currentProduct}
-              keyword={currentKeyword}
-              onNavigate={setView}
-            />
           </div>
         )}
 
@@ -1257,43 +1251,6 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
 }
 
 /* ══════════════════════ Breadcrumb ══════════════════════ */
-
-function Breadcrumb({
-  view,
-  product,
-  keyword,
-  onNavigate,
-}: {
-  view: View;
-  product: DemoProduct | null;
-  keyword: DemoKeyword | null;
-  onNavigate: (v: View) => void;
-}) {
-  if (view.screen === "products") return null;
-  return (
-    <nav className="breadcrumb">
-      <span className="bc-link" onClick={() => onNavigate({ screen: "products" })}>
-        내 제품
-      </span>
-      <span className="bc-sep">/</span>
-      {view.screen === "product-detail" && product && (
-        <span className="bc-current">{product.name}</span>
-      )}
-      {view.screen === "keyword-report" && product && (
-        <>
-          <span
-            className="bc-link"
-            onClick={() => onNavigate({ screen: "product-detail", productId: product.id })}
-          >
-            {product.name}
-          </span>
-          <span className="bc-sep">/</span>
-          <span className="bc-current">{keyword?.keyword ?? ""}</span>
-        </>
-      )}
-    </nav>
-  );
-}
 
 /* ══════════════════════ Products Grid ══════════════════════ */
 
