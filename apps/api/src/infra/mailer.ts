@@ -9,8 +9,22 @@ const transporter =
         secure: false,
         auth: { user: env.SMTP_USER, pass: env.SMTP_PASS },
         tls: { rejectUnauthorized: false },
+        logger: true,
+        debug: true,
       })
     : null;
+
+// 시작 시 SMTP 연결 테스트
+if (transporter) {
+  transporter
+    .verify()
+    .then(() => {
+      console.log("[mailer] SMTP connection verified OK");
+    })
+    .catch((err) => {
+      console.error("[mailer] SMTP connection FAILED:", err.message, "code:", err.code);
+    });
+}
 
 export async function sendPasswordResetEmail(to: string, resetToken: string): Promise<void> {
   const baseUrl = env.PUBLIC_BASE_URL ?? "http://localhost:5173";
