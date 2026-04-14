@@ -558,6 +558,8 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
   const [resetToken, setResetToken] = useState(urlResetToken ?? "");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [showPw, setShowPw] = useState(false);
   const [name, setName] = useState("");
   const [authError, setAuthError] = useState<string | null>(null);
   const [authSuccess, setAuthSuccess] = useState<string | null>(null);
@@ -576,6 +578,10 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
     e.preventDefault();
     setAuthError(null);
     setAuthSuccess(null);
+    if ((isRegister || resetMode === "token") && password !== passwordConfirm) {
+      setAuthError("비밀번호가 일치하지 않습니다");
+      return;
+    }
     setLoading(true);
     try {
       if (resetMode === "request") {
@@ -680,14 +686,30 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
                     required
                   />
                   <label>새 비밀번호</label>
-                  <input
-                    type="password"
-                    placeholder="8자 이상, 대소문자+숫자+특수문자"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    minLength={8}
-                  />
+                  <div className="pw-field">
+                    <input
+                      type={showPw ? "text" : "password"}
+                      placeholder="8자 이상, 대소문자+숫자+특수문자"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      minLength={8}
+                    />
+                    <button type="button" className="pw-toggle" onClick={() => setShowPw(!showPw)}>
+                      {showPw ? "숨기기" : "보기"}
+                    </button>
+                  </div>
+                  <label>비밀번호 확인</label>
+                  <div className="pw-field">
+                    <input
+                      type={showPw ? "text" : "password"}
+                      placeholder="비밀번호를 다시 입력"
+                      value={passwordConfirm}
+                      onChange={(e) => setPasswordConfirm(e.target.value)}
+                      required
+                      minLength={8}
+                    />
+                  </div>
                 </>
               )}
               {resetMode === "done" && (
@@ -717,14 +739,36 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
                     required
                   />
                   <label>비밀번호</label>
-                  <input
-                    type="password"
-                    placeholder={isRegister ? "8자 이상, 대소문자+숫자+특수문자" : "비밀번호 입력"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    minLength={isRegister ? 8 : 1}
-                  />
+                  <div className="pw-field">
+                    <input
+                      type={showPw ? "text" : "password"}
+                      placeholder={
+                        isRegister ? "8자 이상, 대소문자+숫자+특수문자" : "비밀번호 입력"
+                      }
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      minLength={isRegister ? 8 : 1}
+                    />
+                    <button type="button" className="pw-toggle" onClick={() => setShowPw(!showPw)}>
+                      {showPw ? "숨기기" : "보기"}
+                    </button>
+                  </div>
+                  {isRegister && (
+                    <>
+                      <label>비밀번호 확인</label>
+                      <div className="pw-field">
+                        <input
+                          type={showPw ? "text" : "password"}
+                          placeholder="비밀번호를 다시 입력"
+                          value={passwordConfirm}
+                          onChange={(e) => setPasswordConfirm(e.target.value)}
+                          required
+                          minLength={8}
+                        />
+                      </div>
+                    </>
+                  )}
                 </>
               )}
               {authError && <div className="auth-error">{authError}</div>}

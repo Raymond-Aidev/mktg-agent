@@ -40,7 +40,7 @@ Phase 7 — W22 — 관측성 (Prometheus /metrics · Sentry · 부하 테스트
 - 회원가입 (POST /api/v1/auth/register) — 자동 tenant 발급
 - 로그인 (POST /api/v1/auth/login) — JWT 7일 만료
 - authMiddleware 전역 적용, role 기반 접근 제어 (admin/owner/member)
-- 어드민 계정: bebedium@gmail.com (role: admin)
+- 어드민 계정: benedium@gmail.com (role: admin)
 
 ### API 라우트 (19개)
 - 인증: auth (register/login/me)
@@ -108,6 +108,11 @@ Phase 7 — W22 — 관측성 (Prometheus /metrics · Sentry · 부하 테스트
 - **IaC**: `railway.json` + Railway CLI (Terraform 불필요)
 - **CI/CD**: GitHub push → Railway 자동 빌드·배포 (GitHub Actions는 lint/test만)
 - **환경 분리**: Railway Environments (staging / production)
+- **Railway CLI**: 로컬에 설치됨 (`railway` 명령 사용 가능)
+  - `railway run <cmd>` — Railway 환경변수를 주입하여 로컬에서 명령 실행
+  - DB Public Networking: `mainline.proxy.rlwy.net:40180` (user: postgres, db: railway)
+  - 마이그레이션 실행: `PGPASSWORD=<pw> psql -h mainline.proxy.rlwy.net -p 40180 -U postgres -d railway -f db/migrations/<file>.sql`
+  - `railway variables` — 환경변수 조회
 
 ## 문서 참조 (세션 시작 시 반드시 확인)
 - `docs/PRD_v1.0.md` — 제품 요구사항

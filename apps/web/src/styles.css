@@ -520,6 +520,14 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
   transition: border-color 0.15s;
 }
 .login-form input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
+.pw-field { position: relative; display: flex; }
+.pw-field input { flex: 1; padding-right: 60px; }
+.pw-toggle {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; color: var(--text-muted); cursor: pointer;
+  font-size: 12px; font-weight: 600; padding: 4px 8px;
+}
+.pw-toggle:hover { color: var(--accent); }
 .login-sub { text-align: center; font-size: 13px; color: var(--text-muted); margin-top: 8px; }
 .link { color: var(--accent); cursor: pointer; font-weight: 600; }
 .link:hover { text-decoration: underline; }
