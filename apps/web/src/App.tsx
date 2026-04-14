@@ -756,6 +756,13 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
                   </div>
                   {isRegister && (
                     <>
+                      <ul className="pw-rules">
+                        <li className={password.length >= 8 ? "pw-ok" : ""}>8자 이상</li>
+                        <li className={/[a-z]/.test(password) ? "pw-ok" : ""}>소문자</li>
+                        <li className={/[A-Z]/.test(password) ? "pw-ok" : ""}>대문자</li>
+                        <li className={/[0-9]/.test(password) ? "pw-ok" : ""}>숫자</li>
+                        <li className={/[^a-zA-Z0-9]/.test(password) ? "pw-ok" : ""}>특수문자</li>
+                      </ul>
                       <label>비밀번호 확인</label>
                       <div className="pw-field">
                         <input

@@ -520,6 +520,18 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
   transition: border-color 0.15s;
 }
 .login-form input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
+.pw-rules {
+  list-style: none; padding: 0; margin: 4px 0 8px;
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.pw-rules li {
+  font-size: 12px; padding: 2px 8px; border-radius: 12px;
+  background: var(--danger-light, #fee2e2); color: var(--danger, #dc2626);
+  transition: all 0.15s;
+}
+.pw-rules li.pw-ok {
+  background: #d1fae5; color: #059669;
+}
 .pw-field { position: relative; display: flex; }
 .pw-field input { flex: 1; padding-right: 60px; }
 .pw-toggle {
