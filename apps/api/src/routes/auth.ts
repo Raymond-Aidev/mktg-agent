@@ -71,7 +71,11 @@ authRouter.post("/register", async (req: Request, res: Response) => {
     [userId, code, codeExpiresAt],
   );
 
-  await sendVerificationEmail(email, code);
+  try {
+    await sendVerificationEmail(email, code);
+  } catch (err) {
+    console.error("[register] failed to send verification email:", err);
+  }
 
   return res.status(201).json({
     requireVerification: true,
@@ -128,7 +132,11 @@ authRouter.post("/login", async (req: Request, res: Response) => {
       `INSERT INTO email_verifications (user_id, code, expires_at) VALUES ($1, $2, $3)`,
       [user.id, code, codeExpiresAt],
     );
-    await sendVerificationEmail(user.email, code);
+    try {
+      await sendVerificationEmail(user.email, code);
+    } catch (err) {
+      console.error("[login] failed to send verification email:", err);
+    }
 
     return res.status(403).json({
       error: "email_not_verified",
