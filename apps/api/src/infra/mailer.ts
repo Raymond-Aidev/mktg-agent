@@ -4,8 +4,11 @@ import { env } from "./env.ts";
 const transporter =
   env.SMTP_USER && env.SMTP_PASS
     ? nodemailer.createTransport({
-        service: "gmail",
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false,
         auth: { user: env.SMTP_USER, pass: env.SMTP_PASS },
+        tls: { rejectUnauthorized: false },
       })
     : null;
 
@@ -20,7 +23,7 @@ export async function sendPasswordResetEmail(to: string, resetToken: string): Pr
   }
 
   await transporter.sendMail({
-    from: `"GoldenCheck" <${env.SMTP_USER}>`,
+    from: `"GoldenCheck" <noreply@konnect-ai.net>`,
     to,
     subject: "[GoldenCheck] 비밀번호 재설정",
     html: `
@@ -53,7 +56,7 @@ export async function sendVerificationEmail(to: string, code: string): Promise<v
   }
 
   await transporter.sendMail({
-    from: `"GoldenCheck" <${env.SMTP_USER}>`,
+    from: `"GoldenCheck" <noreply@konnect-ai.net>`,
     to,
     subject: "[GoldenCheck] 이메일 인증 코드",
     html: `
