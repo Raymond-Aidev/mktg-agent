@@ -500,7 +500,7 @@ export function App() {
           </form>
         )}
 
-        {view.screen !== "products" && (
+        {view.screen !== "products" && view.screen !== "admin" && view.screen !== "sample" && (
           <div className="back-row">
             <button type="button" className="back-btn" onClick={goBack}>
               ← 뒤로
@@ -2725,11 +2725,11 @@ function AdminPanel() {
       <section className="panel">
         <div className="op-header">
           <h2>회원 관리 ({users.length}명)</h2>
+          <button type="button" className="btn-secondary" style={{ width: "auto" }} onClick={load}>
+            새로고침
+          </button>
           <button type="button" onClick={() => setShowCreate(!showCreate)}>
             {showCreate ? "취소" : "+ 계정 생성"}
-          </button>
-          <button type="button" className="btn-secondary" onClick={load}>
-            새로고침
           </button>
         </div>
 
