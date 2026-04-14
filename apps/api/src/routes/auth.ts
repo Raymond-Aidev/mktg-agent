@@ -278,12 +278,36 @@ authRouter.post("/resend-code", async (req: Request, res: Response) => {
   return res.json({ message: "인증 코드가 발송되었습니다" });
 });
 
-authRouter.get("/me", (req: Request, res: Response) => {
-  const user = (req as Request & { user?: JwtPayload }).user;
+authRouter.get("/me", async (req: Request, res: Response) => {
+  const jwtUser = (req as Request & { user?: JwtPayload }).user;
+  if (!jwtUser) {
+    return res.status(401).json({ error: "unauthorized" });
+  }
+
+  // DB에서 최신 정보 조회 (role 변경 반영)
+  const pool = getPool();
+  const result = await pool.query<{
+    id: string;
+    tenant_id: string;
+    email: string;
+    name: string | null;
+    role: string;
+  }>("SELECT id, tenant_id, email, name, role FROM users WHERE id = $1", [jwtUser.userId]);
+
+  const user = result.rows[0];
   if (!user) {
     return res.status(401).json({ error: "unauthorized" });
   }
-  return res.json({ user });
+
+  return res.json({
+    user: {
+      id: user.id,
+      tenantId: user.tenant_id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+    },
+  });
 });
 
 /* ─── Password Reset ─── */

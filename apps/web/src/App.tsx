@@ -364,23 +364,25 @@ function sentimentColor(score: number): string {
 export function App() {
   const [tenantId, setTenantId] = useState(DEFAULT_TENANT);
   const [pendingTenant, setPendingTenant] = useState(DEFAULT_TENANT);
+  const hasToken = !!getToken();
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
-  const [view, setView] = useState<View>(
-    getToken() ? { screen: "products" } : { screen: "landing" },
-  );
+  const [authLoading, setAuthLoading] = useState(hasToken);
+  const [view, setView] = useState<View>(hasToken ? { screen: "products" } : { screen: "landing" });
   const [showSettings, setShowSettings] = useState(false);
 
   // 페이지 새로고침 시 JWT에서 사용자 정보 복원
   useEffect(() => {
-    if (getToken() && !authUser) {
-      apiAuthMe().then((user) => {
-        if (user) {
-          setAuthUser(user);
-          setTenantId(user.tenantId);
-        } else {
-          setView({ screen: "landing" });
-        }
-      });
+    if (hasToken && !authUser) {
+      apiAuthMe()
+        .then((user) => {
+          if (user) {
+            setAuthUser(user);
+            setTenantId(user.tenantId);
+          } else {
+            setView({ screen: "landing" });
+          }
+        })
+        .finally(() => setAuthLoading(false));
     }
   }, []);
 
@@ -419,6 +421,22 @@ export function App() {
 
   if (view.screen === "landing") {
     return <LandingPage onLogin={handleLogin} />;
+  }
+
+  if (authLoading) {
+    return (
+      <div
+        className="app"
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+        }}
+      >
+        <p style={{ color: "#999" }}>로딩 중...</p>
+      </div>
+    );
   }
 
   return (

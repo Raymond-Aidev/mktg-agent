@@ -126,13 +126,13 @@ export async function apiAuthMe(): Promise<AuthUser | null> {
       return null;
     }
     const data = (await res.json()) as {
-      user: { userId: string; tenantId: string; email: string; role: string };
+      user: { id: string; tenantId: string; email: string; name: string | null; role: string };
     };
     return {
-      id: data.user.userId,
+      id: data.user.id,
       tenantId: data.user.tenantId,
       email: data.user.email,
-      name: null,
+      name: data.user.name,
       role: data.user.role,
     };
   } catch {
