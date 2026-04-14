@@ -359,6 +359,53 @@ function sentimentColor(score: number): string {
   return "var(--danger)";
 }
 
+/* ══════════════════════ Toast ══════════════════════ */
+
+type ToastType = "success" | "error" | "info";
+interface ToastItem {
+  id: number;
+  message: string;
+  type: ToastType;
+}
+let toastIdSeq = 0;
+let globalToastFn: ((message: string, type?: ToastType) => void) | null = null;
+
+/** 어디서든 호출 가능한 전역 토스트 */
+function showGlobalToast(message: string, type: ToastType = "success") {
+  globalToastFn?.(message, type);
+}
+
+function useToast() {
+  const [toasts, setToasts] = useState<ToastItem[]>([]);
+  const show = useCallback((message: string, type: ToastType = "success") => {
+    const id = ++toastIdSeq;
+    setToasts((prev) => [...prev, { id, message, type }]);
+    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 3000);
+  }, []);
+
+  useEffect(() => {
+    globalToastFn = show;
+    return () => {
+      globalToastFn = null;
+    };
+  }, [show]);
+
+  return { toasts, show };
+}
+
+function ToastContainer({ toasts }: { toasts: ToastItem[] }) {
+  if (toasts.length === 0) return null;
+  return (
+    <div className="toast-container">
+      {toasts.map((t) => (
+        <div key={t.id} className={`toast toast-${t.type}`}>
+          {t.message}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /* ══════════════════════ App Root ══════════════════════ */
 
 export function App() {
@@ -367,6 +414,7 @@ export function App() {
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
   const [authLoading, setAuthLoading] = useState(hasToken);
   const [view, setView] = useState<View>(hasToken ? { screen: "products" } : { screen: "landing" });
+  const { toasts } = useToast();
 
   // 페이지 새로고침 시 JWT에서 사용자 정보 복원
   useEffect(() => {
@@ -434,6 +482,7 @@ export function App() {
 
   return (
     <div className="app">
+      <ToastContainer toasts={toasts} />
       <nav className="global-nav">
         <div className="nav-left">
           <span
@@ -1250,7 +1299,7 @@ function ProductsGrid({
     setLoading(true);
     fetchProducts(tenantId)
       .then(setApiProducts)
-      .catch(() => {})
+      .catch((err: unknown) => showGlobalToast((err as Error).message, "error"))
       .finally(() => setLoading(false));
   }, [tenantId]);
 
@@ -1278,7 +1327,9 @@ function ProductsGrid({
   const handleDelete = async (e: React.MouseEvent, productId: string) => {
     e.stopPropagation();
     if (!confirm("이 제품을 삭제하시겠습니까?")) return;
-    await deleteProduct(tenantId, productId).catch(() => {});
+    await deleteProduct(tenantId, productId).catch((err: unknown) =>
+      showGlobalToast((err as Error).message, "error"),
+    );
     loadProducts();
   };
 
@@ -1591,7 +1642,7 @@ function RealProductDetail({
         setProduct(d.product);
         setKeywords(d.keywords);
       })
-      .catch(() => {})
+      .catch((err: unknown) => showGlobalToast((err as Error).message, "error"))
       .finally(() => setLoading(false));
   }, [tenantId, productId]);
 
@@ -1617,7 +1668,9 @@ function RealProductDetail({
 
   const handleRemoveKw = async (e: React.MouseEvent, kwId: string) => {
     e.stopPropagation();
-    await removeKeyword(tenantId, productId, kwId).catch(() => {});
+    await removeKeyword(tenantId, productId, kwId).catch((err: unknown) =>
+      showGlobalToast((err as Error).message, "error"),
+    );
     load();
   };
 
@@ -1669,7 +1722,11 @@ function RealProductDetail({
         </div>
 
         {keywords.length === 0 ? (
-          <div className="status-empty">등록된 키워드가 없습니다. 키워드를 추가해주세요.</div>
+          <div className="empty-state">
+            <div className="empty-icon">+</div>
+            <p>등록된 키워드가 없습니다</p>
+            <p className="empty-sub">키워드를 추가하면 여론 분석을 시작할 수 있습니다.</p>
+          </div>
         ) : (
           <table className="portfolio-table">
             <thead>
@@ -1915,7 +1972,7 @@ function ChannelCard({ tenantId }: { tenantId: string }) {
       .then((d) => {
         if (!cancelled) setData(d);
       })
-      .catch(() => {})
+      .catch((err: unknown) => showGlobalToast((err as Error).message, "error"))
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
@@ -1956,7 +2013,7 @@ function CompetitorCard({ tenantId }: { tenantId: string }) {
       .then((d) => {
         if (!cancelled) setData(d);
       })
-      .catch(() => {})
+      .catch((err: unknown) => showGlobalToast((err as Error).message, "error"))
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
@@ -2594,7 +2651,9 @@ function AdminPanel() {
   };
 
   const handleRoleChange = async (userId: string, role: string) => {
-    await updateUserRole(userId, role).catch(() => {});
+    await updateUserRole(userId, role).catch((err: unknown) =>
+      showGlobalToast((err as Error).message, "error"),
+    );
     await load();
   };
 
@@ -2604,7 +2663,7 @@ function AdminPanel() {
       await deleteAdminUser(userId);
       await load();
     } catch (err) {
-      alert((err as Error).message);
+      showGlobalToast((err as Error).message, "error");
     }
   };
 

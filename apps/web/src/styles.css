@@ -550,6 +550,48 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .link:hover { text-decoration: underline; }
 .auth-error { color: var(--danger); font-size: 13px; text-align: center; padding: 8px; background: var(--danger-light); border-radius: 6px; }
 
+/* ── Toast ── */
+.toast-container {
+  position: fixed; top: 20px; right: 20px; z-index: 9999;
+  display: flex; flex-direction: column; gap: 8px; pointer-events: none;
+}
+.toast {
+  padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15); pointer-events: auto;
+  animation: toast-in 0.3s ease-out;
+}
+.toast-success { background: #059669; color: #fff; }
+.toast-error { background: var(--danger); color: #fff; }
+.toast-info { background: var(--accent); color: #fff; }
+@keyframes toast-in { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+
+/* ── Confirm Modal ── */
+.confirm-modal { max-width: 360px; padding: 28px; }
+.btn-danger {
+  font-family: inherit; font-size: 14px; font-weight: 600; padding: 8px 20px;
+  border: none; border-radius: var(--radius-xs); background: var(--danger); color: #fff;
+  cursor: pointer; transition: background 0.15s;
+}
+.btn-danger:hover { background: #b91c1c; }
+.btn-secondary {
+  font-family: inherit; font-size: 14px; font-weight: 500; padding: 8px 20px;
+  border: 1px solid var(--border); border-radius: var(--radius-xs); background: var(--bg); color: var(--text);
+  cursor: pointer; transition: all 0.15s;
+}
+
+/* ── Empty State ── */
+.empty-state {
+  text-align: center; padding: 48px 24px; color: var(--text-muted);
+}
+.empty-icon {
+  width: 56px; height: 56px; margin: 0 auto 16px; border-radius: 50%;
+  background: var(--bg-subtle); border: 2px dashed var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; color: var(--text-muted);
+}
+.empty-state p { margin: 0; font-size: 15px; font-weight: 600; }
+.empty-sub { font-weight: 400 !important; font-size: 13px !important; margin-top: 4px !important; }
+
 /* ── Product CRUD ── */
 .section-label { font-size: 14px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.03em; margin: 24px 0 12px; }
 .add-product-row { margin: 24px 0; }
