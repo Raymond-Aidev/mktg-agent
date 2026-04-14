@@ -38,10 +38,25 @@ function tryExtractJson(raw: string): unknown {
     cleaned = cleaned.slice(firstBrace, lastBrace + 1);
   }
 
-  // trailing comma 수정 — LLM이 자주 생성하는 오류
+  // trailing comma 수정
   cleaned = cleaned.replace(/,\s*([}\]])/g, "$1");
 
-  return JSON.parse(cleaned);
+  try {
+    return JSON.parse(cleaned);
+  } catch {
+    // 2차 시도: JSON 문자열 안의 이스케이프 안 된 줄바꿈/탭 수정
+    // "key": "value with
+    // newline" → "key": "value with\nnewline"
+    const fixed = cleaned.replace(/"([^"]*?)"/g, (_match, content: string) => {
+      const escaped = content
+        .replace(/\\/g, "\\\\")
+        .replace(/\n/g, "\\n")
+        .replace(/\r/g, "\\r")
+        .replace(/\t/g, "\\t");
+      return `"${escaped}"`;
+    });
+    return JSON.parse(fixed);
+  }
 }
 
 export async function runModule<TOutput>(
