@@ -1,14 +1,16 @@
 import nodemailer from "nodemailer";
 import { env } from "./env.ts";
 
+// Gmail SMTP IPv4 주소 직접 지정 — Railway에서 IPv6 연결 차단됨
 const transporter =
   env.SMTP_USER && env.SMTP_PASS
     ? nodemailer.createTransport({
-        host: "smtp.gmail.com",
+        host: "74.125.200.109",
         port: 587,
         secure: false,
+        name: "smtp.gmail.com",
         auth: { user: env.SMTP_USER, pass: env.SMTP_PASS },
-        tls: { rejectUnauthorized: false },
+        tls: { rejectUnauthorized: false, servername: "smtp.gmail.com" },
       })
     : null;
 
