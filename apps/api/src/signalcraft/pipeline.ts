@@ -8,6 +8,15 @@ import { strategyModuleConfig } from "../llm/modules/strategy.ts";
 import { macroViewModuleConfig } from "../llm/modules/macro-view.ts";
 import { summaryModuleConfig } from "../llm/modules/summary.ts";
 import { integratedModuleConfig, type IntegratedOutput } from "../llm/modules/integrated.ts";
+
+const moduleLabels: Record<string, string> = {
+  "#01": "시장 여론 동향",
+  "#03": "감성 분석",
+  "#06": "시장 인텔리전스",
+  "#07": "실행 전략",
+  "#08": "핵심 요약",
+  "#13": "통합 리포트",
+};
 import type {
   ModuleConfig,
   ModuleContext,
@@ -289,6 +298,26 @@ async function runStage3(input: PipelineInput): Promise<Stage3Result> {
   let reportId: string | null = null;
   if (integratedOutput) {
     reportId = await persistReport(input, integratedOutput, ran);
+  } else if (ran.length > 0) {
+    // #13 실패 시 성공한 모듈로 기본 리포트 생성
+    const fallbackIntegrated: IntegratedOutput = {
+      title: `${input.keyword} SignalCraft 분석 리포트`,
+      sections: ran
+        .filter((id) => id !== "#13")
+        .map((id, i) => ({
+          id: `section-${i + 1}`,
+          title: moduleLabels[id] ?? id,
+          content: "개별 모듈 분석 결과는 리포트 시각화 섹션에서 확인하세요.",
+          sourceModule: id,
+        })),
+      metadata: {
+        keyword: input.keyword,
+        generatedAt: new Date().toISOString(),
+        modulesUsed: ran,
+      },
+      confidence: "medium",
+    };
+    reportId = await persistReport(input, fallbackIntegrated, ran);
   }
 
   return { modulesRun: ran, modulesFailed: failed, reportId };
