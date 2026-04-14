@@ -58,7 +58,7 @@ type View =
   | { screen: "sample" }
   | { screen: "admin" };
 
-const SAMPLE_REPORT_ID = "3d4b96b4-78a6-41bb-952d-4c0c84ff44a1";
+const SAMPLE_REPORT_ID = "1ddac365-4031-4d55-ad25-8e1b400137c1";
 
 interface DemoKeyword {
   id: string;
@@ -1107,7 +1107,7 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
             fontSize: 15,
           }}
         >
-          "어린이AI 지휘자" 제품의 실제 AI 마케팅 분석 리포트입니다.
+          "토토LP 교육" 제품의 실제 AI 마케팅 분석 리포트입니다.
         </p>
         <div style={{ display: "flex", justifyContent: "center", gap: 12, marginBottom: 20 }}>
           <a
@@ -2784,8 +2784,8 @@ function SampleReportView() {
       <div className="page-title">
         <h2>분석 샘플</h2>
         <p>
-          "어린이AI 지휘자" 제품의 AI 마케팅 분석 리포트 샘플입니다. 실제 서비스에서 생성되는
-          리포트와 동일한 형식입니다.
+          "토토LP 교육" 제품의 AI 마케팅 분석 리포트 샘플입니다. 실제 서비스에서 생성되는 리포트와
+          동일한 형식입니다.
         </p>
       </div>
       <div className="sample-actions">
