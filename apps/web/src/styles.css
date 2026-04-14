@@ -264,7 +264,7 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .op-header button {
   font-family: inherit; font-size: 13px; font-weight: 600; padding: 8px 16px;
   border: none; border-radius: var(--radius-xs); background: var(--accent); color: #fff;
-  cursor: pointer; transition: background 0.15s;
+  cursor: pointer; transition: background 0.15s; white-space: nowrap;
 }
 .op-header button:hover { background: var(--accent-hover); }
 .op-header .btn-secondary { background: var(--bg-card); color: var(--text); border: 1px solid var(--border); }
@@ -565,7 +565,8 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .demo-badge { font-size: 11px; color: var(--text-muted); background: var(--bg-subtle); padding: 2px 8px; border-radius: 4px; }
 
 /* Inline form */
-.inline-form { display: flex; gap: 6px; align-items: center; }
+.inline-form { display: flex; gap: 6px; align-items: center; flex-wrap: nowrap; }
+.inline-form button { white-space: nowrap; }
 .inline-form input { font-family: inherit; font-size: 13px; padding: 6px 12px; border: 1px solid var(--border); border-radius: 6px; width: 200px; }
 .inline-form input:focus { outline: none; border-color: var(--accent); }
 
