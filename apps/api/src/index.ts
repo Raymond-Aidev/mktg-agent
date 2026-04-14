@@ -189,11 +189,11 @@ app.get("/health", async (_req, res) => {
   res.status(coreOk ? 200 : 503).json({ status: coreOk ? "ok" : "degraded", checks });
 });
 
-// Auth — public routes (no JWT required)
-app.use("/api/v1/auth", authRouter);
-
 // JWT middleware — extracts user from Authorization header for all routes below
 app.use(authMiddleware);
+
+// Auth — public routes (register/login don't require JWT, but /me needs it)
+app.use("/api/v1/auth", authRouter);
 
 // Routes
 app.use("/api/v1/events", eventsRouter);
