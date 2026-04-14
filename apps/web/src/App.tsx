@@ -58,7 +58,7 @@ type View =
   | { screen: "sample" }
   | { screen: "admin" };
 
-const SAMPLE_REPORT_ID = "5137fae9-aa53-44c9-b6a0-c1ef998f453e";
+const SAMPLE_REPORT_ID = "3d4b96b4-78a6-41bb-952d-4c0c84ff44a1";
 
 interface DemoKeyword {
   id: string;
