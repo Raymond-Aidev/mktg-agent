@@ -39,11 +39,38 @@ authRouter.post("/register", async (req: Request, res: Response) => {
   const { email, password, name } = parsed.data;
   const pool = getPool();
 
-  const existing = await pool.query("SELECT id FROM users WHERE email = $1", [email]);
+  const existing = await pool.query<{ id: string; email_verified_at: string | null }>(
+    "SELECT id, email_verified_at FROM users WHERE email = $1",
+    [email],
+  );
   if (existing.rowCount && existing.rowCount > 0) {
+    const existingUser = existing.rows[0]!;
+    if (existingUser.email_verified_at) {
+      return res.status(409).json({ error: "email_exists", message: "이미 가입된 이메일입니다" });
+    }
+    // 미인증 계정 — 비밀번호 갱신 후 인증 코드 재발송
+    const rehashed = await bcrypt.hash(password, 12);
+    await pool.query(
+      "UPDATE users SET password = $1, name = COALESCE($2, name), updated_at = now() WHERE id = $3",
+      [rehashed, name ?? null, existingUser.id],
+    );
+    await pool.query(
+      "UPDATE email_verifications SET used_at = now() WHERE user_id = $1 AND used_at IS NULL",
+      [existingUser.id],
+    );
+    const code = String(crypto.randomInt(100000, 999999));
+    await pool.query(
+      `INSERT INTO email_verifications (user_id, code, expires_at) VALUES ($1, $2, $3)`,
+      [existingUser.id, code, new Date(Date.now() + 10 * 60 * 1000)],
+    );
+    try {
+      await sendVerificationEmail(email, code);
+    } catch (err) {
+      console.error("[register] resend failed:", err);
+    }
     return res
-      .status(409)
-      .json({ error: "email_exists", message: "This email is already registered" });
+      .status(201)
+      .json({ requireVerification: true, email, message: "인증 코드가 이메일로 발송되었습니다" });
   }
 
   const hashedPassword = await bcrypt.hash(password, 12);
