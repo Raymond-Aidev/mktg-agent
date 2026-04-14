@@ -4,7 +4,7 @@ import crypto from "node:crypto";
 import bcrypt from "bcryptjs";
 import { getPool } from "../infra/db.ts";
 import { signToken, type JwtPayload } from "../infra/auth.ts";
-import { sendPasswordResetEmail } from "../infra/mailer.ts";
+import { sendPasswordResetEmail, sendVerificationEmail } from "../infra/mailer.ts";
 
 const passwordSchema = z
   .string()
@@ -61,11 +61,22 @@ authRouter.post("/register", async (req: Request, res: Response) => {
     return res.status(500).json({ error: "internal_error" });
   }
 
-  const token = signToken({ userId, tenantId, email, role: "owner" });
+  // 6자리 인증 코드 생성 및 발송
+  const code = String(crypto.randomInt(100000, 999999));
+  const codeExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10분
+
+  await pool.query(
+    `INSERT INTO email_verifications (user_id, code, expires_at)
+     VALUES ($1, $2, $3)`,
+    [userId, code, codeExpiresAt],
+  );
+
+  await sendVerificationEmail(email, code);
 
   return res.status(201).json({
-    token,
-    user: { id: userId, tenantId, email, name: name ?? null, role: "owner" },
+    requireVerification: true,
+    email,
+    message: "인증 코드가 이메일로 발송되었습니다",
   });
 });
 
@@ -85,20 +96,46 @@ authRouter.post("/login", async (req: Request, res: Response) => {
     password: string;
     name: string | null;
     role: string;
-  }>("SELECT id, tenant_id, email, password, name, role FROM users WHERE email = $1", [email]);
+    email_verified_at: string | null;
+  }>(
+    "SELECT id, tenant_id, email, password, name, role, email_verified_at FROM users WHERE email = $1",
+    [email],
+  );
 
   const user = result.rows[0];
   if (!user) {
     return res
       .status(401)
-      .json({ error: "invalid_credentials", message: "Invalid email or password" });
+      .json({ error: "invalid_credentials", message: "이메일 또는 비밀번호가 올바르지 않습니다" });
   }
 
   const valid = await bcrypt.compare(password, user.password);
   if (!valid) {
     return res
       .status(401)
-      .json({ error: "invalid_credentials", message: "Invalid email or password" });
+      .json({ error: "invalid_credentials", message: "이메일 또는 비밀번호가 올바르지 않습니다" });
+  }
+
+  if (!user.email_verified_at) {
+    // 인증 코드 재발송
+    const code = String(crypto.randomInt(100000, 999999));
+    const codeExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+    await pool.query(
+      "UPDATE email_verifications SET used_at = now() WHERE user_id = $1 AND used_at IS NULL",
+      [user.id],
+    );
+    await pool.query(
+      `INSERT INTO email_verifications (user_id, code, expires_at) VALUES ($1, $2, $3)`,
+      [user.id, code, codeExpiresAt],
+    );
+    await sendVerificationEmail(user.email, code);
+
+    return res.status(403).json({
+      error: "email_not_verified",
+      requireVerification: true,
+      email: user.email,
+      message: "이메일 인증이 필요합니다. 인증 코드를 재발송했습니다.",
+    });
   }
 
   const token = signToken({
@@ -118,6 +155,92 @@ authRouter.post("/login", async (req: Request, res: Response) => {
       role: user.role,
     },
   });
+});
+
+/* ─── Email Verification ─── */
+
+authRouter.post("/verify-email", async (req: Request, res: Response) => {
+  const parsed = z
+    .object({ email: z.string().email(), code: z.string().length(6) })
+    .safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: "validation_error" });
+  }
+
+  const { email, code } = parsed.data;
+  const pool = getPool();
+
+  const userResult = await pool.query<{
+    id: string;
+    tenant_id: string;
+    name: string | null;
+    role: string;
+  }>("SELECT id, tenant_id, name, role FROM users WHERE email = $1", [email]);
+  const user = userResult.rows[0];
+  if (!user) {
+    return res
+      .status(400)
+      .json({ error: "invalid_code", message: "유효하지 않은 인증 코드입니다" });
+  }
+
+  const codeResult = await pool.query<{ id: string }>(
+    `SELECT id FROM email_verifications
+     WHERE user_id = $1 AND code = $2 AND used_at IS NULL AND expires_at > now()`,
+    [user.id, code],
+  );
+
+  if (!codeResult.rows[0]) {
+    return res
+      .status(400)
+      .json({ error: "invalid_code", message: "유효하지 않거나 만료된 인증 코드입니다" });
+  }
+
+  await pool.query("UPDATE email_verifications SET used_at = now() WHERE id = $1", [
+    codeResult.rows[0].id,
+  ]);
+  await pool.query("UPDATE users SET email_verified_at = now(), updated_at = now() WHERE id = $1", [
+    user.id,
+  ]);
+
+  const token = signToken({ userId: user.id, tenantId: user.tenant_id, email, role: user.role });
+
+  return res.json({
+    token,
+    user: { id: user.id, tenantId: user.tenant_id, email, name: user.name, role: user.role },
+  });
+});
+
+authRouter.post("/resend-code", async (req: Request, res: Response) => {
+  const parsed = z.object({ email: z.string().email() }).safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: "validation_error" });
+  }
+
+  const pool = getPool();
+  const userResult = await pool.query<{ id: string }>(
+    "SELECT id FROM users WHERE email = $1 AND email_verified_at IS NULL",
+    [parsed.data.email],
+  );
+
+  if (!userResult.rows[0]) {
+    return res.json({ message: "인증 코드가 발송되었습니다" });
+  }
+
+  const userId = userResult.rows[0].id;
+  await pool.query(
+    "UPDATE email_verifications SET used_at = now() WHERE user_id = $1 AND used_at IS NULL",
+    [userId],
+  );
+
+  const code = String(crypto.randomInt(100000, 999999));
+  const codeExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+  await pool.query(
+    `INSERT INTO email_verifications (user_id, code, expires_at) VALUES ($1, $2, $3)`,
+    [userId, code, codeExpiresAt],
+  );
+
+  await sendVerificationEmail(parsed.data.email, code);
+  return res.json({ message: "인증 코드가 발송되었습니다" });
 });
 
 authRouter.get("/me", (req: Request, res: Response) => {

@@ -30,11 +30,17 @@ export function authHeaders(): Record<string, string> {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+export interface RegisterResponse {
+  requireVerification: boolean;
+  email: string;
+  message: string;
+}
+
 export async function apiRegister(
   email: string,
   password: string,
   name?: string,
-): Promise<AuthResponse> {
+): Promise<RegisterResponse> {
   const res = await fetch("/api/v1/auth/register", {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -44,9 +50,15 @@ export async function apiRegister(
     const body = await res.json().catch(() => ({}));
     throw new Error((body as { message?: string }).message ?? `Register failed (${res.status})`);
   }
-  const data = (await res.json()) as AuthResponse;
-  setToken(data.token);
-  return data;
+  return (await res.json()) as RegisterResponse;
+}
+
+export class EmailNotVerifiedError extends Error {
+  email: string;
+  constructor(email: string, message: string) {
+    super(message);
+    this.email = email;
+  }
 }
 
 export async function apiLogin(email: string, password: string): Promise<AuthResponse> {
@@ -57,7 +69,11 @@ export async function apiLogin(email: string, password: string): Promise<AuthRes
   });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error((body as { message?: string }).message ?? `Login failed (${res.status})`);
+    const b = body as { error?: string; message?: string; email?: string };
+    if (b.error === "email_not_verified" && b.email) {
+      throw new EmailNotVerifiedError(b.email, b.message ?? "이메일 인증이 필요합니다");
+    }
+    throw new Error(b.message ?? `Login failed (${res.status})`);
   }
   const data = (await res.json()) as AuthResponse;
   setToken(data.token);
@@ -66,6 +82,36 @@ export async function apiLogin(email: string, password: string): Promise<AuthRes
 
 export function apiLogout(): void {
   clearToken();
+}
+
+export async function apiVerifyEmail(email: string, code: string): Promise<AuthResponse> {
+  const res = await fetch("/api/v1/auth/verify-email", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ email, code }),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(
+      (body as { message?: string }).message ?? `Verification failed (${res.status})`,
+    );
+  }
+  const data = (await res.json()) as AuthResponse;
+  setToken(data.token);
+  return data;
+}
+
+export async function apiResendCode(email: string): Promise<{ message: string }> {
+  const res = await fetch("/api/v1/auth/resend-code", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error((body as { message?: string }).message ?? `Resend failed (${res.status})`);
+  }
+  return (await res.json()) as { message: string };
 }
 
 export async function apiForgotPassword(email: string): Promise<{ message: string }> {

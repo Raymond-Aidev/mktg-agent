@@ -44,3 +44,34 @@ export async function sendPasswordResetEmail(to: string, resetToken: string): Pr
 
   console.log(`[mailer] Password reset email sent to ${to}`);
 }
+
+export async function sendVerificationEmail(to: string, code: string): Promise<void> {
+  if (!transporter) {
+    console.log(`[mailer] SMTP not configured — skipping verification email to ${to}`);
+    console.log(`[mailer] Verification code: ${code}`);
+    return;
+  }
+
+  await transporter.sendMail({
+    from: `"GoldenCheck" <${env.SMTP_USER}>`,
+    to,
+    subject: "[GoldenCheck] 이메일 인증 코드",
+    html: `
+      <div style="font-family:'Apple SD Gothic Neo',sans-serif;max-width:480px;margin:0 auto;padding:40px 24px">
+        <h2 style="color:#4F46E5;margin-bottom:24px">이메일 인증</h2>
+        <p>아래 인증 코드를 입력하여 이메일 인증을 완료하세요.</p>
+        <div style="background:#f3f4f6;border-radius:12px;padding:24px;text-align:center;margin:24px 0">
+          <span style="font-size:32px;font-weight:700;letter-spacing:8px;color:#4F46E5">${code}</span>
+        </div>
+        <p>이 코드는 <strong>10분</strong> 동안 유효합니다.</p>
+        <p style="color:#888;font-size:13px;margin-top:32px">
+          본인이 요청하지 않았다면 이 메일을 무시하세요.
+        </p>
+        <hr style="border:none;border-top:1px solid #eee;margin:32px 0" />
+        <p style="color:#aaa;font-size:12px">GoldenCheck &copy; 2026</p>
+      </div>
+    `,
+  });
+
+  console.log(`[mailer] Verification email sent to ${to}`);
+}

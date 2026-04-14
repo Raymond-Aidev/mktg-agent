@@ -4,7 +4,10 @@ import {
   apiLogin,
   apiLogout,
   apiRegister,
+  apiResendCode,
   apiResetPassword,
+  apiVerifyEmail,
+  EmailNotVerifiedError,
   clearToken,
   getToken,
   fetchProducts,
@@ -556,6 +559,9 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
     urlResetToken ? "token" : "off",
   );
   const [resetToken, setResetToken] = useState(urlResetToken ?? "");
+  const [verifyMode, setVerifyMode] = useState(false);
+  const [verifyEmail, setVerifyEmail] = useState("");
+  const [verifyCode, setVerifyCode] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
@@ -584,6 +590,11 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
     }
     setLoading(true);
     try {
+      if (verifyMode) {
+        const res = await apiVerifyEmail(verifyEmail, verifyCode);
+        onLogin(res.user);
+        return;
+      }
       if (resetMode === "request") {
         await apiForgotPassword(email);
         setAuthSuccess("재설정 링크가 이메일로 발송되었습니다");
@@ -592,13 +603,24 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
         await apiResetPassword(resetToken, password);
         setAuthSuccess("비밀번호가 변경되었습니다. 로그인하세요.");
         setResetMode("done");
+      } else if (isRegister) {
+        const regRes = await apiRegister(email, password, name || undefined);
+        if (regRes.requireVerification) {
+          setVerifyMode(true);
+          setVerifyEmail(regRes.email);
+          setAuthSuccess("인증 코드가 이메일로 발송되었습니다");
+        }
       } else {
-        const res = isRegister
-          ? await apiRegister(email, password, name || undefined)
-          : await apiLogin(email, password);
+        const res = await apiLogin(email, password);
         onLogin(res.user);
       }
     } catch (err) {
+      if (err instanceof EmailNotVerifiedError) {
+        setVerifyMode(true);
+        setVerifyEmail(err.email);
+        setAuthSuccess("이메일 인증이 필요합니다. 인증 코드를 발송했습니다.");
+        return;
+      }
       setAuthError((err as Error).message);
     } finally {
       setLoading(false);
@@ -655,9 +677,59 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
       {showLogin && (
         <div className="modal-overlay" onClick={() => setShowLogin(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h2>{resetMode !== "off" ? "비밀번호 재설정" : isRegister ? "회원가입" : "로그인"}</h2>
+            <h2>
+              {verifyMode
+                ? "이메일 인증"
+                : resetMode !== "off"
+                  ? "비밀번호 재설정"
+                  : isRegister
+                    ? "회원가입"
+                    : "로그인"}
+            </h2>
             <form className="login-form" onSubmit={handleSubmit}>
-              {resetMode === "request" && (
+              {verifyMode && (
+                <>
+                  <p style={{ fontSize: 14, color: "#666", margin: "0 0 12px" }}>
+                    <strong>{verifyEmail}</strong>로 발송된 6자리 인증 코드를 입력하세요.
+                  </p>
+                  <label>인증 코드</label>
+                  <input
+                    type="text"
+                    placeholder="000000"
+                    value={verifyCode}
+                    onChange={(e) => setVerifyCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                    required
+                    maxLength={6}
+                    style={{ textAlign: "center", letterSpacing: 8, fontSize: 20, fontWeight: 700 }}
+                  />
+                  {authError && <div className="auth-error">{authError}</div>}
+                  {authSuccess && (
+                    <div className="auth-error" style={{ color: "#059669", background: "#d1fae5" }}>
+                      {authSuccess}
+                    </div>
+                  )}
+                  <button
+                    type="submit"
+                    className="btn-primary-lg"
+                    disabled={loading || verifyCode.length !== 6}
+                  >
+                    {loading ? "처리 중..." : "인증 완료"}
+                  </button>
+                  <p className="login-sub">
+                    <span
+                      className="link"
+                      onClick={async () => {
+                        setAuthError(null);
+                        await apiResendCode(verifyEmail);
+                        setAuthSuccess("인증 코드를 재발송했습니다");
+                      }}
+                    >
+                      인증 코드 재발송
+                    </span>
+                  </p>
+                </>
+              )}
+              {!verifyMode && resetMode === "request" && (
                 <>
                   <p style={{ fontSize: 14, color: "#666", margin: "0 0 12px" }}>
                     가입한 이메일을 입력하면 재설정 링크를 보내드립니다.
@@ -672,7 +744,7 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
                   />
                 </>
               )}
-              {resetMode === "token" && (
+              {!verifyMode && resetMode === "token" && (
                 <>
                   <p style={{ fontSize: 14, color: "#666", margin: "0 0 12px" }}>
                     이메일로 받은 재설정 코드와 새 비밀번호를 입력하세요.
@@ -712,12 +784,12 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
                   </div>
                 </>
               )}
-              {resetMode === "done" && (
+              {!verifyMode && resetMode === "done" && (
                 <p style={{ fontSize: 14, color: "#666", margin: "0 0 12px" }}>
                   비밀번호가 변경되었습니다. 아래 버튼을 눌러 로그인하세요.
                 </p>
               )}
-              {resetMode === "off" && (
+              {!verifyMode && resetMode === "off" && (
                 <>
                   {isRegister && (
                     <>
@@ -778,37 +850,38 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
                   )}
                 </>
               )}
-              {authError && <div className="auth-error">{authError}</div>}
-              {authSuccess && (
+              {!verifyMode && authError && <div className="auth-error">{authError}</div>}
+              {!verifyMode && authSuccess && (
                 <div className="auth-error" style={{ color: "#059669", background: "#d1fae5" }}>
                   {authSuccess}
                 </div>
               )}
-              {resetMode === "done" ? (
-                <button type="button" className="btn-primary-lg" onClick={goBackToLogin}>
-                  로그인으로 돌아가기
-                </button>
-              ) : (
-                <button type="submit" className="btn-primary-lg" disabled={loading}>
-                  {loading
-                    ? "처리 중..."
-                    : resetMode === "request"
-                      ? "재설정 링크 보내기"
-                      : resetMode === "token"
-                        ? "비밀번호 변경"
-                        : isRegister
-                          ? "가입하기"
-                          : "로그인"}
-                </button>
-              )}
-              {resetMode !== "off" && resetMode !== "done" && (
+              {!verifyMode &&
+                (resetMode === "done" ? (
+                  <button type="button" className="btn-primary-lg" onClick={goBackToLogin}>
+                    로그인으로 돌아가기
+                  </button>
+                ) : (
+                  <button type="submit" className="btn-primary-lg" disabled={loading}>
+                    {loading
+                      ? "처리 중..."
+                      : resetMode === "request"
+                        ? "재설정 링크 보내기"
+                        : resetMode === "token"
+                          ? "비밀번호 변경"
+                          : isRegister
+                            ? "가입하기"
+                            : "로그인"}
+                  </button>
+                ))}
+              {!verifyMode && resetMode !== "off" && resetMode !== "done" && (
                 <p className="login-sub">
                   <span className="link" onClick={goBackToLogin}>
                     로그인으로 돌아가기
                   </span>
                 </p>
               )}
-              {resetMode === "off" && (
+              {!verifyMode && resetMode === "off" && (
                 <>
                   <p className="login-sub">
                     {isRegister ? (
