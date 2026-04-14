@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  apiForgotPassword,
   apiLogin,
   apiLogout,
   apiRegister,
+  apiResetPassword,
   clearToken,
   getToken,
   fetchProducts,
@@ -549,26 +551,60 @@ export function App() {
 function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
   const [showLogin, setShowLogin] = useState(false);
   const [isRegister, setIsRegister] = useState(false);
+  const urlResetToken = new URLSearchParams(window.location.search).get("resetToken");
+  const [resetMode, setResetMode] = useState<"off" | "request" | "token" | "done">(
+    urlResetToken ? "token" : "off",
+  );
+  const [resetToken, setResetToken] = useState(urlResetToken ?? "");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [authError, setAuthError] = useState<string | null>(null);
+  const [authSuccess, setAuthSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // 이메일 재설정 링크로 진입 시 모달 자동 표시
+  useEffect(() => {
+    if (urlResetToken) {
+      setShowLogin(true);
+      // URL에서 토큰 파라미터 제거
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, [urlResetToken]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError(null);
+    setAuthSuccess(null);
     setLoading(true);
     try {
-      const res = isRegister
-        ? await apiRegister(email, password, name || undefined)
-        : await apiLogin(email, password);
-      onLogin(res.user);
+      if (resetMode === "request") {
+        await apiForgotPassword(email);
+        setAuthSuccess("재설정 링크가 이메일로 발송되었습니다");
+        setResetMode("token");
+      } else if (resetMode === "token") {
+        await apiResetPassword(resetToken, password);
+        setAuthSuccess("비밀번호가 변경되었습니다. 로그인하세요.");
+        setResetMode("done");
+      } else {
+        const res = isRegister
+          ? await apiRegister(email, password, name || undefined)
+          : await apiLogin(email, password);
+        onLogin(res.user);
+      }
     } catch (err) {
       setAuthError((err as Error).message);
     } finally {
       setLoading(false);
     }
+  };
+
+  const goBackToLogin = () => {
+    setResetMode("off");
+    setResetToken("");
+    setPassword("");
+    setAuthError(null);
+    setAuthSuccess(null);
   };
 
   const enterDemo = () => {
@@ -613,69 +649,161 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
       {showLogin && (
         <div className="modal-overlay" onClick={() => setShowLogin(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h2>{isRegister ? "회원가입" : "로그인"}</h2>
+            <h2>{resetMode !== "off" ? "비밀번호 재설정" : isRegister ? "회원가입" : "로그인"}</h2>
             <form className="login-form" onSubmit={handleSubmit}>
-              {isRegister && (
+              {resetMode === "request" && (
                 <>
-                  <label>이름</label>
+                  <p style={{ fontSize: 14, color: "#666", margin: "0 0 12px" }}>
+                    가입한 이메일을 입력하면 재설정 링크를 보내드립니다.
+                  </p>
+                  <label>이메일</label>
                   <input
-                    type="text"
-                    placeholder="홍길동"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    type="email"
+                    placeholder="name@company.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
                   />
                 </>
               )}
-              <label>이메일</label>
-              <input
-                type="email"
-                placeholder="name@company.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-              <label>비밀번호</label>
-              <input
-                type="password"
-                placeholder={isRegister ? "8자 이상" : "비밀번호 입력"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={isRegister ? 8 : 1}
-              />
+              {resetMode === "token" && (
+                <>
+                  <p style={{ fontSize: 14, color: "#666", margin: "0 0 12px" }}>
+                    이메일로 받은 재설정 코드와 새 비밀번호를 입력하세요.
+                  </p>
+                  <label>재설정 코드</label>
+                  <input
+                    type="text"
+                    placeholder="이메일에서 받은 코드를 붙여넣기"
+                    value={resetToken}
+                    onChange={(e) => setResetToken(e.target.value)}
+                    required
+                  />
+                  <label>새 비밀번호</label>
+                  <input
+                    type="password"
+                    placeholder="8자 이상, 대소문자+숫자+특수문자"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={8}
+                  />
+                </>
+              )}
+              {resetMode === "done" && (
+                <p style={{ fontSize: 14, color: "#666", margin: "0 0 12px" }}>
+                  비밀번호가 변경되었습니다. 아래 버튼을 눌러 로그인하세요.
+                </p>
+              )}
+              {resetMode === "off" && (
+                <>
+                  {isRegister && (
+                    <>
+                      <label>이름</label>
+                      <input
+                        type="text"
+                        placeholder="홍길동"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                      />
+                    </>
+                  )}
+                  <label>이메일</label>
+                  <input
+                    type="email"
+                    placeholder="name@company.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                  <label>비밀번호</label>
+                  <input
+                    type="password"
+                    placeholder={isRegister ? "8자 이상, 대소문자+숫자+특수문자" : "비밀번호 입력"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={isRegister ? 8 : 1}
+                  />
+                </>
+              )}
               {authError && <div className="auth-error">{authError}</div>}
-              <button type="submit" className="btn-primary-lg" disabled={loading}>
-                {loading ? "처리 중..." : isRegister ? "가입하기" : "로그인"}
-              </button>
-              <p className="login-sub">
-                {isRegister ? (
-                  <>
-                    이미 계정이 있으신가요?{" "}
-                    <span
-                      className="link"
-                      onClick={() => {
-                        setIsRegister(false);
-                        setAuthError(null);
-                      }}
-                    >
-                      로그인
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    계정이 없으신가요?{" "}
-                    <span
-                      className="link"
-                      onClick={() => {
-                        setIsRegister(true);
-                        setAuthError(null);
-                      }}
-                    >
-                      회원가입
-                    </span>
-                  </>
-                )}
-              </p>
+              {authSuccess && (
+                <div className="auth-error" style={{ color: "#059669", background: "#d1fae5" }}>
+                  {authSuccess}
+                </div>
+              )}
+              {resetMode === "done" ? (
+                <button type="button" className="btn-primary-lg" onClick={goBackToLogin}>
+                  로그인으로 돌아가기
+                </button>
+              ) : (
+                <button type="submit" className="btn-primary-lg" disabled={loading}>
+                  {loading
+                    ? "처리 중..."
+                    : resetMode === "request"
+                      ? "재설정 링크 보내기"
+                      : resetMode === "token"
+                        ? "비밀번호 변경"
+                        : isRegister
+                          ? "가입하기"
+                          : "로그인"}
+                </button>
+              )}
+              {resetMode !== "off" && resetMode !== "done" && (
+                <p className="login-sub">
+                  <span className="link" onClick={goBackToLogin}>
+                    로그인으로 돌아가기
+                  </span>
+                </p>
+              )}
+              {resetMode === "off" && (
+                <>
+                  <p className="login-sub">
+                    {isRegister ? (
+                      <>
+                        이미 계정이 있으신가요?{" "}
+                        <span
+                          className="link"
+                          onClick={() => {
+                            setIsRegister(false);
+                            setAuthError(null);
+                          }}
+                        >
+                          로그인
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        계정이 없으신가요?{" "}
+                        <span
+                          className="link"
+                          onClick={() => {
+                            setIsRegister(true);
+                            setAuthError(null);
+                          }}
+                        >
+                          회원가입
+                        </span>
+                      </>
+                    )}
+                  </p>
+                  {!isRegister && (
+                    <p className="login-sub">
+                      <span
+                        className="link"
+                        onClick={() => {
+                          setResetMode("request");
+                          setAuthError(null);
+                          setAuthSuccess(null);
+                        }}
+                      >
+                        비밀번호를 잊으셨나요?
+                      </span>
+                    </p>
+                  )}
+                </>
+              )}
               <p className="login-sub">
                 <span className="link" onClick={enterDemo}>
                   데모 모드로 둘러보기

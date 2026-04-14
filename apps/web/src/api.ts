@@ -68,6 +68,35 @@ export function apiLogout(): void {
   clearToken();
 }
 
+export async function apiForgotPassword(email: string): Promise<{ message: string }> {
+  const res = await fetch("/api/v1/auth/forgot-password", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error((body as { message?: string }).message ?? `Request failed (${res.status})`);
+  }
+  return (await res.json()) as { message: string };
+}
+
+export async function apiResetPassword(
+  token: string,
+  password: string,
+): Promise<{ message: string }> {
+  const res = await fetch("/api/v1/auth/reset-password", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ token, password }),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error((body as { message?: string }).message ?? `Reset failed (${res.status})`);
+  }
+  return (await res.json()) as { message: string };
+}
+
 /* ══════════════════════ Products ══════════════════════ */
 
 export interface ApiProduct {

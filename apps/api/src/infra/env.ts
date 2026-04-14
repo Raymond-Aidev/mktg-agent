@@ -44,6 +44,10 @@ const EnvSchema = z.object({
   // Auth — Phase B
   JWT_SECRET: z.string().default("goldencheck-dev-jwt-secret-change-in-prod"),
 
+  // Email (Gmail SMTP)
+  SMTP_USER: z.string().email().optional(),
+  SMTP_PASS: z.string().optional(),
+
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
 });
 
