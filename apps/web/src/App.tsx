@@ -376,7 +376,6 @@ export function App() {
       apiAuthMe()
         .then((user) => {
           if (user) {
-            console.log("[auth] restored user:", JSON.stringify(user));
             setAuthUser(user);
             setTenantId(user.tenantId);
           } else {
@@ -388,7 +387,6 @@ export function App() {
   }, []);
 
   const handleLogin = (user: AuthUser) => {
-    console.log("[auth] login user:", JSON.stringify(user));
     setAuthUser(user);
     setTenantId(user.tenantId);
     setView({ screen: "products" });
