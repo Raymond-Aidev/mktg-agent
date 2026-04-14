@@ -1,5 +1,9 @@
+import dns from "node:dns";
 import nodemailer from "nodemailer";
 import { env } from "./env.ts";
+
+// IPv4 우선 — Railway에서 IPv6 SMTP 연결 실패 방지
+dns.setDefaultResultOrder("ipv4first");
 
 const transporter =
   env.SMTP_USER && env.SMTP_PASS
@@ -9,8 +13,6 @@ const transporter =
         secure: false,
         auth: { user: env.SMTP_USER, pass: env.SMTP_PASS },
         tls: { rejectUnauthorized: false },
-        logger: true,
-        debug: true,
       })
     : null;
 
