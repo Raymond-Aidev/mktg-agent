@@ -26,21 +26,20 @@ export interface RunOptions {
 }
 
 function tryExtractJson(raw: string): unknown {
-  // Claude sometimes adds preamble text ("Here's the analysis:") or
-  // wraps the JSON in markdown code fences. We aggressively extract
-  // the first valid JSON object from the response.
   let cleaned = raw
     .trim()
     .replace(/^```(?:json)?\s*/i, "")
     .replace(/\s*```$/i, "")
     .trim();
 
-  // If the cleaned string doesn't start with '{', find the first '{'.
   const firstBrace = cleaned.indexOf("{");
   const lastBrace = cleaned.lastIndexOf("}");
   if (firstBrace >= 0 && lastBrace > firstBrace) {
     cleaned = cleaned.slice(firstBrace, lastBrace + 1);
   }
+
+  // trailing comma 수정 — LLM이 자주 생성하는 오류
+  cleaned = cleaned.replace(/,\s*([}\]])/g, "$1");
 
   return JSON.parse(cleaned);
 }
@@ -50,7 +49,7 @@ export async function runModule<TOutput>(
   context: ModuleContext,
   options: RunOptions = {},
 ): Promise<ModuleRunResult<TOutput>> {
-  const maxAttempts = options.maxAttempts ?? 1;
+  const maxAttempts = options.maxAttempts ?? 3;
   const started = Date.now();
   const messages = buildModuleMessages({ config, context });
 
