@@ -17,17 +17,17 @@ export const StrategySchema = z.object({
   messageStrategy: z.object({
     primaryMessage: z.string().min(10).max(100),
     supportingMessages: z.array(z.string().max(200)).max(5),
-    tone: z.string().max(50),
-    avoidTopics: z.array(z.string().max(100)).max(5),
+    tone: z.string().max(100),
+    avoidTopics: z.array(z.string().max(200)).max(5),
   }),
   contentStrategy: z.object({
     weeklyTopics: z
       .array(
         z.object({
-          topic: z.string().max(200),
+          topic: z.string().max(300),
           channel: z.enum(["naver_blog", "instagram", "youtube", "email", "other"]),
-          format: z.string().max(50),
-          timing: z.string().max(50),
+          format: z.string().max(200),
+          timing: z.string().max(100),
         }),
       )
       .max(7),
@@ -35,7 +35,7 @@ export const StrategySchema = z.object({
   channelPriority: z
     .array(
       z.object({
-        channel: z.string().max(50),
+        channel: z.string().max(100),
         priority: z.number().int().min(1).max(10),
         reason: z.string().max(200),
       }),
