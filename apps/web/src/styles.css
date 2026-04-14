@@ -28,13 +28,14 @@ body { margin: 0; background: var(--bg); color: var(--text); line-height: 1.6; }
 
 /* ── Global Navigation ── */
 .global-nav {
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
   padding: 14px 32px; border-bottom: 1px solid var(--border);
   background: var(--bg); position: sticky; top: 0; z-index: 100;
 }
+.global-nav > * { flex-shrink: 0; }
 .nav-left { display: flex; align-items: center; }
 .nav-logo { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; cursor: pointer; color: var(--text); }
-.nav-links { display: flex; gap: 8px; }
+.nav-links { display: flex; gap: 8px; position: relative; z-index: 1; }
 .nav-link {
   padding: 6px 14px; border-radius: var(--radius-xs); font-size: 14px; font-weight: 500;
   color: var(--text-muted); cursor: pointer; transition: all 0.15s;
