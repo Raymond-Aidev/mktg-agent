@@ -307,6 +307,61 @@ authRouter.get("/me", async (req: Request, res: Response) => {
   });
 });
 
+/* ─── Profile Update ─── */
+
+authRouter.patch("/profile", async (req: Request, res: Response) => {
+  const jwtUser = (req as Request & { user?: JwtPayload }).user;
+  if (!jwtUser) return res.status(401).json({ error: "unauthorized" });
+
+  const parsed = z.object({ name: z.string().max(200) }).safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: "validation_error" });
+
+  const pool = getPool();
+  await pool.query("UPDATE users SET name = $1, updated_at = now() WHERE id = $2", [
+    parsed.data.name,
+    jwtUser.userId,
+  ]);
+
+  return res.json({ message: "프로필이 업데이트되었습니다" });
+});
+
+authRouter.post("/change-password", async (req: Request, res: Response) => {
+  const jwtUser = (req as Request & { user?: JwtPayload }).user;
+  if (!jwtUser) return res.status(401).json({ error: "unauthorized" });
+
+  const parsed = z
+    .object({ currentPassword: z.string().min(1), newPassword: passwordSchema })
+    .safeParse(req.body);
+  if (!parsed.success) {
+    return res
+      .status(400)
+      .json({ error: "validation_error", issues: parsed.error.flatten().fieldErrors });
+  }
+
+  const pool = getPool();
+  const result = await pool.query<{ password: string }>(
+    "SELECT password FROM users WHERE id = $1",
+    [jwtUser.userId],
+  );
+  const user = result.rows[0];
+  if (!user) return res.status(401).json({ error: "unauthorized" });
+
+  const valid = await bcrypt.compare(parsed.data.currentPassword, user.password);
+  if (!valid) {
+    return res
+      .status(400)
+      .json({ error: "wrong_password", message: "현재 비밀번호가 올바르지 않습니다" });
+  }
+
+  const hashed = await bcrypt.hash(parsed.data.newPassword, 12);
+  await pool.query("UPDATE users SET password = $1, updated_at = now() WHERE id = $2", [
+    hashed,
+    jwtUser.userId,
+  ]);
+
+  return res.json({ message: "비밀번호가 변경되었습니다" });
+});
+
 /* ─── Password Reset ─── */
 
 const RESET_TOKEN_EXPIRY_HOURS = 1;

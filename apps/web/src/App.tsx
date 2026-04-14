@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   apiAuthMe,
+  apiChangePassword,
   apiForgotPassword,
   apiLogin,
   apiLogout,
   apiRegister,
   apiResendCode,
+  apiUpdateProfile,
   apiResetPassword,
   apiVerifyEmail,
   EmailNotVerifiedError,
@@ -56,6 +58,7 @@ type View =
   | { screen: "product-detail"; productId: string; isDemo?: boolean }
   | { screen: "keyword-report"; productId: string; keywordId: string; isDemo?: boolean }
   | { screen: "sample" }
+  | { screen: "settings" }
   | { screen: "admin" };
 
 const SAMPLE_REPORT_ID = "1ddac365-4031-4d55-ad25-8e1b400137c1";
@@ -517,7 +520,9 @@ export function App() {
           )}
         </div>
         <div className="nav-right">
-          <span className="nav-user">{authUser?.name ?? authUser?.email ?? "Demo User"}</span>
+          <span className="nav-user nav-user-link" onClick={() => setView({ screen: "settings" })}>
+            {authUser?.name ?? authUser?.email ?? "Demo User"}
+          </span>
           <button type="button" className="nav-logout" onClick={handleLogout}>
             로그아웃
           </button>
@@ -525,13 +530,16 @@ export function App() {
       </nav>
 
       <div className="app-body">
-        {view.screen !== "products" && view.screen !== "admin" && view.screen !== "sample" && (
-          <div className="back-row">
-            <button type="button" className="back-btn" onClick={goBack}>
-              ← 뒤로
-            </button>
-          </div>
-        )}
+        {view.screen !== "products" &&
+          view.screen !== "admin" &&
+          view.screen !== "sample" &&
+          view.screen !== "settings" && (
+            <div className="back-row">
+              <button type="button" className="back-btn" onClick={goBack}>
+                ← 뒤로
+              </button>
+            </div>
+          )}
 
         {view.screen === "products" && (
           <ProductsGrid
@@ -588,6 +596,10 @@ export function App() {
         )}
 
         {view.screen === "admin" && authUser?.role === "admin" && <AdminPanel />}
+
+        {view.screen === "settings" && authUser && (
+          <SettingsPage user={authUser} onUpdate={(u) => setAuthUser(u)} />
+        )}
 
         {view.screen === "sample" && <SampleReportView />}
       </div>
@@ -2588,6 +2600,131 @@ function Panels({ data }: { data: DashboardKpis }) {
             </tbody>
           </table>
         )}
+      </section>
+    </>
+  );
+}
+
+/* ══════════════════════ Admin Panel ══════════════════════ */
+
+/* ══════════════════════ Settings Page ══════════════════════ */
+
+function SettingsPage({ user, onUpdate }: { user: AuthUser; onUpdate: (u: AuthUser) => void }) {
+  const [name, setName] = useState(user.name ?? "");
+  const [saving, setSaving] = useState(false);
+  const [curPw, setCurPw] = useState("");
+  const [newPw, setNewPw] = useState("");
+  const [newPwConfirm, setNewPwConfirm] = useState("");
+  const [changingPw, setChangingPw] = useState(false);
+
+  const handleNameSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await apiUpdateProfile(name);
+      onUpdate({ ...user, name });
+      showGlobalToast("이름이 변경되었습니다");
+    } catch (err) {
+      showGlobalToast((err as Error).message, "error");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handlePwChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newPw !== newPwConfirm) {
+      showGlobalToast("새 비밀번호가 일치하지 않습니다", "error");
+      return;
+    }
+    setChangingPw(true);
+    try {
+      await apiChangePassword(curPw, newPw);
+      showGlobalToast("비밀번호가 변경되었습니다");
+      setCurPw("");
+      setNewPw("");
+      setNewPwConfirm("");
+    } catch (err) {
+      showGlobalToast((err as Error).message, "error");
+    } finally {
+      setChangingPw(false);
+    }
+  };
+
+  return (
+    <>
+      <div className="page-title">
+        <h2>계정 설정</h2>
+        <p>프로필 정보 관리 및 비밀번호 변경</p>
+      </div>
+
+      <section className="panel">
+        <h3 style={{ margin: "0 0 16px", fontSize: 16 }}>프로필 정보</h3>
+        <form className="settings-form" onSubmit={handleNameSave}>
+          <div className="settings-field">
+            <label>이메일</label>
+            <input type="email" value={user.email} disabled />
+          </div>
+          <div className="settings-field">
+            <label>이름</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="이름 입력"
+            />
+          </div>
+          <div className="settings-field">
+            <label>권한</label>
+            <input
+              type="text"
+              value={user.role === "admin" ? "관리자" : user.role === "owner" ? "소유자" : "멤버"}
+              disabled
+            />
+          </div>
+          <button type="submit" className="btn-primary" disabled={saving}>
+            {saving ? "저장 중..." : "저장"}
+          </button>
+        </form>
+      </section>
+
+      <section className="panel">
+        <h3 style={{ margin: "0 0 16px", fontSize: 16 }}>비밀번호 변경</h3>
+        <form className="settings-form" onSubmit={handlePwChange}>
+          <div className="settings-field">
+            <label>현재 비밀번호</label>
+            <input
+              type="password"
+              value={curPw}
+              onChange={(e) => setCurPw(e.target.value)}
+              required
+            />
+          </div>
+          <div className="settings-field">
+            <label>새 비밀번호</label>
+            <input
+              type="password"
+              value={newPw}
+              onChange={(e) => setNewPw(e.target.value)}
+              placeholder="8자 이상, 대소문자+숫자+특수문자"
+              required
+              minLength={8}
+            />
+          </div>
+          <div className="settings-field">
+            <label>새 비밀번호 확인</label>
+            <input
+              type="password"
+              value={newPwConfirm}
+              onChange={(e) => setNewPwConfirm(e.target.value)}
+              required
+              minLength={8}
+            />
+          </div>
+          <button type="submit" className="btn-primary" disabled={changingPw}>
+            {changingPw ? "변경 중..." : "비밀번호 변경"}
+          </button>
+        </form>
       </section>
     </>
   );

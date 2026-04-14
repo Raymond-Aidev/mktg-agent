@@ -592,6 +592,20 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .empty-state p { margin: 0; font-size: 15px; font-weight: 600; }
 .empty-sub { font-weight: 400 !important; font-size: 13px !important; margin-top: 4px !important; }
 
+/* ── Settings ── */
+.settings-form { display: flex; flex-direction: column; gap: 16px; max-width: 400px; }
+.settings-field { display: flex; flex-direction: column; gap: 4px; }
+.settings-field label { font-size: 13px; font-weight: 600; color: var(--text-muted); }
+.settings-field input {
+  font-family: inherit; font-size: 14px; padding: 10px 14px;
+  border: 1px solid var(--border); border-radius: var(--radius-xs);
+  background: var(--bg); color: var(--text); transition: border-color 0.15s;
+}
+.settings-field input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
+.settings-field input:disabled { background: var(--bg-subtle); color: var(--text-muted); cursor: not-allowed; }
+.nav-user-link { cursor: pointer; transition: color 0.15s; }
+.nav-user-link:hover { color: var(--accent); }
+
 /* ── Product CRUD ── */
 .section-label { font-size: 14px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.03em; margin: 24px 0 12px; }
 .add-product-row { margin: 24px 0; }

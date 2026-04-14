@@ -140,6 +140,35 @@ export async function apiAuthMe(): Promise<AuthUser | null> {
   }
 }
 
+export async function apiUpdateProfile(name: string): Promise<{ message: string }> {
+  const res = await fetch("/api/v1/auth/profile", {
+    method: "PATCH",
+    headers: { "content-type": "application/json", ...authHeaders() },
+    body: JSON.stringify({ name }),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error((body as { message?: string }).message ?? `Update failed (${res.status})`);
+  }
+  return (await res.json()) as { message: string };
+}
+
+export async function apiChangePassword(
+  currentPassword: string,
+  newPassword: string,
+): Promise<{ message: string }> {
+  const res = await fetch("/api/v1/auth/change-password", {
+    method: "POST",
+    headers: { "content-type": "application/json", ...authHeaders() },
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error((body as { message?: string }).message ?? `Change failed (${res.status})`);
+  }
+  return (await res.json()) as { message: string };
+}
+
 export async function apiForgotPassword(email: string): Promise<{ message: string }> {
   const res = await fetch("/api/v1/auth/forgot-password", {
     method: "POST",
