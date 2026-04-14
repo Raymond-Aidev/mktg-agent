@@ -1,3 +1,7 @@
+import dns from "node:dns";
+// IPv4 우선 — Railway에서 IPv6 SMTP 연결 차단 문제 해결
+dns.setDefaultResultOrder("ipv4first");
+
 import { existsSync, statSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
