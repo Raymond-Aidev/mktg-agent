@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  apiAuthMe,
   apiForgotPassword,
   apiLogin,
   apiLogout,
@@ -369,6 +370,20 @@ export function App() {
   );
   const [showSettings, setShowSettings] = useState(false);
 
+  // 페이지 새로고침 시 JWT에서 사용자 정보 복원
+  useEffect(() => {
+    if (getToken() && !authUser) {
+      apiAuthMe().then((user) => {
+        if (user) {
+          setAuthUser(user);
+          setTenantId(user.tenantId);
+        } else {
+          setView({ screen: "landing" });
+        }
+      });
+    }
+  }, []);
+
   const handleLogin = (user: AuthUser) => {
     setAuthUser(user);
     setTenantId(user.tenantId);
@@ -413,7 +428,7 @@ export function App() {
           <span
             className="nav-logo"
             onClick={() => {
-              setView({ screen: "landing" });
+              setView({ screen: "products" });
             }}
           >
             GoldenCheck

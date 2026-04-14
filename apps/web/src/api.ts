@@ -114,6 +114,32 @@ export async function apiResendCode(email: string): Promise<{ message: string }>
   return (await res.json()) as { message: string };
 }
 
+export async function apiAuthMe(): Promise<AuthUser | null> {
+  const token = getToken();
+  if (!token) return null;
+  try {
+    const res = await fetch("/api/v1/auth/me", {
+      headers: authHeaders(),
+    });
+    if (!res.ok) {
+      if (res.status === 401) clearToken();
+      return null;
+    }
+    const data = (await res.json()) as {
+      user: { userId: string; tenantId: string; email: string; role: string };
+    };
+    return {
+      id: data.user.userId,
+      tenantId: data.user.tenantId,
+      email: data.user.email,
+      name: null,
+      role: data.user.role,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export async function apiForgotPassword(email: string): Promise<{ message: string }> {
   const res = await fetch("/api/v1/auth/forgot-password", {
     method: "POST",
