@@ -606,11 +606,8 @@ export function App() {
           <span
             className="nav-logo"
             onClick={() => {
-              if (authUser) setView({ screen: "products" });
-              else {
-                setView({ screen: "landing" });
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              }
+              setView({ screen: "landing" });
+              window.scrollTo({ top: 0, behavior: "smooth" });
             }}
             style={{ cursor: "pointer" }}
           >
