@@ -207,33 +207,45 @@ const RAW_POSTS = [
 ];
 
 const SENTIMENT_OUTPUT = {
-  sentimentRatio: { positive: 0.52, negative: 0.26, neutral: 0.22 },
+  sentimentRatio: { positive: 0.47, negative: 0.31, neutral: 0.22 },
   topKeywords: [
-    { term: "LP레코드", count: 61, sentiment: "positive" },
-    { term: "파닉스", count: 44, sentiment: "positive" },
-    { term: "촉각학습", count: 36, sentiment: "positive" },
-    { term: "가격", count: 33, sentiment: "negative" },
-    { term: "턴테이블", count: 29, sentiment: "negative" },
-    { term: "발음분석", count: 27, sentiment: "positive" },
-    { term: "유치원", count: 24, sentiment: "positive" },
-    { term: "교보체험", count: 22, sentiment: "positive" },
-    { term: "AS불만", count: 19, sentiment: "negative" },
-    { term: "핑크퐁비교", count: 17, sentiment: "neutral" },
+    { term: "LP레코드", count: 84, sentiment: "positive" },
+    { term: "가격저항", count: 91, sentiment: "negative" },
+    { term: "파닉스", count: 67, sentiment: "positive" },
+    { term: "스크린프리", count: 52, sentiment: "positive" },
+    { term: "추가비용", count: 45, sentiment: "negative" },
+    { term: "세이펜비교", count: 44, sentiment: "neutral" },
+    { term: "누리과정", count: 38, sentiment: "positive" },
+    { term: "내구성불만", count: 38, sentiment: "negative" },
+    { term: "체험수요", count: 31, sentiment: "neutral" },
+    { term: "기능한계", count: 29, sentiment: "negative" },
+    { term: "자기주도학습", count: 27, sentiment: "positive" },
+    { term: "교사추천", count: 24, sentiment: "positive" },
     { term: "투자유치", count: 15, sentiment: "positive" },
-    { term: "품질이슈", count: 14, sentiment: "negative" },
-    { term: "글로벌진출", count: 12, sentiment: "positive" },
-    { term: "할인요청", count: 11, sentiment: "negative" },
+    { term: "하티하티", count: 14, sentiment: "neutral" },
     { term: "CES후보", count: 9, sentiment: "positive" },
   ],
+  keywordSentiment: [
+    { keyword: "키즈 LP 토토", score: 0.52, postCount: 187 },
+    { keyword: "한국삐아제", score: 0.61, postCount: 520 },
+    { keyword: "토토LP 후기", score: 0.48, postCount: 210 },
+    { keyword: "토토LP 단점", score: 0.22, postCount: 145 },
+    { keyword: "유아 오디오 교구", score: 0.55, postCount: 380 },
+    { keyword: "동화 카드 플레이어", score: 0.58, postCount: 195 },
+    { keyword: "말하는 카드 교구", score: 0.54, postCount: 125 },
+    { keyword: "유아 음악 교구 추천", score: 0.62, postCount: 310 },
+    { keyword: "두돌 세돌 교구 추천", score: 0.65, postCount: 440 },
+    { keyword: "누리과정 교구", score: 0.58, postCount: 165 },
+  ],
   frameCompetition: [
-    { label: "아날로그+디지털 융합 혁신", share: 0.32 },
-    { label: "촉각 학습 효과·몰입 체험", share: 0.25 },
-    { label: "가격·가성비 이슈", share: 0.22 },
-    { label: "하드웨어 품질·AS 불만", share: 0.13 },
-    { label: "글로벌 확장·투자 소식", share: 0.08 },
+    { label: "가격·가성비 이슈", share: 0.28 },
+    { label: "촉각 학습 효과·자기주도", share: 0.24 },
+    { label: "경쟁 교구 비교", share: 0.21 },
+    { label: "하드웨어 품질·AS 불만", share: 0.15 },
+    { label: "교육과정 연계·B2B", share: 0.12 },
   ],
   confidence: "high",
-  disclaimer: "네이버 뉴스 및 HackerNews 기반 분석으로, 전체 여론을 대표하지 않을 수 있습니다.",
+  disclaimer: "네이버 뉴스, 맘카페, HackerNews 기반 10개 연관검색어 통합 분석입니다.",
 };
 
 const MACRO_VIEW_OUTPUT = {
@@ -281,146 +293,252 @@ const MACRO_VIEW_OUTPUT = {
 
 const OPPORTUNITY_OUTPUT = {
   shareOfVoice: [
-    { brand: "토토LP 교육", mentions: 42, sentimentPositive: 0.62, isOurs: true },
-    { brand: "핑크퐁 스마트펜", mentions: 28, sentimentPositive: 0.71, isOurs: false },
-    { brand: "윤선생 스마트랜드", mentions: 18, sentimentPositive: 0.55, isOurs: false },
-    { brand: "리틀팍스", mentions: 14, sentimentPositive: 0.48, isOurs: false },
-    { brand: "디즈니 잉글리시", mentions: 10, sentimentPositive: 0.65, isOurs: false },
+    { brand: "토토LP (한국삐아제)", mentions: 42, sentimentPositive: 0.47, isOurs: true },
+    { brand: "세이펜 (크레비스)", mentions: 31, sentimentPositive: 0.68, isOurs: false },
+    { brand: "핑크퐁 워크북+펜", mentions: 19, sentimentPositive: 0.72, isOurs: false },
+    { brand: "윤선생 스마트올", mentions: 12, sentimentPositive: 0.55, isOurs: false },
+    { brand: "하티하티 플레이어", mentions: 8, sentimentPositive: 0.61, isOurs: false },
+  ],
+  sovByKeyword: [
+    { keyword: "유아 오디오 교구", totoLP: 0.38, competitor: "세이펜", competitorShare: 0.32 },
+    { keyword: "동화 카드 플레이어", totoLP: 0.24, competitor: "세이펜", competitorShare: 0.41 },
+    { keyword: "말하는 카드 교구", totoLP: 0.19, competitor: "하티하티", competitorShare: 0.28 },
   ],
   positioning: [
     {
-      brand: "토토LP 교육",
+      brand: "토토LP (한국삐아제)",
       mentionVolume: 42,
-      positiveRate: 0.62,
+      positiveRate: 0.47,
       distinctKeyword: "촉각학습 LP",
+      position: "高SOV + 低긍정 — 논란의 중심",
     },
     {
-      brand: "핑크퐁 스마트펜",
-      mentionVolume: 28,
-      positiveRate: 0.71,
+      brand: "세이펜 (크레비스)",
+      mentionVolume: 31,
+      positiveRate: 0.68,
+      distinctKeyword: "가성비 호환",
+      position: "中SOV + 高긍정 — 조용한 강자",
+    },
+    {
+      brand: "핑크퐁 워크북+펜",
+      mentionVolume: 19,
+      positiveRate: 0.72,
       distinctKeyword: "캐릭터 학습",
+      position: "低SOV + 最高긍정 — 팬덤형",
     },
     {
-      brand: "윤선생 스마트랜드",
-      mentionVolume: 18,
+      brand: "윤선생 스마트올",
+      mentionVolume: 12,
       positiveRate: 0.55,
       distinctKeyword: "체계적 커리큘럼",
+      position: "低SOV + 中긍정 — 전문가형",
     },
     {
-      brand: "리틀팍스",
-      mentionVolume: 14,
-      positiveRate: 0.48,
-      distinctKeyword: "애니메이션 영어",
-    },
-    {
-      brand: "디즈니 잉글리시",
-      mentionVolume: 10,
-      positiveRate: 0.65,
-      distinctKeyword: "디즈니 IP",
+      brand: "하티하티 플레이어",
+      mentionVolume: 8,
+      positiveRate: 0.61,
+      distinctKeyword: "한국어 동화",
+      position: "最低SOV + 급성장 — 신흥 경쟁자",
     },
   ],
+  pricePositioning: {
+    competitors: [
+      { brand: "토토LP", initialCost: 148000, annualTotalCost: 220000 },
+      { brand: "세이펜", initialCost: 49000, annualTotalCost: 290000 },
+      { brand: "핑크퐁", initialCost: 69000, annualTotalCost: 250000 },
+      { brand: "윤선생", initialCost: 0, annualTotalCost: 590000 },
+      { brand: "하티하티", initialCost: 79000, annualTotalCost: 180000 },
+    ],
+    insight:
+      "초기 가격 최고가(14.8만원)이나 1년 총비용 4위(22만원). 세이펜(29만원)보다 7만원 저렴, 윤선생(59만원) 대비 63% 절약.",
+  },
   contentGaps: [
     {
-      topic: "학부모 구매 후기 영상 (언박싱 + 아이 반응)",
+      topic: "'토토LP vs 세이펜' 비교 콘텐츠",
       competitorActivity:
-        "핑크퐁이 유튜브에서 학부모 언박싱 리뷰 시리즈 운영 (월 12회, 평균 8만 조회, 구매 링크 포함)",
+        "세이펜이 네이버 블로그 '교구 비교' 시리즈 주 3회 발행, '동화 카드 플레이어' SEO 1위 장악",
+      ourStatus: "absent" as const,
+      suggestedAction: "'1년 총비용 비교표 + 어휘 유지율 28% 차이' 데이터 기반 비교 콘텐츠",
+      estimatedImpact: "high" as const,
+      revenueImpact: "월 추정 120세트 이탈 방지",
+    },
+    {
+      topic: "실구매자 아이 반응 영상",
+      competitorActivity: "핑크퐁 유튜브 언박싱+반응 릴스 월 12회, 평균 8만 조회",
       ourStatus: "weak" as const,
-      suggestedAction: "아이가 LP판 올리는 순간 반응 숏폼 영상 + 구매 페이지 CTA 직결 시리즈 런칭",
+      suggestedAction: "'우리 아이가 LP카드 스스로 꺼내는 순간' 숏폼 시리즈 + 구매 링크 직결",
       estimatedImpact: "high" as const,
+      revenueImpact: "전환율 2.1%p 개선 잠재력",
     },
     {
-      topic: "타 교구 비교 분석 콘텐츠",
-      competitorActivity:
-        "윤선생이 네이버 블로그에서 '교구 비교 가이드' 시리즈 (주 2회, SEO 상위 3위 점유)",
+      topic: "'두돌 세돌 교구 추천' 카테고리 진입",
+      competitorActivity: "세이펜·핑크퐁이 '연령별 교구 추천' SEO 상위 5개 중 3개 장악",
       ourStatus: "absent" as const,
-      suggestedAction:
-        "촉각 학습 연구 데이터 기반 '왜 LP 교구가 다른가' 비교 콘텐츠 발행 + 체험 신청 CTA",
+      suggestedAction: "'두돌 아이 첫 영어, LP카드로 시작하세요' 연령별 가이드 콘텐츠",
       estimatedImpact: "high" as const,
+      revenueImpact: "월 19,800건 미포획 시장",
     },
     {
-      topic: "유치원 교사 추천 콘텐츠",
-      competitorActivity:
-        "리틀팍스가 교사 대상 무료 수업 자료 배포 (월 4회, 교사 커뮤니티 팔로워 1.2만)",
+      topic: "누리과정 교사 추천 콘텐츠",
+      competitorActivity: "윤선생이 교사 커뮤니티에서 교구 활용 가이드 배포 (팔로워 1.2만)",
       ourStatus: "absent" as const,
-      suggestedAction: "시범 유치원 50곳 교사 인터뷰 콘텐츠 + 교사 전용 할인 프로그램",
-      estimatedImpact: "medium" as const,
+      suggestedAction: "유치원 50곳 채택 사례 + 교사 인터뷰 → B2B + B2C 동시 공략",
+      estimatedImpact: "high" as const,
+      revenueImpact: "B2B 월 25세트 추가 판매",
     },
     {
-      topic: "학습 성과 추적 콘텐츠",
-      competitorActivity:
-        "디즈니 잉글리시가 인스타에서 '우리 아이 영어 성장 기록' 카드뉴스 (일 1회, 팔로워 3.8만)",
-      ourStatus: "absent" as const,
-      suggestedAction:
-        "앱 발음 분석 데이터 기반 '우리 아이 파닉스 성장 리포트' 공유 기능 + SNS 챌린지",
+      topic: "'말하는 카드 교구' 포지셔닝",
+      competitorActivity: "하티하티 SOV 28%로 선두, 3개월 전 12%에서 2.3배 급성장",
+      ourStatus: "weak" as const,
+      suggestedAction: "'말하는 카드 그 이상 — LP카드로 음악을 듣고, 영어를 배우는 교구' 차별화",
       estimatedImpact: "medium" as const,
+      revenueImpact: "월 5,300건 잠재 유입",
     },
   ],
   riskSignals: [
     {
-      signal: "세트 가격 14만 8천원에 대한 가격 저항 — 구매 전환 최대 장벽",
-      severity: "warning" as const,
+      signal: "가격 저항 — 구매 전환 최대 장벽 (매출 영향: 월 추정 -180세트)",
+      severity: "critical" as const,
       evidence:
-        "맘카페에서 '비싸다' '핑크퐁이 반값' '할인 언제' 관련 언급 23건, 전주 대비 1.8배 증가. 장바구니 이탈률 추정 65%.",
+        "'토토LP 단점' 검색 4,200건/월, 맘카페 가격 불만 91건 (전주 대비 1.8배). 소비자 인식: '14.8만원 = 가장 비싼 교구' (실제 1년 총비용은 세이펜보다 저렴)",
       suggestedResponse:
-        "3개월 무이자 할부 + 형제 2세트 20% 할인 + 체험 후 구매 프로그램 도입. 체험존 방문 후 전환율 데이터 공개로 가치 입증.",
+        "① 1년 총비용 비교표 상세페이지 최상단 ② 3개월 무이자(월 49,333원) ③ 체험 후 구매 프로그램. 예상 효과: 가격 불만 40% 감소, 전환율 +1.5%p",
     },
     {
-      signal: "턴테이블 품질 이슈 — 구매 망설임 및 부정 구전 확산",
-      severity: "warning" as const,
+      signal: "긍정률 최하위(47%) — SOV 1위인데 감성은 꼴찌",
+      severity: "critical" as const,
       evidence:
-        "소비자원 상담 40% 증가, '모터 소리' 'AS 느림' 언급 19건. 구매 후기에서 별점 하락 추세 (4.2→3.6).",
+        "5개 경쟁사 중 긍정률 최하위. 핑크퐁 72%, 세이펜 68% 대비 심각한 격차. '많이 알려졌지만 불만도 많다' → 인지도 투자가 역효과로 전환될 위험",
       suggestedResponse:
-        "턴테이블 2년 무상 보증 발표 + 24시간 내 교환 보장 정책 시행. 품질 개선 로드맵 공개로 신뢰 회복.",
+        "① 인지도 확대 전 긍정 콘텐츠 선행 ② 실구매자 후기 숏폼 집중 ③ 품질 개선 PR. 예상 효과: 3개월 내 긍정률 55% 도달 시 전환율 +2.3%p",
     },
     {
-      signal: "핑크퐁 스마트펜 신제품 출시 예고 — 가격대 동일 구간 경쟁 심화",
+      signal: "플레이어 내구성·AS 불만 — 부정 구전 확산",
+      severity: "warning" as const,
+      evidence: "소비자원 상담 40% 증가, 별점 4.2→3.6 하락. '고장' '모터소리' 'AS 느림' 언급 38건",
+      suggestedResponse:
+        "2년 무상 보증 + 48시간 내 교환 보장. 예상 효과: 별점 3.6→4.0 회복 시 네이버 쇼핑 클릭률 +18%",
+    },
+    {
+      signal: "'말하는 카드 교구' 시장에서 하티하티 급부상",
+      severity: "warning" as const,
+      evidence: "하티하티 SOV 28%, 3개월 전 12%에서 2.3배 성장. 가격 7.9만원으로 가성비 포지셔닝",
+      suggestedResponse:
+        "LP카드의 '음악 학습' 차별점 강화, 하티하티 대비 콘텐츠 양(200장 vs 80장) 부각",
+    },
+    {
+      signal: "세이펜 신제품 출시 예고",
       severity: "watch" as const,
-      evidence:
-        "핑크퐁 SNS에서 '새로운 영어 교구 곧 출시' 티저 + 네이버 검색량 전주 대비 2.1배 증가.",
+      evidence: "크레비스 SNS 신제품 티저 + '세이펜 신형' 검색량 2.1배 증가",
       suggestedResponse:
-        "차별점(촉각 학습 논문 + 교육청 인증) 강조 캠페인 선제 집행 + 얼리버드 기존 고객 업그레이드 혜택.",
+        "출시 전 선제적 비교 콘텐츠 발행 + '음악 학습은 세이펜이 못 하는 영역' 메시지",
     },
   ],
   competitorGaps: [
     {
-      competitor: "핑크퐁 스마트펜",
-      gap: "캐릭터 의존도 높음, 학습 심도 부족. 가격 7만원대로 가성비 우위이나 교육 연구 근거 없음.",
+      competitor: "세이펜 (크레비스)",
+      price: "4.9만원 | 1년 총비용: 29만원",
+      gap: "음악·오디오 학습 부재, 펜 분실·파손 빈번, 호환 도서 추가 비용 누적",
       ourAdvantage:
-        "촉각 학습 논문으로 교육 효과 입증 — '재미만 있는 교구 vs 검증된 교구' 포지셔닝으로 프리미엄 정당화. 판매 포인트: '연구로 증명된 28% 높은 어휘 유지율'",
+        "'1년 쓰면 세이펜보다 7만원 저렴 + 어휘 유지율 28% 높음'. 키워드 전투: '유아 오디오 교구' 세이펜 32% vs 토토LP 38% → 유지 필요",
     },
     {
-      competitor: "윤선생 스마트랜드",
-      gap: "방문 학습 필수, 교구 단독 사용 불가. 월 구독 5만원으로 연간 비용 60만원 이상.",
+      competitor: "핑크퐁 워크북+펜",
+      price: "6.9만원 | 1년 총비용: 25만원",
+      gap: "캐릭터 의존, 학습 깊이 부족, 유아기 지나면 흥미 급감",
       ourAdvantage:
-        "1회 구매로 무한 반복 학습 — 연간 비용 기준 1/4 수준. 판매 포인트: '60만원 vs 15만원, 같은 효과'",
+        "'캐릭터 없이도 아이가 스스로 꺼내는 교구 — 자기주도 학습 습관'. 키워드 전투: '유아 음악 교구 추천' 핑크퐁 29% vs 토토LP 15% → 공략 필요",
     },
     {
-      competitor: "리틀팍스",
-      gap: "스크린 의존형, 유아 시력 우려. 실물 교구 없이 앱 전용.",
+      competitor: "윤선생 스마트올",
+      price: "월 4.9만원 | 1년 총비용: 59만원",
+      gap: "연 59만원 고비용, 약정 해지 위약금, 교구 반납",
       ourAdvantage:
-        "LP레코드 실물 조작 → 스크린 타임 최소화. 판매 포인트: '눈 걱정 없는 영어 교육'",
+        "'59만원 구독 vs 14.8만원 1회 구매 — 2년 쓰면 4배 절약'. 키워드 전투: '누리과정 교구' 윤선생 22% vs 토토LP 18% → B2B 확대로 역전 가능",
     },
     {
-      competitor: "디즈니 잉글리시",
-      gap: "IP 라이선싱 비용으로 가격 높음(20만원대). 한국어 학습 최적화 부족.",
+      competitor: "하티하티 카드 플레이어",
+      price: "7.9만원 | 1년 총비용: 18만원",
+      gap: "영어 콘텐츠 부족(80장), 교육과정 연계 없음",
       ourAdvantage:
-        "한국 유아 발음 특화 AI 분석 (정확도 87%). 판매 포인트: '한국 아이 발음에 맞춘 유일한 교구'",
+        "'영어 파닉스 전문 200장 + 누리과정 연계 — 교육부 인증 교구'. 키워드 전투: '말하는 카드 교구' 하티하티 28% vs 토토LP 19% → 열세, 즉시 공략",
     },
   ],
+  purchaseFunnel: {
+    awareness: {
+      keywords: [
+        "유아 오디오 교구",
+        "유아 음악 교구 추천",
+        "두돌 세돌 교구 추천",
+        "누리과정 교구",
+        "말하는 카드 교구",
+        "동화 카드 플레이어",
+      ],
+      totalSearchVolume: 64500,
+      totoLPExposureRate: 0.18,
+    },
+    consideration: {
+      keywords: ["한국삐아제", "키즈 LP 토토"],
+      totalSearchVolume: 31400,
+      brandToProductConversionRate: 0.43,
+    },
+    evaluation: {
+      keywords: ["토토LP 후기", "토토LP 단점"],
+      totalSearchVolume: 11000,
+      negativeSearchRatio: 0.62,
+    },
+    estimatedMonthlyPurchases: "350~400세트",
+    overallConversionRate: "0.54~0.62% (업계 평균 1.2% 대비 절반)",
+  },
   confidence: "high",
 };
 
 const STRATEGY_OUTPUT = {
   messageStrategy: {
-    primaryMessage: "LP 한 장이면, 우리 아이 영어가 시작됩니다",
-    supportingMessages: [
-      "연구로 증명: LP 촉각 학습이 어휘 기억력 28% 높인다 (유아교육연구소 논문)",
-      "서울시교육청이 선정한 유아 영어 혁신 교구 — 전국 50개 유치원 정규 채택",
-      "1만 2천 가정이 선택한 우리 아이 첫 영어 친구",
-      "스크린 걱정 없이, LP레코드로 자연스럽게 파닉스 완성",
-      "지금 체험하면 LP 2장 추가 증정 — 한정 수량",
+    primaryMessage: "LP카드 한 장이면, 우리 아이 영어가 시작됩니다",
+    segmentMessages: [
+      {
+        segment: "첫 교구 탐색형 (두돌 세돌 추천 검색)",
+        messages: [
+          "두돌 아이 첫 영어, 스크린 없이 LP카드로 시작하세요",
+          "교육부 누리과정 연계 인증 — 유치원 50곳이 선택한 첫 영어 교구",
+        ],
+        cta: "체험존 예약 또는 2주 체험 대여",
+      },
+      {
+        segment: "비교 구매형 (오디오 교구·카드 플레이어 검색)",
+        messages: [
+          "세이펜 5만원 vs 토토LP 14.8만원 — 그런데 1년 쓰면 토토LP가 7만원 더 저렴합니다",
+          "어휘 유지율 28% 차이 — 이 숫자가 3배 비싼 이유입니다",
+        ],
+        cta: "1년 비용 비교표 다운로드",
+      },
+      {
+        segment: "브랜드 신뢰형 (한국삐아제 검색)",
+        messages: [
+          "30년 교육 철학이 담긴 한국삐아제의 대표 히트 교구",
+          "15억 투자 유치한 교육 기업의 자신작 — 토토LP",
+        ],
+        cta: "제품 상세페이지 직행",
+      },
+      {
+        segment: "대체 교구 탐색형 (말하는 카드 교구 검색)",
+        messages: [
+          "말하는 카드 그 이상 — 음악으로 배우는 영어, LP카드",
+          "태블릿 대신, 아이 손에 LP카드를 쥐어주세요",
+        ],
+        cta: "숏폼 영상 시청",
+      },
+      {
+        segment: "B2B 기관 구매 (누리과정 교구 검색)",
+        messages: [
+          "서울시교육청 인증, 유치원 50곳 도입 완료",
+          "대량 구매 할인(세트당 12만원) + 교사용 활용 가이드 무상 제공",
+        ],
+        cta: "B2B 상담 신청",
+      },
     ],
-    tone: "따뜻하고 신뢰감 있는 — 연구 데이터와 학부모 공감을 균형있게",
+    tone: "따뜻하고 신뢰감 있는, 데이터로 뒷받침하되 공감 우선",
     avoidTopics: [
       "턴테이블 품질 이슈 직접 언급",
       "경쟁 교구 직접 비하",
@@ -431,86 +549,134 @@ const STRATEGY_OUTPUT = {
   contentStrategy: {
     weeklyTopics: [
       {
-        topic: "LP 언박싱: 아이가 처음 턴테이블에 LP를 올리는 순간",
-        channel: "instagram",
-        format: "구매 후기 릴스 30초 + 구매 링크 CTA",
-        timing: "월요일 오전 10시",
-      },
-      {
-        topic: "촉각 학습이 뭔가요? — 연구 논문 쉽게 풀어보기",
+        topic: "토토LP vs 세이펜 완전 비교 — 1년 총비용·학습 효과·내구성",
         channel: "naver_blog",
-        format: "비교 분석 블로그 (촉각 vs 스크린) + 체험 신청 CTA",
-        timing: "화요일 오후 2시",
+        format: "비교 분석 블로그 + 상세페이지 CTA",
+        timing: "월요일",
+        targetKeyword: "유아 오디오 교구, 동화 카드 플레이어",
       },
       {
-        topic: "유치원 선생님이 말하는 토토LP 수업 효과",
+        topic: "32개월 아이가 LP카드 스스로 꺼내서 틀어요 — 실사용 영상",
+        channel: "instagram",
+        format: "릴스 30초 + 구매 링크 CTA",
+        timing: "화요일",
+        targetKeyword: "토토LP 후기, 키즈 LP 토토",
+      },
+      {
+        topic: "유치원 선생님이 말하는 토토LP 누리과정 활용법",
         channel: "youtube",
-        format: "교사 인터뷰 숏폼 3분 + 교사 할인 정보",
-        timing: "수요일 오후 6시",
+        format: "교사 인터뷰 숏폼 3분",
+        timing: "수요일",
+        targetKeyword: "누리과정 교구",
       },
       {
-        topic: "이번 주 우리 아이 파닉스 성장 리포트",
-        channel: "email",
-        format: "개인화 뉴스레터 + 추가 LP판 구매 CTA",
-        timing: "목요일 오전 9시",
-      },
-      {
-        topic: "토토LP vs 스마트펜: 우리 아이에게 맞는 교구는?",
+        topic: "두돌 아이 첫 영어 교구 — LP카드로 시작하는 3가지 이유",
         channel: "naver_blog",
-        format: "객관적 비교 카드뉴스 + 체험 프로그램 안내",
-        timing: "금요일 오후 1시",
+        format: "연령별 가이드 블로그 + 체험 CTA",
+        timing: "목요일",
+        targetKeyword: "두돌 세돌 교구 추천",
       },
       {
-        topic: "교보문고 체험존 현장: 아이들 반응 라이브",
+        topic: "말하는 카드 교구 TOP4 비교 — 토토LP가 특별한 이유",
         channel: "instagram",
-        format: "스토리 하이라이트 + 체험 예약 CTA",
-        timing: "토요일 오전 11시",
+        format: "카드뉴스 + 구매 링크",
+        timing: "금요일",
+        targetKeyword: "말하는 카드 교구, 유아 음악 교구 추천",
+      },
+      {
+        topic: "교보문고 체험존 현장 반응 + 1년 비용 비교표 공유",
+        channel: "맘카페",
+        format: "후기 게시물 + 비교표 이미지",
+        timing: "토요일",
+        targetKeyword: "토토LP 단점 (부정 대응)",
       },
     ],
   },
   channelPriority: [
     {
-      channel: "네이버 블로그",
+      channel: "네이버 블로그 SEO",
       priority: 10,
-      reason:
-        "학부모 교구 검색의 70%가 네이버 — '유아 영어 교구 추천' SEO 선점 필수. 구매 전환 기여도 1위.",
+      investment: "월 200만원",
+      expectedROI: "5.8x",
+      reason: "10개 키워드 중 7개가 네이버 검색 기반. 학부모 교구 검색의 70%가 네이버.",
     },
     {
-      channel: "인스타그램",
+      channel: "네이버 쇼핑 검색광고",
       priority: 9,
-      reason: "아이 반응 영상의 바이럴 잠재력 극대. 구매 링크 연결 용이. 육아맘 핵심 채널.",
+      investment: "월 300만원",
+      expectedROI: "4.2x",
+      reason:
+        "'유아 오디오 교구' '동화 카드 플레이어' '말하는 카드 교구' 직접 구매 의향 키워드. 현재 광고 미집행.",
+    },
+    {
+      channel: "인스타그램 릴스",
+      priority: 8,
+      investment: "월 150만원",
+      expectedROI: "3.5x",
+      reason: "'토토LP 후기' 검색자의 60%가 인스타에서 추가 탐색.",
     },
     {
       channel: "유튜브",
       priority: 7,
-      reason: "교사·전문가 추천 콘텐츠로 신뢰도 강화. 긴 영상으로 교구 가치 충분히 전달.",
+      investment: "월 100만원",
+      expectedROI: "2.8x",
+      reason: "'토토LP vs 세이펜' 비교 영상 수요 높으나 공식 콘텐츠 0건.",
     },
     {
-      channel: "네이버 쇼핑 검색광고",
-      priority: 8,
-      reason: "구매 의향 높은 검색 트래픽 직접 포획. '유아 영어 교구' 키워드 CPC 경쟁 관리.",
-    },
-    {
-      channel: "이메일 뉴스레터",
+      channel: "맘카페 (네이버 카페)",
       priority: 6,
-      reason: "기존 구매자 리텐션 + 추가 LP판 크로스셀. B2B 유치원 대상 전환율 높음.",
+      investment: "월 50만원",
+      expectedROI: "방어 가치",
+      reason: "가격 논란 발원지. 모니터링 + 공식 답변 미대응 시 부정 확산.",
+    },
+    {
+      channel: "오프라인 체험존",
+      priority: 5,
+      investment: "월 400만원",
+      expectedROI: "2.1x",
+      reason: "체험→구매 전환율 35~40% 검증. 체험 후 온라인 구매 유도.",
     },
   ],
+  totalInvestment: { monthly: 12000000, expectedAdditionalRevenue: 58700000, overallROI: "4.9x" },
   riskMitigation: [
     {
-      risk: "가격 저항(14만 8천원)으로 장바구니 이탈률 높음",
-      action:
-        "3개월 무이자 할부 즉시 도입 + 체험 후 구매 프로그램(2주 대여 후 구매 시 대여비 차감) + 형제 세트 20% 할인",
+      risk: "가격 저항(14.8만원) → 장바구니 이탈률 추정 65%",
+      timeline: "즉시~2주",
+      actions: [
+        "네이버 쇼핑 상세페이지에 '1년 총비용 비교 인포그래픽' 최상단 배치",
+        "3개월 무이자 할부 도입 + '하루 1,644원' 표기",
+        "체험 후 구매 프로그램: 2주 대여(2만원) → 구매 시 전액 차감",
+      ],
+      target: "장바구니 이탈률 65% → 45%",
     },
     {
-      risk: "턴테이블 품질 불만으로 구매 망설임 및 부정 구전 확산",
-      action:
-        "2년 무상 보증 + 24시간 내 교환 정책 공식 발표. 품질 개선 완료 후 '신뢰 보증 캠페인' 집행",
+      risk: "긍정률 최하위(47%) → 인지도 투자 역효과 위험",
+      timeline: "1~4주",
+      actions: [
+        "실구매자 아이 반응 숏폼 촬영 착수 (월 8회 발행)",
+        "기존 만족 구매자 후기 캠페인 (네이버 쇼핑 포토리뷰 500원 적립)",
+        "'어휘 유지율 28%' 연구 결과 전면 배치",
+      ],
+      target: "긍정률 47% → 55% (3개월 내)",
     },
     {
-      risk: "핑크퐁 신제품 출시로 가격대 직접 경쟁 심화",
-      action:
-        "촉각 학습 논문 + 교육청 인증 강조 차별화 캠페인 선제 집행. 기존 고객 대상 업그레이드 혜택 발표",
+      risk: "플레이어 내구성·AS 불만 → 별점 3.6",
+      timeline: "즉시~4주",
+      actions: [
+        "2년 무상 보증 + 48시간 내 교환 정책 공식 발표",
+        "기존 구매자 '플레이어 무상 점검 이벤트' 시행",
+        "제조사와 내구성 개선 협의 (모터 소음·카드 인식 오류)",
+      ],
+      target: "별점 3.6 → 4.0 (2개월 내)",
+    },
+    {
+      risk: "'말하는 카드 교구' 시장 하티하티 급부상",
+      timeline: "즉시~2주",
+      actions: [
+        "하티하티 대비 '영어 전문 200장 vs 한국어 80장' 차별점 콘텐츠",
+        "'말하는 카드 교구' 키워드 네이버 블로그 SEO 콘텐츠 발행",
+      ],
+      target: "SOV 19% → 30% (2개월 내)",
     },
   ],
   confidence: "high",
@@ -518,66 +684,78 @@ const STRATEGY_OUTPUT = {
 
 const SUMMARY_OUTPUT = {
   oneLiner:
-    "토토LP 교육, 촉각 학습의 검증된 효과와 가격·품질 장벽 사이에서 판매 전환 극대화가 핵심 과제",
+    "토토LP 교육, 10개 연관검색어 통합 분석 — '높은 인지도 + 낮은 긍정률' 구조적 취약점 해소와 32,300건 미포획 시장 공략이 핵심 과제",
   keyTakeaways: [
-    "시장 기회: 유아 영어 교구 시장 연 15% 성장, 아날로그+디지털 융합 교구는 토토LP가 유일 — 카테고리 선점 기회",
-    "고객 니즈: 학부모는 '스크린 걱정 없는 영어 교육'에 높은 관심 → 촉각 학습 메시지가 구매 결정의 핵심 트리거",
-    "경쟁 상황: SOV 1위(38%) 확보했으나 핑크퐁(25%)의 가성비 포지셔닝에 밀리는 구간 존재 → 프리미엄 가치 입증 필수",
-    "구매 장벽: 가격 14.8만원 저항(23건 불만), 턴테이블 품질 불만(19건) → 체험·할부·보증 3종 대응 시급",
-    "프로모션 기회: 교보문고 팝업 전환율 데이터 확보 후 전국 오프라인 체험 확대 + 형제 할인으로 객단가 유지하며 볼륨 확대",
+    "매출 기회 규모: 10개 키워드 월간 총 검색량 111,700건. 구매 의향 키워드 비중 62% → 월 약 69,000건 잠재 구매 검색 유입 가능",
+    "퍼널 병목: '토토LP 후기'(6,800건) → '토토LP 단점'(4,200건) 전환율 62% → 후기 탐색자 중 62%가 단점 검색으로 이탈 (업계 평균 35~40%)",
+    "경쟁 포지션: SOV 38% 1위이나 긍정률 47% 최하위 — 핑크퐁 72%, 세이펜 68% 대비 심각. 인지도만 올리면 역효과",
+    "가격 오해: 초기 가격 최고가(14.8만원)이나 1년 총비용 4위(22만원). 세이펜(29만원)보다 7만원 저렴 — 비교표 전면 배치 필수",
+    "미포획 시장: '두돌 세돌 교구 추천'(19,800건), '말하는 카드 교구'(5,300건), '누리과정 교구'(7,200건) — 합계 32,300건 잠재 고객이 토토LP 미인지",
   ],
   criticalActions: [
     {
-      action: "네이버 쇼핑 검색광고 세팅 — '유아 영어 교구 추천' 키워드 구매 전환 직결",
+      action:
+        "네이버 쇼핑 검색광고 세팅 — '유아 오디오 교구' '동화 카드 플레이어' '말하는 카드 교구' 3개 키워드 (예산 월 300만원)",
       priority: "high",
+      week: 1,
     },
     {
-      action: "학부모 체험 후기 언박싱 숏폼 시리즈 런칭 — 월 8회, 구매 링크 CTA 필수 포함",
+      action:
+        "상세페이지 리뉴얼 — ① 1년 총비용 비교 인포그래픽 ② 어휘 유지율 28% 연구 데이터 ③ 교육부 인증 뱃지 ④ 2년 무상 보증",
       priority: "high",
+      week: 1,
     },
     {
-      action: "체험 후 구매 프로그램 설계 — 2주 대여 → 구매 시 대여비 차감, 전환율 목표 40%",
+      action: "'토토LP vs 세이펜' 비교 블로그 발행 + 실구매자 아이 반응 숏폼 시리즈 런칭 (월 8회)",
       priority: "high",
+      week: 2,
     },
     {
-      action: "턴테이블 2년 무상 보증 + 24시간 교환 정책 공식 발표 — 구매 망설임 해소",
+      action: "'두돌 세돌 교구 추천' SEO 블로그 시리즈 + 체험 후 구매 프로그램 런칭",
       priority: "high",
+      week: 3,
     },
     {
-      action: "촉각 학습 연구 데이터 기반 교구 비교 콘텐츠 발행 — 프리미엄 가격 정당화",
+      action: "누리과정 교사 활용 가이드 PDF 제작 + '말하는 카드 교구 TOP4 비교' 콘텐츠",
       priority: "medium",
+      week: 4,
     },
   ],
+  thirtyDayKPI: {
+    seoTop10Keywords: "3개 → 7개",
+    additionalMonthlySales: "+250~400세트 (월 매출 +3,700~5,900만원)",
+    positiveRate: "47% → 52%",
+    cartAbandonRate: "65% → 50%",
+    negativeToPositiveRatio: "0.5 → 1.0",
+  },
   confidence: "high",
 };
 
 const INTEGRATED_SECTIONS = [
   {
     id: "section-1",
-    title: "핵심 요약 (Executive Summary)",
-    content: SUMMARY_OUTPUT.oneLiner + "\n\n" + SUMMARY_OUTPUT.keyTakeaways.join("\n"),
+    title: "판매사 브리핑 — 핵심 요약",
+    content:
+      SUMMARY_OUTPUT.oneLiner +
+      "\n\n" +
+      SUMMARY_OUTPUT.keyTakeaways.map((t) => `• ${t}`).join("\n"),
     sourceModule: "#08",
   },
   {
     id: "section-2",
-    title: "시장 여론 동향 (Macro View)",
-    content: MACRO_VIEW_OUTPUT.summary,
+    title: "구매 퍼널 분석 — 검색에서 구매까지",
+    content: `◆ 1단계: 인지 (Awareness) — 월 합산 ${OPPORTUNITY_OUTPUT.purchaseFunnel.awareness.totalSearchVolume.toLocaleString()}건\n  키워드: ${OPPORTUNITY_OUTPUT.purchaseFunnel.awareness.keywords.join(", ")}\n  토토LP 노출률: ${(OPPORTUNITY_OUTPUT.purchaseFunnel.awareness.totoLPExposureRate * 100).toFixed(0)}% — 경쟁사 세이펜(34%) 대비 절반 수준\n\n◆ 2단계: 탐색 (Consideration) — 월 합산 ${OPPORTUNITY_OUTPUT.purchaseFunnel.consideration.totalSearchVolume.toLocaleString()}건\n  키워드: ${OPPORTUNITY_OUTPUT.purchaseFunnel.consideration.keywords.join(", ")}\n  브랜드→제품 전환율: ${(OPPORTUNITY_OUTPUT.purchaseFunnel.consideration.brandToProductConversionRate * 100).toFixed(0)}%\n\n◆ 3단계: 비교/평가 — 월 합산 ${OPPORTUNITY_OUTPUT.purchaseFunnel.evaluation.totalSearchVolume.toLocaleString()}건\n  키워드: ${OPPORTUNITY_OUTPUT.purchaseFunnel.evaluation.keywords.join(", ")}\n  부정 검색 비율: ${(OPPORTUNITY_OUTPUT.purchaseFunnel.evaluation.negativeSearchRatio * 100).toFixed(0)}% (업계 평균 35~40% 대비 1.6배)\n\n◆ 월간 추정 구매: ${OPPORTUNITY_OUTPUT.purchaseFunnel.estimatedMonthlyPurchases}\n  전체 전환율: ${OPPORTUNITY_OUTPUT.purchaseFunnel.overallConversionRate}`,
     sourceModule: "#01",
   },
   {
     id: "section-3",
-    title: "감성 분석 (Sentiment Analysis)",
-    content: `긍정 ${(SENTIMENT_OUTPUT.sentimentRatio.positive * 100).toFixed(0)}% · 부정 ${(SENTIMENT_OUTPUT.sentimentRatio.negative * 100).toFixed(0)}% · 중립 ${(SENTIMENT_OUTPUT.sentimentRatio.neutral * 100).toFixed(0)}%\n\n상위 키워드: ${SENTIMENT_OUTPUT.topKeywords
-      .slice(0, 7)
-      .map((k) => `${k.term}(${k.count})`)
-      .join(
-        ", ",
-      )}\n\n프레임 경쟁:\n${SENTIMENT_OUTPUT.frameCompetition.map((f) => `• ${f.label}: ${(f.share * 100).toFixed(0)}%`).join("\n")}`,
+    title: "감성 분석 — 키워드별 고객 심리",
+    content: `종합 감성: 긍정 ${(SENTIMENT_OUTPUT.sentimentRatio.positive * 100).toFixed(0)}% · 부정 ${(SENTIMENT_OUTPUT.sentimentRatio.negative * 100).toFixed(0)}% · 중립 ${(SENTIMENT_OUTPUT.sentimentRatio.neutral * 100).toFixed(0)}%\n\n[키워드별 감성 온도]\n${SENTIMENT_OUTPUT.keywordSentiment.map((k) => `• '${k.keyword}' (감성 ${(k.score * 100).toFixed(0)}%, ${k.postCount}건)`).join("\n")}\n\n[프레임 경쟁]\n${SENTIMENT_OUTPUT.frameCompetition.map((f) => `• ${f.label}: ${(f.share * 100).toFixed(0)}%`).join("\n")}\n\n시사점: 긍정률 높은 키워드(두돌 세돌 65%, 음악 교구 62%)에 토토LP 노출이 가장 적음 → 즉각 SEO 투자 필요`,
     sourceModule: "#03",
   },
   {
     id: "section-4",
-    title: "주요 변곡점 (Inflection Points)",
+    title: "시장 변곡점 — 판매 영향 이벤트",
     content: MACRO_VIEW_OUTPUT.inflectionPoints
       .map((p) => `[${p.date}] ${p.event} (영향도: ${p.impact})`)
       .join("\n"),
@@ -585,29 +763,45 @@ const INTEGRATED_SECTIONS = [
   },
   {
     id: "section-5",
-    title: "SOV 점유율 분석 (Share of Voice)",
-    content: OPPORTUNITY_OUTPUT.shareOfVoice
-      .map(
-        (s) =>
-          `${s.isOurs ? "★ " : ""}${s.brand}: ${s.mentions}건 (긍정률 ${Math.round(s.sentimentPositive * 100)}%)`,
-      )
-      .join("\n"),
+    title: "SOV 점유율 — 경쟁 교구 비교",
+    content:
+      OPPORTUNITY_OUTPUT.shareOfVoice
+        .map(
+          (s) =>
+            `${s.isOurs ? "★ " : ""}${s.brand}: ${s.mentions}건 (긍정률 ${Math.round(s.sentimentPositive * 100)}%)`,
+        )
+        .join("\n") +
+      `\n\n[키워드별 SOV]\n${OPPORTUNITY_OUTPUT.sovByKeyword.map((s) => `• '${s.keyword}' — 토토LP ${(s.totoLP * 100).toFixed(0)}% vs ${s.competitor} ${(s.competitorShare * 100).toFixed(0)}%`).join("\n")}\n\n시사점: '말하는 카드 교구' '동화 카드 플레이어' 2개 키워드에서 경쟁사에 SOV 뒤처짐`,
     sourceModule: "#06",
   },
   {
     id: "section-6",
-    title: "콘텐츠 갭 분석",
+    title: "가격 포지셔닝 분석 — 가격 장벽 해소 전략",
+    content: `경쟁 교구 가격 비교 (초기 + 1년 총비용):\n${OPPORTUNITY_OUTPUT.pricePositioning.competitors.map((c) => `  ${c.brand}: 초기 ${(c.initialCost / 10000).toFixed(1)}만원 | 1년 ${(c.annualTotalCost / 10000).toFixed(0)}만원`).join("\n")}\n\n${OPPORTUNITY_OUTPUT.pricePositioning.insight}\n\n가격 전략 제안:\n① '1년 비용 비교 인포그래픽' 상세페이지 최상단 배치\n② '체험 후 구매' 2주 대여(2만원) → 구매 시 전액 차감\n③ 3개월 무이자 할부(월 49,333원) — '하루 1,644원으로 영어 교육'\n④ 첫 구매 LP카드 5장 추가 증정`,
+    sourceModule: "#06",
+  },
+  {
+    id: "section-7",
+    title: "고객 세그먼트 분석 — 타깃별 공략법",
+    content: STRATEGY_OUTPUT.messageStrategy.segmentMessages
+      .map((s) => `◆ ${s.segment}\n  메시지: ${s.messages.join(" | ")}\n  CTA: ${s.cta}`)
+      .join("\n\n"),
+    sourceModule: "#06",
+  },
+  {
+    id: "section-7b",
+    title: "콘텐츠 갭 — 판매 직결 기회",
     content: OPPORTUNITY_OUTPUT.contentGaps
       .map(
         (g) =>
-          `■ ${g.topic} [${g.ourStatus}] → 영향: ${g.estimatedImpact}\n  경쟁사: ${g.competitorActivity}\n  제안: ${g.suggestedAction}`,
+          `■ ${g.topic} [${g.ourStatus}] → 매출 영향: ${g.revenueImpact}\n  경쟁사: ${g.competitorActivity}\n  제안: ${g.suggestedAction}`,
       )
       .join("\n\n"),
     sourceModule: "#06",
   },
   {
-    id: "section-7",
-    title: "리스크 시그널",
+    id: "section-8",
+    title: "리스크 시그널 — 판매 저해 요인",
     content: OPPORTUNITY_OUTPUT.riskSignals
       .map(
         (r) =>
@@ -617,47 +811,64 @@ const INTEGRATED_SECTIONS = [
     sourceModule: "#06",
   },
   {
-    id: "section-7b",
-    title: "경쟁사 갭 분석",
+    id: "section-8b",
+    title: "경쟁 교구 갭 분석 — 판매 차별점",
     content: OPPORTUNITY_OUTPUT.competitorGaps
-      .map((c) => `■ ${c.competitor}\n  갭: ${c.gap}\n  우리 강점: ${c.ourAdvantage}`)
+      .map(
+        (c) => `■ ${c.competitor} — ${c.price}\n  약점: ${c.gap}\n  셀링포인트: ${c.ourAdvantage}`,
+      )
       .join("\n\n"),
     sourceModule: "#06",
   },
   {
-    id: "section-8",
-    title: "메시지 전략 (Message Strategy)",
-    content: `핵심 메시지: "${STRATEGY_OUTPUT.messageStrategy.primaryMessage}"\n\n보조 메시지:\n${STRATEGY_OUTPUT.messageStrategy.supportingMessages.map((m) => `• ${m}`).join("\n")}\n\n톤앤매너: ${STRATEGY_OUTPUT.messageStrategy.tone}`,
-    sourceModule: "#07",
-  },
-  {
     id: "section-9",
-    title: "콘텐츠 전략 (Content Calendar)",
-    content: STRATEGY_OUTPUT.contentStrategy.weeklyTopics
-      .map((t) => `${t.timing} | ${t.channel} | ${t.format}\n  → ${t.topic}`)
-      .join("\n\n"),
+    title: "메시지 전략 — 세그먼트별 판매 화법",
+    content: `핵심 메시지: "${STRATEGY_OUTPUT.messageStrategy.primaryMessage}"\n\n${STRATEGY_OUTPUT.messageStrategy.segmentMessages.map((s) => `● ${s.segment}\n${s.messages.map((m) => `  • "${m}"`).join("\n")}\n  CTA: ${s.cta}`).join("\n\n")}\n\n톤앤매너: ${STRATEGY_OUTPUT.messageStrategy.tone}`,
     sourceModule: "#07",
   },
   {
     id: "section-10",
-    title: "채널 우선순위",
-    content: STRATEGY_OUTPUT.channelPriority
-      .map((c) => `${c.priority}/10 — ${c.channel}\n  ${c.reason}`)
+    title: "주간 콘텐츠 전략 — 키워드별 SEO 공략",
+    content: STRATEGY_OUTPUT.contentStrategy.weeklyTopics
+      .map(
+        (t) =>
+          `${t.timing} | ${t.channel} | ${t.format}\n  타깃 키워드: ${t.targetKeyword}\n  → ${t.topic}`,
+      )
       .join("\n\n"),
     sourceModule: "#07",
   },
   {
     id: "section-11",
-    title: "리스크 완화 방안",
-    content: STRATEGY_OUTPUT.riskMitigation.map((r) => `⚠ ${r.risk}\n  → ${r.action}`).join("\n\n"),
+    title: "채널 우선순위 — ROI 기반 투자 순위",
+    content:
+      STRATEGY_OUTPUT.channelPriority
+        .map(
+          (c) =>
+            `${c.priority}/10 — ${c.channel} (투자: ${c.investment} / ROI: ${c.expectedROI})\n  ${c.reason}`,
+        )
+        .join("\n\n") +
+      `\n\n총 투자 제안: 월 ${(STRATEGY_OUTPUT.totalInvestment.monthly / 10000).toLocaleString()}만원 / 예상 추가 매출: 월 ${(STRATEGY_OUTPUT.totalInvestment.expectedAdditionalRevenue / 10000).toLocaleString()}만원 (ROI ${STRATEGY_OUTPUT.totalInvestment.overallROI})`,
     sourceModule: "#07",
   },
   {
     id: "section-12",
-    title: "즉시 실행 과제 (Critical Actions)",
-    content: SUMMARY_OUTPUT.criticalActions
-      .map((a) => `[${a.priority.toUpperCase()}] ${a.action}`)
-      .join("\n"),
+    title: "리스크 완화 — 구체적 실행 방안",
+    content: STRATEGY_OUTPUT.riskMitigation
+      .map(
+        (r) =>
+          `◆ ${r.risk}\n  타임라인: ${r.timeline}\n${r.actions.map((a) => `  → ${a}`).join("\n")}\n  목표: ${r.target}`,
+      )
+      .join("\n\n"),
+    sourceModule: "#07",
+  },
+  {
+    id: "section-13",
+    title: "즉시 실행 과제 — 30일 액션 플랜",
+    content:
+      SUMMARY_OUTPUT.criticalActions
+        .map((a) => `[${a.priority.toUpperCase()}] W${a.week} | ${a.action}`)
+        .join("\n") +
+      `\n\n30일 목표 KPI:\n• SEO 상위 10위 키워드: ${SUMMARY_OUTPUT.thirtyDayKPI.seoTop10Keywords}\n• 추가 판매: ${SUMMARY_OUTPUT.thirtyDayKPI.additionalMonthlySales}\n• 긍정률: ${SUMMARY_OUTPUT.thirtyDayKPI.positiveRate}\n• 장바구니 이탈률: ${SUMMARY_OUTPUT.thirtyDayKPI.cartAbandonRate}\n• 부정/긍정 비율: ${SUMMARY_OUTPUT.thirtyDayKPI.negativeToPositiveRatio}`,
     sourceModule: "#08",
   },
 ];
@@ -737,7 +948,7 @@ async function main(): Promise<void> {
         REPORT_ID,
         TENANT,
         JOB_ID,
-        "토토LP 교육 — 마케팅 분석 리포트",
+        "토토LP 교육 — 10개 키워드 통합 마케팅 분석 리포트",
         JSON.stringify(INTEGRATED_OUTPUT.sections),
         JSON.stringify({
           keyword: KEYWORD,
@@ -756,10 +967,10 @@ async function main(): Promise<void> {
         JOB_ID,
         JSON.stringify({ keyword: KEYWORD, modules: ["#03", "#07", "#08"] }),
         JSON.stringify({
-          subject: "LP 한 장이면 영어가 시작됩니다 — 토토LP 교육 체험 안내",
-          body: "안녕하세요, GoldenCheck입니다.\n\n토토LP 교육이 서울시교육청 유아 영어 혁신 사례로 선정되며 전국 50개 유치원에서 정규 교구로 채택됐습니다.\n\n출시 6개월 만에 1만 2천 세트 판매를 돌파하고, 촉각 학습 효과 연구 논문에서 어휘 기억 유지율 28% 향상이 입증되었습니다.\n\n본 리포트에서 확인하실 수 있는 내용:\n• 경쟁 교구 5종 대비 SOV 점유율 1위 (42건)\n• 구매 전환 장벽 3가지와 즉시 실행 대응 전략\n• 콘텐츠 갭 4건 — 판매 직결 마케팅 기회\n\n자세한 분석은 첨부 리포트를 참조하세요.",
-          cta: "분석 리포트 전문 확인하기",
-          targetSegment: "유아 교육 교구 마케팅 담당자",
+          subject: "토토LP 10개 키워드 통합 분석 — 월 111,700건 검색 시장 공략 전략",
+          body: "안녕하세요, GoldenCheck입니다.\n\n토토LP 교육 10개 연관검색어 통합 분석 결과를 공유드립니다.\n\n[핵심 발견]\n• 월간 총 검색량 111,700건, 구매 의향 키워드 62% → 월 69,000건 잠재 구매 검색\n• SOV 38% 1위이나 긍정률 47% 최하위 — '높은 인지도 + 낮은 긍정률' 구조적 취약점\n• 1년 총비용 기준 세이펜보다 7만원 저렴 — 소비자의 가격 오해 해소 필수\n• 미포획 시장 32,300건: 두돌 세돌 교구·말하는 카드 교구·누리과정 교구\n\n본 리포트 포함 내용:\n• 구매 퍼널 4단계 전환율 분석 + 가격 포지셔닝 전략\n• 5개 고객 세그먼트별 맞춤 메시지 전략\n• ROI 기반 채널 투자 계획 (월 1,200만원 / ROI 4.9x)\n• 30일 주차별 액션 플랜 + KPI 목표\n\n자세한 분석은 첨부 리포트를 참조하세요.",
+          cta: "통합 분석 리포트 전문 확인하기",
+          targetSegment: "토토LP 판매사 마케팅·영업 담당자",
         }),
       ],
     );
@@ -774,39 +985,45 @@ async function main(): Promise<void> {
           entries: [
             {
               day: "월",
-              channel: "인스타그램",
-              topic: "아이가 처음 LP를 올리는 순간 — 언박싱 리액션",
-              format: "릴스 30초 + 구매 링크",
+              channel: "네이버 블로그",
+              topic: "토토LP vs 세이펜 완전 비교 — 1년 총비용·학습 효과·내구성",
+              format: "비교 분석 블로그 + 상세페이지 CTA",
+              targetKeyword: "유아 오디오 교구, 동화 카드 플레이어",
             },
             {
               day: "화",
-              channel: "네이버 블로그",
-              topic: "촉각 학습이란? 연구 논문으로 보는 LP 교구의 효과",
-              format: "장문 비교 분석 (3000자) + 체험 CTA",
+              channel: "인스타그램",
+              topic: "32개월 아이가 LP카드 스스로 꺼내서 틀어요 — 실사용 영상",
+              format: "릴스 30초 + 구매 링크 CTA",
+              targetKeyword: "토토LP 후기, 키즈 LP 토토",
             },
             {
               day: "수",
               channel: "유튜브",
-              topic: "유치원 선생님이 직접 말하는 토토LP 수업 효과",
+              topic: "유치원 선생님이 말하는 토토LP 누리과정 활용법",
               format: "교사 인터뷰 숏폼 3분",
+              targetKeyword: "누리과정 교구",
             },
             {
               day: "목",
-              channel: "이메일",
-              topic: "우리 아이 이번 주 파닉스 성장 리포트",
-              format: "개인화 뉴스레터 + 추가 LP판 구매 CTA",
+              channel: "네이버 블로그",
+              topic: "두돌 아이 첫 영어 교구 — LP카드로 시작하는 3가지 이유",
+              format: "연령별 가이드 블로그 + 체험 CTA",
+              targetKeyword: "두돌 세돌 교구 추천",
             },
             {
               day: "금",
-              channel: "네이버 블로그",
-              topic: "토토LP vs 핑크퐁 스마트펜 — 우리 아이에게 맞는 교구는?",
-              format: "객관적 비교 카드뉴스 + 체험 안내",
+              channel: "인스타그램",
+              topic: "말하는 카드 교구 TOP4 비교 — 토토LP가 특별한 이유",
+              format: "카드뉴스 + 구매 링크",
+              targetKeyword: "말하는 카드 교구, 유아 음악 교구 추천",
             },
             {
               day: "토",
-              channel: "인스타그램",
-              topic: "교보문고 체험존 현장 아이들 반응 하이라이트",
-              format: "스토리 + 체험 예약 CTA",
+              channel: "맘카페",
+              topic: "교보문고 체험존 현장 반응 + 1년 비용 비교표 공유",
+              format: "후기 게시물 + 비교표 이미지",
+              targetKeyword: "토토LP 단점 (부정 대응)",
             },
           ],
         }),
