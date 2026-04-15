@@ -732,7 +732,7 @@ async function main(): Promise<void> {
     }
     console.log(`[seed] signalcraft_module_outputs inserted: ${MODULE_OUTPUTS.length} modules`);
     await client.query(
-      `INSERT INTO reports (id, tenant_id, job_id, kind, title, sections, metadata) VALUES ($1, $2, $3, 'signalcraft_integrated', $4, $5, $6) ON CONFLICT (id) DO UPDATE SET sections = EXCLUDED.sections, metadata = EXCLUDED.metadata`,
+      `INSERT INTO reports (id, tenant_id, job_id, kind, title, sections, metadata) VALUES ($1, $2, $3, 'signalcraft_integrated', $4, $5, $6) ON CONFLICT (id) DO UPDATE SET job_id = EXCLUDED.job_id, title = EXCLUDED.title, sections = EXCLUDED.sections, metadata = EXCLUDED.metadata`,
       [
         REPORT_ID,
         TENANT,
