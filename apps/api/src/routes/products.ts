@@ -163,6 +163,131 @@ productsRouter.post("/:id/keywords", async (req: Request, res: Response) => {
   }
 });
 
+// Keyword timeline — 시계열 수치
+productsRouter.get("/:id/keywords/:kwId/timeline", async (req: Request, res: Response) => {
+  const tenantId = getTenant(req);
+  if (!tenantId || !UUID.test(req.params.id ?? "") || !UUID.test(req.params.kwId ?? ""))
+    return res.status(400).json({ error: "invalid_request" });
+
+  const from =
+    (req.query.from as string) || new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
+  const to = (req.query.to as string) || new Date().toISOString().slice(0, 10);
+
+  const pool = getPool();
+
+  // 키워드 이름 확인
+  const kwRes = await pool.query<{ keyword: string }>(
+    `SELECT keyword FROM product_keywords WHERE id = $1 AND tenant_id = $2`,
+    [req.params.kwId, tenantId],
+  );
+  if (!kwRes.rows[0]) return res.status(404).json({ error: "keyword_not_found" });
+
+  const snap = await pool.query(
+    `SELECT snapshot_date, post_count, sentiment_positive, sentiment_negative, sentiment_neutral,
+            sov_share, sov_rank, mention_count, risk_count
+       FROM keyword_snapshots
+      WHERE product_keyword_id = $1 AND tenant_id = $2
+        AND snapshot_date >= $3 AND snapshot_date <= $4
+      ORDER BY snapshot_date ASC`,
+    [req.params.kwId, tenantId, from, to],
+  );
+
+  // 요약 통계
+  const points = snap.rows;
+  const avgSentiment =
+    points.length > 0
+      ? points.reduce((s, r) => s + Number(r.sentiment_positive), 0) / points.length
+      : 0;
+  const firstSov = points.length > 0 ? Number(points[0].sov_share) : 0;
+  const lastSov = points.length > 0 ? Number(points[points.length - 1]!.sov_share) : 0;
+  const totalMentions = points.reduce((s, r) => s + Number(r.mention_count), 0);
+
+  let sentimentTrend: "up" | "down" | "stable" = "stable";
+  if (points.length >= 3) {
+    const firstHalf = points.slice(0, Math.floor(points.length / 2));
+    const secondHalf = points.slice(Math.floor(points.length / 2));
+    const avgFirst =
+      firstHalf.reduce((s, r) => s + Number(r.sentiment_positive), 0) / firstHalf.length;
+    const avgSecond =
+      secondHalf.reduce((s, r) => s + Number(r.sentiment_positive), 0) / secondHalf.length;
+    if (avgSecond - avgFirst > 0.03) sentimentTrend = "up";
+    else if (avgFirst - avgSecond > 0.03) sentimentTrend = "down";
+  }
+
+  return res.json({
+    keyword: kwRes.rows[0].keyword,
+    dataPoints: points,
+    summary: {
+      avgSentiment: Math.round(avgSentiment * 10000) / 10000,
+      sentimentTrend,
+      sovChange: Math.round((lastSov - firstSov) * 10000) / 10000,
+      totalMentions,
+    },
+  });
+});
+
+// Keyword snapshot detail — 특정 날짜 전체 분석 결과
+productsRouter.get("/:id/keywords/:kwId/snapshots/:date", async (req: Request, res: Response) => {
+  const tenantId = getTenant(req);
+  if (!tenantId || !UUID.test(req.params.kwId ?? ""))
+    return res.status(400).json({ error: "invalid_request" });
+
+  const pool = getPool();
+  const snap = await pool.query(
+    `SELECT * FROM keyword_snapshots
+      WHERE product_keyword_id = $1 AND tenant_id = $2 AND snapshot_date = $3`,
+    [req.params.kwId, tenantId, req.params.date],
+  );
+  if (!snap.rows[0]) return res.status(404).json({ error: "snapshot_not_found" });
+
+  return res.json(snap.rows[0]);
+});
+
+// Manual analyze trigger — 수동 즉시 분석
+productsRouter.post("/:id/keywords/:kwId/analyze", async (req: Request, res: Response) => {
+  const tenantId = getTenant(req);
+  if (!tenantId || !UUID.test(req.params.id ?? "") || !UUID.test(req.params.kwId ?? ""))
+    return res.status(400).json({ error: "invalid_request" });
+
+  const pool = getPool();
+  const kwRes = await pool.query<{ keyword: string }>(
+    `SELECT keyword FROM product_keywords WHERE id = $1 AND product_id = $2 AND tenant_id = $3 AND status = 'active'`,
+    [req.params.kwId, req.params.id, tenantId],
+  );
+  if (!kwRes.rows[0]) return res.status(404).json({ error: "keyword_not_found" });
+
+  const keyword = kwRes.rows[0].keyword;
+
+  // Create signalcraft job
+  const insert = await pool.query<{ id: string }>(
+    `INSERT INTO signalcraft_jobs
+       (tenant_id, keyword, regions, modules_requested, status, current_stage)
+     VALUES ($1, $2, $3, $4, 'queued', 'stage1:queued')
+     RETURNING id`,
+    [tenantId, keyword, ["KR"], ["#01", "#03", "#06", "#07", "#08", "#13"]],
+  );
+  const jobId = insert.rows[0]?.id;
+  if (!jobId) return res.status(500).json({ error: "job_insert_failed" });
+
+  // Enqueue with productKeywordId for snapshot persistence
+  const { getQueue, QUEUE_SIGNALCRAFT } = await import("../infra/queues.ts");
+  const queue = getQueue(QUEUE_SIGNALCRAFT);
+  await queue.add(
+    "run",
+    {
+      signalcraftJobId: jobId,
+      tenantId,
+      keyword,
+      regions: ["KR"],
+      modules: ["#01", "#03", "#06", "#07", "#08", "#13"],
+      productKeywordId: req.params.kwId,
+    },
+    { removeOnComplete: { count: 200 }, removeOnFail: { count: 500 } },
+  );
+
+  return res.status(202).json({ jobId, keyword, estimatedMinutes: 2 });
+});
+
 // Remove keyword
 productsRouter.delete("/:productId/keywords/:kwId", async (req: Request, res: Response) => {
   const tenantId = getTenant(req);

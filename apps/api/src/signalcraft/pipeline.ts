@@ -44,6 +44,7 @@ export interface PipelineInput {
   tenantId: string;
   keyword: string;
   regions: string[];
+  productKeywordId?: string;
 }
 
 export interface PipelineResult {
@@ -355,11 +356,113 @@ async function persistReport(
   }
 }
 
+/**
+ * 시계열 스냅샷 저장 — 파이프라인 완료 후 1키워드 1일 1행 기록.
+ * productKeywordId가 있을 때만 실행.
+ */
+async function persistSnapshot(
+  input: PipelineInput,
+  upstreamResults: Record<string, unknown>,
+  postCount: number,
+): Promise<void> {
+  if (!input.productKeywordId) return;
+
+  const pool = getPoolForRole("signalcraft_worker");
+  try {
+    // Extract metrics from module outputs
+    const sentiment = upstreamResults["#03"] as
+      | { sentimentRatio?: { positive?: number; negative?: number; neutral?: number } }
+      | undefined;
+    const opportunity = upstreamResults["#06"] as
+      | {
+          shareOfVoice?: Array<{ brand: string; mentions: number; isOurs?: boolean }>;
+          riskSignals?: unknown[];
+        }
+      | undefined;
+
+    const sp = sentiment?.sentimentRatio?.positive ?? 0;
+    const sn = sentiment?.sentimentRatio?.negative ?? 0;
+    const sneu = sentiment?.sentimentRatio?.neutral ?? 0;
+
+    // SOV: find our brand
+    let sovShare = 0;
+    let sovRank = 0;
+    let mentionCount = 0;
+    if (opportunity?.shareOfVoice) {
+      const sorted = [...opportunity.shareOfVoice].sort((a, b) => b.mentions - a.mentions);
+      mentionCount = sorted.reduce((s, v) => s + v.mentions, 0);
+      const oursIdx = sorted.findIndex((v) => v.isOurs);
+      if (oursIdx >= 0 && mentionCount > 0) {
+        sovRank = oursIdx + 1;
+        sovShare = sorted[oursIdx]!.mentions / mentionCount;
+      }
+    }
+    const riskCount = opportunity?.riskSignals?.length ?? 0;
+
+    const today = new Date().toISOString().slice(0, 10);
+
+    await pool.query(
+      `INSERT INTO keyword_snapshots
+         (product_keyword_id, tenant_id, keyword, snapshot_date, job_id,
+          post_count, sentiment_positive, sentiment_negative, sentiment_neutral,
+          sov_share, sov_rank, mention_count, risk_count, module_outputs)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
+       ON CONFLICT (product_keyword_id, snapshot_date) DO UPDATE SET
+         job_id = EXCLUDED.job_id,
+         post_count = EXCLUDED.post_count,
+         sentiment_positive = EXCLUDED.sentiment_positive,
+         sentiment_negative = EXCLUDED.sentiment_negative,
+         sentiment_neutral = EXCLUDED.sentiment_neutral,
+         sov_share = EXCLUDED.sov_share,
+         sov_rank = EXCLUDED.sov_rank,
+         mention_count = EXCLUDED.mention_count,
+         risk_count = EXCLUDED.risk_count,
+         module_outputs = EXCLUDED.module_outputs`,
+      [
+        input.productKeywordId,
+        input.tenantId,
+        input.keyword,
+        today,
+        input.jobId,
+        postCount,
+        sp,
+        sn,
+        sneu,
+        sovShare,
+        sovRank,
+        mentionCount,
+        riskCount,
+        JSON.stringify(upstreamResults),
+      ],
+    );
+    console.log(
+      `[signalcraft:${input.jobId}] snapshot saved for keyword ${input.keyword} (${today})`,
+    );
+  } catch (err) {
+    console.error(`[signalcraft:${input.jobId}] persistSnapshot failed: ${(err as Error).message}`);
+  }
+}
+
 export async function runPipeline(input: PipelineInput): Promise<PipelineResult> {
   const started = Date.now();
   try {
     const stage1 = await runStage1(input);
     const stage3 = await runStage3(input);
+
+    // 시계열 스냅샷 저장 (productKeywordId가 있을 때만)
+    if (input.productKeywordId && stage3.modulesRun.length > 0) {
+      const pool = getPoolForRole("signalcraft_worker");
+      const moRes = await pool.query<{ module_id: string; output: unknown }>(
+        `SELECT module_id, output FROM signalcraft_module_outputs
+         WHERE job_id = $1 AND status = 'success'`,
+        [input.jobId],
+      );
+      const upstreamResults: Record<string, unknown> = {};
+      for (const row of moRes.rows) {
+        upstreamResults[row.module_id] = row.output;
+      }
+      await persistSnapshot(input, upstreamResults, stage1.totalCollected);
+    }
 
     await setStatus(input.jobId, "done", {
       currentStage: "done",

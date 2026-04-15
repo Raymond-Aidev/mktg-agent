@@ -20,6 +20,7 @@ import { getRedis, disconnectAllRedis } from "./infra/redis.ts";
 import { closeAllQueues, listQueues } from "./infra/queues.ts";
 import { startBatchWorker } from "./workers/batch.ts";
 import { startSignalcraftWorker } from "./workers/signalcraft.ts";
+import { startDailyAnalyzeScheduler } from "./workers/daily-analyze.ts";
 import { mountBullBoard } from "./admin/bull-board.ts";
 import { eventsRouter } from "./routes/events.ts";
 import { emailWebhookRouter } from "./routes/email-webhook.ts";
@@ -273,7 +274,8 @@ if (env.REDIS_URL) {
   try {
     batchWorker = startBatchWorker();
     signalcraftWorker = startSignalcraftWorker();
-    console.log("[goldencheck-api] workers started: queue:batch, queue:signalcraft");
+    startDailyAnalyzeScheduler();
+    console.log("[goldencheck-api] workers started: queue:batch, queue:signalcraft, daily-analyze");
   } catch (err) {
     console.error("[goldencheck-api] worker start failed:", (err as Error).message);
   }

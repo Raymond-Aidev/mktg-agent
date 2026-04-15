@@ -46,6 +46,9 @@ import {
   deleteAdminUser,
   type AdminUser,
   type AdminStats,
+  fetchTimeline,
+  triggerAnalyze,
+  type TimelineResponse,
 } from "./api.ts";
 
 const DEFAULT_TENANT = "00000000-0000-0000-0000-0000000000ee";
@@ -57,6 +60,12 @@ type View =
   | { screen: "products" }
   | { screen: "product-detail"; productId: string; isDemo?: boolean }
   | { screen: "keyword-report"; productId: string; keywordId: string; isDemo?: boolean }
+  | {
+      screen: "keyword-timeline";
+      productId: string;
+      keywordId: string;
+      keywordName: string;
+    }
   | { screen: "sample" }
   | { screen: "settings" }
   | { screen: "admin" };
@@ -549,8 +558,13 @@ export function App() {
           <RealProductDetail
             tenantId={tenantId}
             productId={view.productId}
-            onKeywordSelect={(kw) =>
-              setView({ screen: "keyword-report", productId: view.productId, keywordId: kw })
+            onKeywordSelect={(kwId, kwName) =>
+              setView({
+                screen: "keyword-timeline",
+                productId: view.productId,
+                keywordId: kwId,
+                keywordName: kwName,
+              })
             }
           />
         )}
@@ -574,6 +588,16 @@ export function App() {
               reportId: null,
             }}
             tenantId={tenantId}
+          />
+        )}
+
+        {view.screen === "keyword-timeline" && (
+          <KeywordTimelineView
+            tenantId={tenantId}
+            productId={view.productId}
+            keywordId={view.keywordId}
+            keywordName={view.keywordName}
+            onBack={() => setView({ screen: "product-detail", productId: view.productId })}
           />
         )}
 
@@ -1713,7 +1737,7 @@ function RealProductDetail({
 }: {
   tenantId: string;
   productId: string;
-  onKeywordSelect: (keyword: string) => void;
+  onKeywordSelect: (kwId: string, kwName: string) => void;
 }) {
   const [product, setProduct] = useState<ApiProduct | null>(null);
   const [keywords, setKeywords] = useState<ApiKeyword[]>([]);
@@ -1829,7 +1853,7 @@ function RealProductDetail({
                 <tr
                   key={kw.id}
                   className="portfolio-row"
-                  onClick={() => onKeywordSelect(kw.keyword)}
+                  onClick={() => onKeywordSelect(kw.id, kw.keyword)}
                 >
                   <td className="kw-name">{kw.keyword}</td>
                   <td className="num">{kw.post_count_30d}</td>
@@ -1840,7 +1864,7 @@ function RealProductDetail({
                       className="table-action-btn"
                       onClick={(e) => {
                         e.stopPropagation();
-                        onKeywordSelect(kw.keyword);
+                        onKeywordSelect(kw.id, kw.keyword);
                       }}
                     >
                       분석
@@ -1859,6 +1883,346 @@ function RealProductDetail({
           </table>
         )}
       </section>
+    </>
+  );
+}
+
+/* ══════════════════════ Keyword Timeline View ══════════════════════ */
+
+function KeywordTimelineView({
+  tenantId,
+  productId,
+  keywordId,
+  keywordName,
+  onBack,
+}: {
+  tenantId: string;
+  productId: string;
+  keywordId: string;
+  keywordName: string;
+  onBack: () => void;
+}) {
+  const [data, setData] = useState<TimelineResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [range, setRange] = useState<7 | 30 | 90>(30);
+  const [analyzing, setAnalyzing] = useState(false);
+
+  const load = useCallback(() => {
+    setLoading(true);
+    const from = new Date(Date.now() - range * 86400000).toISOString().slice(0, 10);
+    const to = new Date().toISOString().slice(0, 10);
+    fetchTimeline(tenantId, productId, keywordId, from, to)
+      .then(setData)
+      .catch((err: unknown) => showGlobalToast((err as Error).message, "error"))
+      .finally(() => setLoading(false));
+  }, [tenantId, productId, keywordId, range]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const handleAnalyze = async () => {
+    setAnalyzing(true);
+    try {
+      const res = await triggerAnalyze(tenantId, productId, keywordId);
+      showGlobalToast(`분석 시작됨 (Job: ${res.jobId.slice(0, 8)}...)`, "info");
+      // 10초 후 자동 새로고침
+      setTimeout(load, 10000);
+    } catch (err: unknown) {
+      showGlobalToast((err as Error).message, "error");
+    } finally {
+      setAnalyzing(false);
+    }
+  };
+
+  const points = data?.dataPoints ?? [];
+  const summary = data?.summary;
+
+  // 간단한 바 차트 — 순수 CSS
+  const maxMention = Math.max(...points.map((p) => p.mention_count), 1);
+
+  return (
+    <>
+      <div className="page-title">
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={onBack}
+            style={{ padding: "6px 14px", fontSize: 13 }}
+          >
+            ← 목록
+          </button>
+          <h2 style={{ margin: 0 }}>{keywordName}</h2>
+        </div>
+        <p>시계열 분석 추이 — 감성, SOV, 언급량 변화를 추적합니다.</p>
+      </div>
+
+      {/* 기간 선택 + 분석 버튼 */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 20,
+        }}
+      >
+        <div style={{ display: "flex", gap: 6 }}>
+          {([7, 30, 90] as const).map((r) => (
+            <button
+              key={r}
+              type="button"
+              className={range === r ? "btn-primary" : "btn-secondary"}
+              style={{ padding: "6px 16px", fontSize: 13, borderRadius: 20 }}
+              onClick={() => setRange(r)}
+            >
+              {r}일
+            </button>
+          ))}
+        </div>
+        <button
+          type="button"
+          className="btn-primary"
+          onClick={handleAnalyze}
+          disabled={analyzing}
+          style={{ padding: "8px 20px", fontSize: 13 }}
+        >
+          {analyzing ? "분석 중..." : "지금 분석하기"}
+        </button>
+      </div>
+
+      {loading ? (
+        <div className="status-loading">불러오는 중...</div>
+      ) : points.length === 0 ? (
+        <div className="empty-state">
+          <div className="empty-icon">~</div>
+          <p>아직 분석 데이터가 없습니다</p>
+          <p className="empty-sub">"지금 분석하기"를 누르면 첫 분석이 시작됩니다.</p>
+        </div>
+      ) : (
+        <>
+          {/* 요약 카드 */}
+          {summary && (
+            <div className="summary-strip" style={{ marginBottom: 24 }}>
+              <div className="summary-item">
+                <div className="summary-value">{(summary.avgSentiment * 100).toFixed(1)}%</div>
+                <div className="summary-label">평균 긍정률</div>
+              </div>
+              <div className="summary-item">
+                <div
+                  className="summary-value"
+                  style={{
+                    color:
+                      summary.sentimentTrend === "up"
+                        ? "var(--success)"
+                        : summary.sentimentTrend === "down"
+                          ? "var(--danger)"
+                          : "var(--text-muted)",
+                  }}
+                >
+                  {summary.sentimentTrend === "up"
+                    ? "▲ 상승"
+                    : summary.sentimentTrend === "down"
+                      ? "▼ 하락"
+                      : "— 안정"}
+                </div>
+                <div className="summary-label">감성 추이</div>
+              </div>
+              <div className="summary-item">
+                <div className="summary-value">
+                  {summary.sovChange >= 0 ? "+" : ""}
+                  {(summary.sovChange * 100).toFixed(1)}%p
+                </div>
+                <div className="summary-label">SOV 변화</div>
+              </div>
+              <div className="summary-item">
+                <div className="summary-value">{formatInt(summary.totalMentions)}</div>
+                <div className="summary-label">총 언급</div>
+              </div>
+            </div>
+          )}
+
+          {/* 감성 추이 차트 */}
+          <section className="panel" style={{ marginBottom: 20 }}>
+            <h3 style={{ margin: "0 0 16px", fontSize: 15 }}>감성 분석 추이</h3>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              {points.map((p) => {
+                const pos = Number(p.sentiment_positive) * 100;
+                const neg = Number(p.sentiment_negative) * 100;
+                const neu = Number(p.sentiment_neutral) * 100;
+                return (
+                  <div
+                    key={p.snapshot_date}
+                    style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12 }}
+                  >
+                    <span style={{ width: 72, color: "var(--text-muted)", flexShrink: 0 }}>
+                      {p.snapshot_date.slice(5)}
+                    </span>
+                    <div
+                      style={{
+                        flex: 1,
+                        display: "flex",
+                        height: 18,
+                        borderRadius: 4,
+                        overflow: "hidden",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: `${pos}%`,
+                          background: "var(--success)",
+                          transition: "width 0.3s",
+                        }}
+                        title={`긍정 ${pos.toFixed(1)}%`}
+                      />
+                      <div
+                        style={{
+                          width: `${neg}%`,
+                          background: "var(--danger)",
+                          transition: "width 0.3s",
+                        }}
+                        title={`부정 ${neg.toFixed(1)}%`}
+                      />
+                      <div
+                        style={{
+                          width: `${neu}%`,
+                          background: "#d1d5db",
+                          transition: "width 0.3s",
+                        }}
+                        title={`중립 ${neu.toFixed(1)}%`}
+                      />
+                    </div>
+                    <span
+                      style={{
+                        width: 48,
+                        textAlign: "right",
+                        fontWeight: 600,
+                        color: "var(--success)",
+                      }}
+                    >
+                      {pos.toFixed(0)}%
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* 언급량 바 차트 */}
+          <section className="panel" style={{ marginBottom: 20 }}>
+            <h3 style={{ margin: "0 0 16px", fontSize: 15 }}>일별 언급량</h3>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              {points.map((p) => (
+                <div
+                  key={p.snapshot_date}
+                  style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12 }}
+                >
+                  <span style={{ width: 72, color: "var(--text-muted)", flexShrink: 0 }}>
+                    {p.snapshot_date.slice(5)}
+                  </span>
+                  <div
+                    style={{
+                      flex: 1,
+                      background: "var(--bg-subtle)",
+                      borderRadius: 4,
+                      height: 18,
+                      overflow: "hidden",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: `${(p.mention_count / maxMention) * 100}%`,
+                        height: "100%",
+                        background: "var(--accent)",
+                        borderRadius: 4,
+                        transition: "width 0.3s",
+                      }}
+                    />
+                  </div>
+                  <span style={{ width: 40, textAlign: "right", fontWeight: 600 }}>
+                    {p.mention_count}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* SOV 추이 */}
+          <section className="panel" style={{ marginBottom: 20 }}>
+            <h3 style={{ margin: "0 0 16px", fontSize: 15 }}>SOV 점유율 추이</h3>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              {points.map((p) => {
+                const sov = Number(p.sov_share) * 100;
+                return (
+                  <div
+                    key={p.snapshot_date}
+                    style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12 }}
+                  >
+                    <span style={{ width: 72, color: "var(--text-muted)", flexShrink: 0 }}>
+                      {p.snapshot_date.slice(5)}
+                    </span>
+                    <div
+                      style={{
+                        flex: 1,
+                        background: "var(--bg-subtle)",
+                        borderRadius: 4,
+                        height: 18,
+                        overflow: "hidden",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: `${sov}%`,
+                          height: "100%",
+                          background: "#3b82f6",
+                          borderRadius: 4,
+                          transition: "width 0.3s",
+                        }}
+                      />
+                    </div>
+                    <span style={{ width: 48, textAlign: "right", fontWeight: 600 }}>
+                      {sov.toFixed(1)}%
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* 데이터 테이블 */}
+          <section className="panel">
+            <h3 style={{ margin: "0 0 12px", fontSize: 15 }}>일별 상세</h3>
+            <table className="portfolio-table">
+              <thead>
+                <tr>
+                  <th>날짜</th>
+                  <th className="num">게시물</th>
+                  <th className="num">긍정</th>
+                  <th className="num">부정</th>
+                  <th className="num">SOV</th>
+                  <th className="num">리스크</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[...points].reverse().map((p) => (
+                  <tr key={p.snapshot_date}>
+                    <td>{p.snapshot_date}</td>
+                    <td className="num">{p.post_count}</td>
+                    <td className="num" style={{ color: "var(--success)" }}>
+                      {(Number(p.sentiment_positive) * 100).toFixed(0)}%
+                    </td>
+                    <td className="num" style={{ color: "var(--danger)" }}>
+                      {(Number(p.sentiment_negative) * 100).toFixed(0)}%
+                    </td>
+                    <td className="num">{(Number(p.sov_share) * 100).toFixed(1)}%</td>
+                    <td className="num">{p.risk_count}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </section>
+        </>
+      )}
     </>
   );
 }

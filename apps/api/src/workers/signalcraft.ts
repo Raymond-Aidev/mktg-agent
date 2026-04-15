@@ -17,11 +17,12 @@ export interface SignalcraftJobData {
   keyword: string;
   regions: string[];
   modules: string[];
+  productKeywordId?: string;
 }
 
 async function handleSignalcraftJob(job: Job<SignalcraftJobData>) {
   const started = Date.now();
-  const { signalcraftJobId, tenantId, keyword, regions } = job.data;
+  const { signalcraftJobId, tenantId, keyword, regions, productKeywordId } = job.data;
   console.log(
     `[worker:signalcraft] start keyword="${keyword}" job=${signalcraftJobId} bullId=${job.id}`,
   );
@@ -31,6 +32,7 @@ async function handleSignalcraftJob(job: Job<SignalcraftJobData>) {
     tenantId,
     keyword,
     regions,
+    productKeywordId,
   });
 
   await job.updateProgress(100);

@@ -22,6 +22,7 @@ const RunSchema = z.object({
   keyword: z.string().min(1).max(200),
   regions: z.array(z.string().min(1)).max(20).optional(),
   modules: z.array(z.string().min(1)).max(20).optional(),
+  productKeywordId: z.string().uuid().optional(),
 });
 
 export const signalcraftRouter: ExpressRouter = Router();
@@ -34,7 +35,7 @@ signalcraftRouter.post("/run", async (req: Request, res: Response) => {
       issues: parsed.error.flatten().fieldErrors,
     });
   }
-  const { tenantId, keyword, regions = [], modules = [] } = parsed.data;
+  const { tenantId, keyword, regions = [], modules = [], productKeywordId } = parsed.data;
 
   const pool = getPool();
   const insert = await pool.query<{ id: string }>(
@@ -52,7 +53,7 @@ signalcraftRouter.post("/run", async (req: Request, res: Response) => {
   const queue = getQueue(QUEUE_SIGNALCRAFT);
   await queue.add(
     "run",
-    { signalcraftJobId: jobId, tenantId, keyword, regions, modules },
+    { signalcraftJobId: jobId, tenantId, keyword, regions, modules, productKeywordId },
     { removeOnComplete: { count: 200 }, removeOnFail: { count: 500 } },
   );
 

@@ -301,6 +301,63 @@ export async function removeKeyword(
   if (!res.ok) throw new Error(`remove keyword HTTP ${res.status}`);
 }
 
+/* ══════════════════════ Timeline ══════════════════════ */
+
+export interface TimelineDataPoint {
+  snapshot_date: string;
+  post_count: number;
+  sentiment_positive: number;
+  sentiment_negative: number;
+  sentiment_neutral: number;
+  sov_share: number;
+  sov_rank: number;
+  mention_count: number;
+  risk_count: number;
+}
+
+export interface TimelineSummary {
+  avgSentiment: number;
+  sentimentTrend: "up" | "down" | "stable";
+  sovChange: number;
+  totalMentions: number;
+}
+
+export interface TimelineResponse {
+  keyword: string;
+  dataPoints: TimelineDataPoint[];
+  summary: TimelineSummary;
+}
+
+export async function fetchTimeline(
+  tenantId: string,
+  productId: string,
+  kwId: string,
+  from?: string,
+  to?: string,
+): Promise<TimelineResponse> {
+  const params = new URLSearchParams({ tenantId });
+  if (from) params.set("from", from);
+  if (to) params.set("to", to);
+  const res = await fetch(`/api/v1/products/${productId}/keywords/${kwId}/timeline?${params}`, {
+    headers: authHeaders(),
+  });
+  if (!res.ok) throw new Error(`timeline HTTP ${res.status}`);
+  return (await res.json()) as TimelineResponse;
+}
+
+export async function triggerAnalyze(
+  tenantId: string,
+  productId: string,
+  kwId: string,
+): Promise<{ jobId: string }> {
+  const res = await fetch(
+    `/api/v1/products/${productId}/keywords/${kwId}/analyze?tenantId=${encodeURIComponent(tenantId)}`,
+    { method: "POST", headers: authHeaders() },
+  );
+  if (!res.ok) throw new Error(`analyze HTTP ${res.status}`);
+  return (await res.json()) as { jobId: string };
+}
+
 /* ══════════════════════ Admin ══════════════════════ */
 
 export interface AdminUser {
