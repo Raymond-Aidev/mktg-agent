@@ -1053,9 +1053,6 @@ export function App() {
           {view.screen === "product-report" && (
             <ProductReportView
               productName={DEMO_PRODUCTS.find((p) => p.id === view.productId)?.name ?? ""}
-              onBack={() =>
-                setView({ screen: "product-detail", productId: view.productId, isDemo: true })
-              }
             />
           )}
 
@@ -2459,7 +2456,7 @@ function SectionPanel({
   );
 }
 
-function ProductReportView({ productName, onBack }: { productName: string; onBack: () => void }) {
+function ProductReportView({ productName }: { productName: string }) {
   const totalMentions = DEMO_SOV.reduce((s, v) => s + v.mentions, 0);
 
   /* 가격 비교 데이터 */
@@ -2513,28 +2510,11 @@ function ProductReportView({ productName, onBack }: { productName: string; onBac
   return (
     <>
       {/* 헤더 */}
-      <div className="page-title" style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <button
-          type="button"
-          onClick={onBack}
-          style={{
-            background: "none",
-            border: "1px solid var(--border)",
-            borderRadius: 6,
-            padding: "6px 12px",
-            cursor: "pointer",
-            fontSize: 13,
-            color: "var(--text-muted)",
-          }}
-        >
-          ← 키워드 목록
-        </button>
-        <div>
-          <h2 style={{ margin: 0 }}>{productName} — 통합 분석 리포트</h2>
-          <p style={{ margin: "4px 0 0", fontSize: 13, color: "var(--text-muted)" }}>
-            10개 연관검색어 복합 분석 · {new Date().toLocaleDateString("ko-KR")} 기준
-          </p>
-        </div>
+      <div className="page-title">
+        <h2>{productName} — 통합 분석 리포트</h2>
+        <p style={{ margin: "4px 0 0", fontSize: 13, color: "var(--text-muted)" }}>
+          10개 연관검색어 복합 분석 · {new Date().toLocaleDateString("ko-KR")} 기준
+        </p>
       </div>
 
       {/* ═══ KPI 대시보드 ═══ */}
