@@ -425,7 +425,7 @@ export function App() {
   const hasToken = !!getToken();
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
   const [authLoading, setAuthLoading] = useState(hasToken);
-  const [view, setView] = useState<View>(hasToken ? { screen: "products" } : { screen: "landing" });
+  const [view, setView] = useState<View>({ screen: "landing" });
   const { toasts } = useToast();
 
   // 페이지 새로고침 시 JWT에서 사용자 정보 복원
@@ -447,7 +447,7 @@ export function App() {
   const handleLogin = (user: AuthUser) => {
     setAuthUser(user);
     setTenantId(user.tenantId);
-    setView({ screen: "products" });
+    // 로그인 후 랜딩 페이지 유지 — 대시보드 탭 클릭 시 이동
   };
 
   const handleLogout = () => {
