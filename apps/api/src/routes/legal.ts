@@ -264,9 +264,9 @@ function pricingHtml(): string {
     <tr><th>항목</th><th>Starter</th><th>Professional</th><th>Enterprise</th></tr>
   </thead>
   <tbody>
-    <tr><td><strong>월 요금</strong></td><td>50만원</td><td><strong>150만원</strong></td><td>문의</td></tr>
-    <tr><td>제품 수</td><td>5개</td><td>20개</td><td>무제한</td></tr>
-    <tr><td>키워드 수</td><td>20개</td><td>100개</td><td>무제한</td></tr>
+    <tr><td><strong>월 요금</strong></td><td>50만원</td><td><strong>120만원</strong></td><td>문의</td></tr>
+    <tr><td>제품 수</td><td>5개</td><td>50개</td><td>무제한</td></tr>
+    <tr><td>키워드 수</td><td>20개</td><td>300개</td><td>무제한</td></tr>
     <tr><td>월 분석 횟수</td><td>10회</td><td>무제한</td><td>무제한</td></tr>
     <tr><td>리포트 형식</td><td>기본 리포트</td><td>전체 리포트 + 캠페인 생성</td><td>커스텀 리포트</td></tr>
     <tr><td>SOV 분석</td><td>-</td><td>포함</td><td>포함</td></tr>

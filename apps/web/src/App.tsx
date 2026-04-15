@@ -1266,9 +1266,9 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
           <div className="price-card price-featured">
             <div className="price-badge">추천</div>
             <h3>Professional</h3>
-            <div className="price">월 150만원</div>
+            <div className="price">월 120만원</div>
             <ul>
-              <li>제품 20개 / 키워드 100개</li>
+              <li>제품 50개 / 키워드 300개</li>
               <li>무제한 분석</li>
               <li>통합 리포트 + 실행 전략</li>
               <li>리스크 시그널 실시간 알림</li>
