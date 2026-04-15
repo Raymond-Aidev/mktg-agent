@@ -1005,16 +1005,18 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
         </div>
       )}
 
-      <section className="hero">
+      {/* ── Hero ── */}
+      <section className="hero hero-dark">
+        <div className="hero-badge">AI Marketing Agent</div>
         <h1>
-          교육상품 마케팅,
+          내 브랜드 전용
           <br />
-          <span className="hero-accent">AI가 데이터로 답합니다</span>
+          <span className="hero-accent">실시간 AI 마케팅 에이전트</span>
         </h1>
         <p className="hero-sub">
-          제품별 키워드 여론을 실시간 모니터링하고,
+          DB 검색이 아닙니다. 내가 등록한 키워드를, AI가 직접 크롤링하고 분석합니다.
           <br />
-          투자할 키워드와 철수할 키워드를 데이터 기반으로 판단하세요.
+          기존 서비스에 없는 데이터, 실시간 이슈, 경쟁사의 오늘 움직임까지.
         </p>
         <div className="hero-cta">
           <button
@@ -1025,136 +1027,159 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
               setIsRegister(true);
             }}
           >
-            시작하기
+            무료로 시작하기
           </button>
           <button
             type="button"
             className="btn-secondary-lg"
-            onClick={() => {
-              setShowLogin(true);
-              setIsRegister(false);
-            }}
+            onClick={() =>
+              document.getElementById("sample")?.scrollIntoView({ behavior: "smooth" })
+            }
           >
-            로그인
+            분석 샘플 보기
           </button>
         </div>
       </section>
 
+      {/* ── Trust Stats ── */}
       <section className="trust-bar">
         <div className="trust-item">
-          <div className="trust-value">150만원</div>
-          <div className="trust-label">월 구독료</div>
+          <div className="trust-value">39%</div>
+          <div className="trust-label">SOV 점유율 분석</div>
         </div>
         <div className="trust-item">
-          <div className="trust-value">5개</div>
+          <div className="trust-value">6개</div>
           <div className="trust-label">AI 분석 모듈</div>
         </div>
         <div className="trust-item">
           <div className="trust-value">실시간</div>
-          <div className="trust-label">여론 모니터링</div>
+          <div className="trust-label">크롤링 & 분석</div>
         </div>
         <div className="trust-item">
           <div className="trust-value">10분</div>
-          <div className="trust-label">리포트 생성</div>
+          <div className="trust-label">리포트 자동 생성</div>
         </div>
       </section>
 
-      <section className="features" id="features">
-        <h2>핵심 기능</h2>
-        <div className="feature-grid">
-          <div className="feature-card">
-            <div className="feature-icon">01</div>
-            <h3>키워드 포트폴리오</h3>
-            <p>
-              제품별 수십 개 키워드의 검색량, 감성, 트렌드를 한눈에 비교하고 투자/철수를 판단합니다.
-            </p>
+      {/* ── Problem / Contrast ── */}
+      <section className="contrast-section" id="features">
+        <h2>왜 기존 서비스로는 부족한가?</h2>
+        <p className="section-desc">월 15만원대 마케팅 인텔리전스 서비스와 비교해 보세요.</p>
+        <div className="contrast-grid">
+          <div className="contrast-col contrast-old">
+            <div className="contrast-header">기존 서비스 (DB 검색형)</div>
+            <div className="contrast-item">서비스사가 미리 수집한 DB 안에서만 검색 가능</div>
+            <div className="contrast-item">내 제품에 맞는 키워드 커스텀 불가</div>
+            <div className="contrast-item">이미 지난 데이터 기반, 실시간 분석 불가</div>
+            <div className="contrast-item">모든 고객이 같은 DB, 같은 분석 틀</div>
           </div>
-          <div className="feature-card">
-            <div className="feature-icon">02</div>
-            <h3>SOV 점유율 분석</h3>
-            <p>경쟁사 대비 우리 브랜드의 온라인 언급 점유율을 실시간으로 추적합니다.</p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-icon">03</div>
-            <h3>감성 분석 리포트</h3>
-            <p>
-              네이버 뉴스/블로그/카페의 여론을 AI가 분석하여 긍정/부정/중립 비율과 핵심 키워드를
-              도출합니다.
-            </p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-icon">04</div>
-            <h3>콘텐츠 갭 분석</h3>
-            <p>경쟁사가 다루고 우리가 놓치고 있는 마케팅 토픽과 채널을 자동으로 식별합니다.</p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-icon">05</div>
-            <h3>실행 전략 자동 생성</h3>
-            <p>
-              분석 결과를 기반으로 주간 콘텐츠 캘린더, 캠페인 초안, 채널 우선순위를 AI가 제안합니다.
-            </p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-icon">06</div>
-            <h3>리스크 시그널 알림</h3>
-            <p>
-              부정 여론 급증, 경쟁사 움직임 등 위험 신호를 조기 감지하고 대응 방안을 제시합니다.
-            </p>
+          <div className="contrast-col contrast-new">
+            <div className="contrast-header">마케팅 AI 에이전트 (실시간 크롤링)</div>
+            <div className="contrast-item">내가 등록한 키워드를 AI가 즉시 직접 크롤링</div>
+            <div className="contrast-item">제품명, 경쟁사, 연관 키워드 완전 맞춤 설정</div>
+            <div className="contrast-item">분석 요청 즉시 크롤링 실행 — 진짜 실시간 데이터</div>
+            <div className="contrast-item">내 브랜드 전용 AI 에이전트 — 리포트 포맷까지 커스텀</div>
           </div>
         </div>
       </section>
 
+      {/* ── How it Works ── */}
       <section className="how-section" id="how">
-        <h2>분석 프로세스</h2>
-        <div className="process-steps">
-          <div className="step">
-            <div className="step-num">1</div>
-            <h3>제품 등록</h3>
-            <p>유통 중인 교육상품과 마케팅 키워드를 등록합니다.</p>
+        <h2>이렇게 작동합니다</h2>
+        <p className="section-desc">설정 한 번으로, 매일 자동 분석 리포트를 받아보세요.</p>
+        <div className="steps-grid">
+          <div className="step-card step-card-1">
+            <div className="step-num">01</div>
+            <h3>키워드 설정</h3>
+            <p>제품명 + 연관 키워드 직접 등록</p>
+            <div className="step-example">
+              예: '어린이AI 지휘자'
+              <br />
+              + 동작인식 / 음악교육 / 클래식앱
+              <br />+ 경쟁사: JoyTunes, 야마하
+            </div>
+            <div className="step-result">내 브랜드 전용 에이전트 생성</div>
           </div>
-          <div className="step-arrow">→</div>
-          <div className="step">
-            <div className="step-num">2</div>
-            <h3>데이터 수집</h3>
-            <p>네이버, 유튜브, 커뮤니티에서 관련 게시물을 자동 수집합니다.</p>
+          <div className="step-card step-card-2">
+            <div className="step-num">02</div>
+            <h3>AI 실시간 크롤링</h3>
+            <p>등록 즉시 AI가 직접 수집 시작</p>
+            <div className="step-example">
+              네이버 뉴스/블로그/카페
+              <br />
+              커뮤니티/SNS/앱스토어 리뷰
+              <br />
+              경쟁사 콘텐츠 동시 수집
+            </div>
+            <div className="step-result">DB 검색이 아닌, 지금 이 순간 데이터</div>
           </div>
-          <div className="step-arrow">→</div>
-          <div className="step">
-            <div className="step-num">3</div>
-            <h3>AI 분석</h3>
-            <p>5개 모듈이 감성, SOV, 콘텐츠 갭, 전략, 리스크를 분석합니다.</p>
-          </div>
-          <div className="step-arrow">→</div>
-          <div className="step">
-            <div className="step-num">4</div>
-            <h3>의사결정</h3>
-            <p>키워드별 투자/유지/철수 판단과 실행 전략을 확인합니다.</p>
+          <div className="step-card step-card-3">
+            <div className="step-num">03</div>
+            <h3>분석 리포트 수신</h3>
+            <p>매일 아침 자동 리포트 도착</p>
+            <div className="step-example">
+              감성 분석 + SOV 점유율
+              <br />
+              경쟁사 갭 + 리스크 시그널
+              <br />
+              즉시 실행 콘텐츠 전략
+            </div>
+            <div className="step-result">읽고 바로 실행하는 액션 리포트</div>
           </div>
         </div>
       </section>
 
-      <section className="features" id="sample">
-        <h2>분석 샘플</h2>
-        <p
-          style={{
-            textAlign: "center",
-            color: "var(--text-muted)",
-            marginBottom: 24,
-            marginTop: -24,
-            fontSize: 15,
-          }}
-        >
-          "토토LP 교육" 제품의 실제 AI 마케팅 분석 리포트입니다.
+      {/* ── Live Sample Stats ── */}
+      <section className="sample-section" id="sample">
+        <h2>실제 분석 결과 샘플</h2>
+        <p className="section-desc">
+          키워드 '어린이AI 지휘자'를 등록하고 AI 에이전트가 즉시 생성한 분석 결과입니다.
         </p>
-        <div style={{ display: "flex", justifyContent: "center", gap: 12, marginBottom: 20 }}>
+        <div className="sample-stats">
+          <div className="sample-stat">
+            <div className="sample-stat-value">39%</div>
+            <div className="sample-stat-label">SOV 점유율</div>
+            <div className="sample-stat-sub">경쟁사 대비 1위</div>
+          </div>
+          <div className="sample-stat">
+            <div className="sample-stat-value">58%</div>
+            <div className="sample-stat-label">긍정 감성</div>
+            <div className="sample-stat-sub">부정 18% / 중립 24%</div>
+          </div>
+          <div className="sample-stat">
+            <div className="sample-stat-value">5만건</div>
+            <div className="sample-stat-label">3개월 언급량</div>
+            <div className="sample-stat-sub">에듀테크 최고 성장</div>
+          </div>
+          <div className="sample-stat sample-stat-alert">
+            <div className="sample-stat-value">2.5x</div>
+            <div className="sample-stat-label">가격 저항 급증</div>
+            <div className="sample-stat-sub">즉시 대응 필요</div>
+          </div>
+        </div>
+
+        <div className="sample-insights">
+          <div className="insight-card insight-risk">
+            <div className="insight-tag">리스크 자동 감지</div>
+            <p>맘카페 '비싸다/해지' 언급 14건 급증 (전주 대비 2.5배)</p>
+            <div className="insight-action">AI 즉시 권고: 무료 체험 14일 연장 + 연간 할인 도입</div>
+          </div>
+          <div className="insight-card insight-gap">
+            <div className="insight-tag">경쟁사 갭 발견</div>
+            <p>JoyTunes 학부모 리뷰 영상 월 8회, 평균 5만 조회</p>
+            <div className="insight-action">AI 즉시 권고: 숏폼 챌린지 시리즈 선제 런칭</div>
+          </div>
+        </div>
+
+        <div className="sample-report-cta">
           <a
             href={`/api/v1/reports/${SAMPLE_REPORT_ID}?format=html`}
             target="_blank"
             rel="noreferrer"
             className="btn-primary"
-            style={{ width: "auto", padding: "12px 24px" }}
+            style={{ width: "auto", padding: "14px 32px", fontSize: 15 }}
           >
-            리포트 전체 보기
+            전체 분석 리포트 보기
           </a>
         </div>
         <iframe
@@ -1165,17 +1190,61 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
         />
       </section>
 
+      {/* ── Analysis Modules ── */}
+      <section className="features">
+        <h2>6개 AI 분석 모듈</h2>
+        <p className="section-desc">
+          키워드 등록 한 번으로 6가지 관점의 종합 분석을 자동 수행합니다.
+        </p>
+        <div className="feature-grid">
+          <div className="feature-card">
+            <div className="feature-icon">01</div>
+            <h3>거시 환경 분석</h3>
+            <p>시장 트렌드, 정책 변화, 산업 동향을 자동으로 파악하고 기회와 위협을 식별합니다.</p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon">02</div>
+            <h3>감성 분석</h3>
+            <p>
+              네이버 뉴스/블로그/카페 여론의 긍정/부정/중립 비율과 핵심 키워드를 AI가 분석합니다.
+            </p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon">03</div>
+            <h3>시장 인텔리전스</h3>
+            <p>SOV 점유율, 경쟁 포지셔닝, 콘텐츠 갭, 리스크 시그널을 한 번에 분석합니다.</p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon">04</div>
+            <h3>실행 전략 생성</h3>
+            <p>주간 콘텐츠 캘린더, 채널 우선순위, 메시지 전략을 데이터 기반으로 AI가 제안합니다.</p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon">05</div>
+            <h3>핵심 요약 리포트</h3>
+            <p>Key Takeaways, 즉시 실행 과제, 리스크 완화 방안을 한 페이지로 요약합니다.</p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon">06</div>
+            <h3>통합 리포트</h3>
+            <p>모든 모듈의 결과를 하나로 통합하여 컨설팅급 마케팅 리포트를 자동 생성합니다.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Pricing ── */}
       <section className="pricing-section" id="pricing">
         <h2>요금제</h2>
+        <p className="section-desc">첫 분석 무료 — 키워드 등록 당일 결과를 확인하세요.</p>
         <div className="pricing-grid">
           <div className="price-card">
             <h3>Starter</h3>
             <div className="price">월 50만원</div>
             <ul>
-              <li>제품 5개</li>
-              <li>키워드 20개</li>
+              <li>제품 5개 / 키워드 20개</li>
               <li>월 10회 분석</li>
               <li>기본 리포트</li>
+              <li>이메일 알림</li>
             </ul>
             <button
               type="button"
@@ -1193,11 +1262,10 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
             <h3>Professional</h3>
             <div className="price">월 150만원</div>
             <ul>
-              <li>제품 20개</li>
-              <li>키워드 100개</li>
+              <li>제품 20개 / 키워드 100개</li>
               <li>무제한 분석</li>
-              <li>전체 리포트 + 캠페인 생성</li>
-              <li>리스크 알림</li>
+              <li>통합 리포트 + 실행 전략</li>
+              <li>리스크 시그널 실시간 알림</li>
               <li>전담 매니저</li>
             </ul>
             <button
@@ -1215,10 +1283,10 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
             <h3>Enterprise</h3>
             <div className="price">문의</div>
             <ul>
-              <li>무제한 제품/키워드</li>
-              <li>API 연동</li>
-              <li>커스텀 리포트</li>
+              <li>무제한 제품 / 키워드</li>
+              <li>API 연동 & 커스텀 리포트</li>
               <li>SLA 보장</li>
+              <li>온프레미스 배포 옵션</li>
             </ul>
             <button
               type="button"
@@ -1231,37 +1299,62 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
         </div>
       </section>
 
+      {/* ── FAQ ── */}
       <section className="faq-section" id="faq">
         <h2>자주 묻는 질문</h2>
         <div className="faq-list">
           <details className="faq-item">
-            <summary>어떤 데이터를 수집하나요?</summary>
+            <summary>기존 마케팅 인텔리전스 서비스와 뭐가 다른가요?</summary>
             <p>
-              네이버 뉴스, 블로그, 카페와 주요 커뮤니티의 공개 게시물을 수집합니다. 비공개 글이나
-              개인정보는 수집하지 않습니다.
+              기존 서비스는 자사 DB에 수집된 데이터 안에서만 검색합니다. 마케팅 AI 에이전트는 내가
+              정한 키워드를 AI가 직접 크롤링하므로, DB에 없는 데이터, 실시간 이슈, 경쟁사의 오늘
+              움직임까지 놓치지 않습니다.
             </p>
           </details>
           <details className="faq-item">
             <summary>분석에 얼마나 걸리나요?</summary>
-            <p>키워드당 약 10분 내외로 수집부터 AI 분석 리포트 생성까지 완료됩니다.</p>
+            <p>
+              키워드 등록 후 약 10분 내외로 수집부터 6개 AI 모듈 분석, 통합 리포트 생성까지
+              완료됩니다.
+            </p>
+          </details>
+          <details className="faq-item">
+            <summary>어떤 데이터를 수집하나요?</summary>
+            <p>
+              네이버 뉴스, 블로그, 카페, 커뮤니티, SNS, 앱스토어 리뷰 등 공개 게시물을 수집합니다.
+              비공개 글이나 개인정보는 수집하지 않습니다.
+            </p>
           </details>
           <details className="faq-item">
             <summary>경쟁사 분석도 가능한가요?</summary>
             <p>
-              네, SOV(점유율) 분석과 경쟁사 갭 분석을 통해 경쟁 브랜드 대비 우리의 위치와 기회를
-              파악할 수 있습니다.
+              네. SOV 점유율 분석, 경쟁사 갭 분석, 포지셔닝 맵을 통해 경쟁 브랜드 대비 우리의 위치와
+              공략 기회를 실시간으로 파악할 수 있습니다.
             </p>
           </details>
           <details className="faq-item">
             <summary>교육 업종 외에도 사용할 수 있나요?</summary>
-            <p>현재는 교육상품 유통사에 최적화되어 있으며, 향후 다른 업종으로 확장할 예정입니다.</p>
+            <p>
+              현재는 교육 콘텐츠/출판 유통사에 최적화되어 있으며, 향후 다른 업종으로 확장할
+              예정입니다.
+            </p>
           </details>
         </div>
       </section>
 
+      {/* ── Final CTA ── */}
       <section className="cta-section">
-        <h2>지금 시작하세요</h2>
-        <p>AI 기반 교육 마케팅 자동화, 지금 바로 시작하세요.</p>
+        <h2>
+          지금 키워드를 등록하면,
+          <br />
+          오늘 분석 결과를 받으실 수 있습니다
+        </h2>
+        <div className="cta-benefits">
+          <span>첫 분석 무료</span>
+          <span>약정 없음</span>
+          <span>완전 맞춤 설정</span>
+          <span>기존 서비스 대비 직접 비교 환영</span>
+        </div>
         <button
           type="button"
           className="btn-primary-lg"
@@ -1270,7 +1363,7 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
             setIsRegister(true);
           }}
         >
-          시작하기
+          무료 체험 시작하기
         </button>
       </section>
 
