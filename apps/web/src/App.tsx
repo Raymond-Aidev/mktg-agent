@@ -624,7 +624,7 @@ export function App() {
                 className={`nav-link ${view.screen === "products" || view.screen === "product-detail" || view.screen === "keyword-timeline" ? "nav-active" : ""}`}
                 onClick={() => setView({ screen: "products" })}
               >
-                내 제품
+                대시보드
               </span>
               <span
                 className={`nav-link ${view.screen === "sample" ? "nav-active" : ""}`}
@@ -1442,7 +1442,7 @@ function ProductsGrid({
   return (
     <>
       <div className="page-title">
-        <h2>내 제품</h2>
+        <h2>대시보드</h2>
         <p>제품별 키워드 성과를 모니터링하고 투자 전략을 수립하세요.</p>
       </div>
 
