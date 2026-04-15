@@ -705,6 +705,17 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
     setAuthSuccess(null);
   };
 
+  const closeModal = () => {
+    setShowLogin(false);
+    setVerifyMode(false);
+    setVerifyEmail("");
+    setVerifyCode("");
+    setResetMode("off");
+    setResetToken("");
+    setAuthError(null);
+    setAuthSuccess(null);
+  };
+
   const enterDemo = () => {
     clearToken();
     onLogin({
@@ -737,6 +748,12 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
             onClick={() => {
               setShowLogin(true);
               setIsRegister(false);
+              setVerifyMode(false);
+              setVerifyEmail("");
+              setVerifyCode("");
+              setResetMode("off");
+              setAuthError(null);
+              setAuthSuccess(null);
             }}
           >
             로그인
@@ -745,7 +762,7 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
       </nav>
 
       {showLogin && (
-        <div className="modal-overlay" onClick={() => setShowLogin(false)}>
+        <div className="modal-overlay" onClick={closeModal}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h2>
               {verifyMode
@@ -1004,7 +1021,7 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
                 </span>
               </p>
             </form>
-            <button type="button" className="modal-close" onClick={() => setShowLogin(false)}>
+            <button type="button" className="modal-close" onClick={closeModal}>
               x
             </button>
           </div>
