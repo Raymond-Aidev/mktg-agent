@@ -60,6 +60,7 @@ type View =
   | { screen: "products" }
   | { screen: "product-detail"; productId: string; isDemo?: boolean }
   | { screen: "keyword-report"; productId: string; keywordId: string; isDemo?: boolean }
+  | { screen: "product-report"; productId: string }
   | {
       screen: "keyword-timeline";
       productId: string;
@@ -679,7 +680,7 @@ export function App() {
           {authUser ? (
             <>
               <span
-                className={`nav-link ${view.screen === "products" || view.screen === "product-detail" || view.screen === "keyword-timeline" ? "nav-active" : ""}`}
+                className={`nav-link ${view.screen === "products" || view.screen === "product-detail" || view.screen === "keyword-timeline" || view.screen === "product-report" ? "nav-active" : ""}`}
                 onClick={() => setView({ screen: "products" })}
               >
                 대시보드
@@ -1026,6 +1027,11 @@ export function App() {
                   isDemo: true,
                 })
               }
+              onReportView={
+                currentProduct.id === "prod-1"
+                  ? () => setView({ screen: "product-report", productId: currentProduct.id })
+                  : undefined
+              }
             />
           )}
 
@@ -1040,6 +1046,15 @@ export function App() {
                   keywordId: kwId,
                   keywordName: kwName,
                 })
+              }
+            />
+          )}
+
+          {view.screen === "product-report" && (
+            <ProductReportView
+              productName={DEMO_PRODUCTS.find((p) => p.id === view.productId)?.name ?? ""}
+              onBack={() =>
+                setView({ screen: "product-detail", productId: view.productId, isDemo: true })
               }
             />
           )}
@@ -1611,9 +1626,11 @@ type SortKey =
 function ProductDetail({
   product,
   onKeywordSelect,
+  onReportView,
 }: {
   product: DemoProduct;
   onKeywordSelect: (kwId: string) => void;
+  onReportView?: () => void;
 }) {
   const [sortKey, setSortKey] = useState<SortKey>("recommendation");
   const [sortAsc, setSortAsc] = useState(true);
@@ -1662,7 +1679,6 @@ function ProductDetail({
     product.keywords.reduce((s, k) => s + k.sentimentScore, 0) / product.keywords.length;
   const upCount = product.keywords.filter((k) => k.trendDirection === "up").length;
 
-  const recLabel: Record<string, string> = { invest: "투자", maintain: "유지", abandon: "철수" };
   const trendLabel: Record<string, string> = { up: "상승", flat: "보합", down: "하락" };
   const densityLabel: Record<string, string> = { low: "낮음", medium: "보통", high: "높음" };
 
@@ -1717,6 +1733,22 @@ function ProductDetail({
         </div>
       </div>
 
+      {onReportView && (
+        <section className="panel" style={{ textAlign: "center", padding: "24px" }}>
+          <button
+            type="button"
+            className="btn-primary"
+            style={{ width: "auto", padding: "14px 32px", fontSize: 16 }}
+            onClick={onReportView}
+          >
+            통합 분석 리포트 보기
+          </button>
+          <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--text-muted)" }}>
+            10개 연관검색어 복합 분석 — {product.name} 판매 전략 리포트
+          </p>
+        </section>
+      )}
+
       <section className="panel">
         <h2>키워드 포트폴리오</h2>
         <table className="portfolio-table">
@@ -1728,7 +1760,6 @@ function ProductDetail({
               <SortHeader label="감성" field="sentimentScore" />
               <SortHeader label="트렌드" field="trendDirection" />
               <th>경쟁</th>
-              <SortHeader label="판단" field="recommendation" />
               <th>최근 분석</th>
               <th>액션</th>
             </tr>
@@ -1762,11 +1793,6 @@ function ProductDetail({
                 <td>
                   <span className={`density-badge density-${kw.competitorDensity}`}>
                     {densityLabel[kw.competitorDensity]}
-                  </span>
-                </td>
-                <td>
-                  <span className={`rec-badge rec-${kw.recommendation}`}>
-                    {recLabel[kw.recommendation]}
                   </span>
                 </td>
                 <td className="date-cell">{relativeDate(kw.lastAnalyzed)}</td>
@@ -2286,6 +2312,160 @@ function KeywordTimelineView({
           </section>
         </>
       )}
+    </>
+  );
+}
+
+/* ══════════════════════ Product Report View (통합 리포트) ══════════════════════ */
+
+function ProductReportView({ productName, onBack }: { productName: string; onBack: () => void }) {
+  return (
+    <>
+      <div className="page-title" style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <button
+          type="button"
+          onClick={onBack}
+          style={{
+            background: "none",
+            border: "1px solid var(--border)",
+            borderRadius: 6,
+            padding: "6px 12px",
+            cursor: "pointer",
+            fontSize: 13,
+            color: "var(--text-muted)",
+          }}
+        >
+          ← 키워드 목록
+        </button>
+        <div>
+          <h2 style={{ margin: 0 }}>{productName} — 통합 분석 리포트</h2>
+          <p style={{ margin: "4px 0 0", fontSize: 13, color: "var(--text-muted)" }}>
+            10개 연관검색어 복합 분석 · {new Date().toLocaleDateString("ko-KR")} 기준
+          </p>
+        </div>
+      </div>
+
+      {/* 감성 분석 바 */}
+      <section className="panel" style={{ marginBottom: 16 }}>
+        <h3 style={{ margin: "0 0 12px", fontSize: 15 }}>토토LP 온라인 여론 종합</h3>
+        <div
+          style={{
+            display: "flex",
+            height: 24,
+            borderRadius: 6,
+            overflow: "hidden",
+            marginBottom: 8,
+          }}
+        >
+          <div
+            style={{ width: `${DEMO_SENTIMENT.positive * 100}%`, background: "var(--success)" }}
+          />
+          <div
+            style={{ width: `${DEMO_SENTIMENT.negative * 100}%`, background: "var(--danger)" }}
+          />
+          <div style={{ width: `${DEMO_SENTIMENT.neutral * 100}%`, background: "#d1d5db" }} />
+        </div>
+        <p style={{ margin: 0, fontSize: 13, color: "var(--text-muted)" }}>
+          긍정 {(DEMO_SENTIMENT.positive * 100).toFixed(0)}% / 부정{" "}
+          {(DEMO_SENTIMENT.negative * 100).toFixed(0)}% / 중립{" "}
+          {(DEMO_SENTIMENT.neutral * 100).toFixed(0)}%{" · "}총 언급{" "}
+          {DEMO_SOV.reduce((s, v) => s + v.mentions, 0)}건 · 10개 검색어 월간 111,700건
+        </p>
+      </section>
+
+      {/* SOV 차트 */}
+      <section className="panel" style={{ marginBottom: 16 }}>
+        <h3 style={{ margin: "0 0 12px", fontSize: 15 }}>경쟁 교구 SOV (Share of Voice)</h3>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {DEMO_SOV.map((s) => {
+            const total = DEMO_SOV.reduce((sum, v) => sum + v.mentions, 0);
+            return (
+              <div
+                key={s.brand}
+                style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}
+              >
+                <span
+                  style={{
+                    width: 140,
+                    fontWeight: s.ours ? 700 : 400,
+                    color: s.ours ? "var(--accent)" : "var(--text)",
+                  }}
+                >
+                  {s.ours ? "★ " : ""}
+                  {s.brand}
+                </span>
+                <div
+                  style={{
+                    flex: 1,
+                    background: "var(--bg-subtle)",
+                    borderRadius: 4,
+                    height: 18,
+                    overflow: "hidden",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: `${(s.mentions / total) * 100}%`,
+                      height: "100%",
+                      background: s.ours ? "var(--accent)" : "#94a3b8",
+                      borderRadius: 4,
+                    }}
+                  />
+                </div>
+                <span
+                  style={{
+                    width: 80,
+                    textAlign: "right",
+                    fontSize: 12,
+                    color: "var(--text-muted)",
+                  }}
+                >
+                  {s.mentions}건 ({s.rate}%)
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* 전체 리포트 — 하나의 연속된 문서 */}
+      <section className="panel" style={{ marginBottom: 16 }}>
+        {DEMO_REPORT_SECTIONS.map((section, idx) => (
+          <div
+            key={section.id}
+            style={{ marginBottom: idx < DEMO_REPORT_SECTIONS.length - 1 ? 32 : 0 }}
+          >
+            <h3
+              style={{
+                margin: "0 0 12px",
+                fontSize: 16,
+                borderBottom: "1px solid var(--border)",
+                paddingBottom: 8,
+              }}
+            >
+              {idx + 1}. {section.title}
+            </h3>
+            <div
+              style={{
+                fontSize: 14,
+                color: "var(--text)",
+                lineHeight: 1.8,
+                whiteSpace: "pre-wrap",
+              }}
+            >
+              {section.content}
+            </div>
+          </div>
+        ))}
+      </section>
+
+      {/* 하단 안내 */}
+      <div
+        style={{ textAlign: "center", padding: "20px 0", fontSize: 12, color: "var(--text-muted)" }}
+      >
+        본 분석은 네이버 뉴스·맘카페·HackerNews 기반 샘플 분석이며, 수치는 수집 범위 내
+        추정치입니다.
+      </div>
     </>
   );
 }
