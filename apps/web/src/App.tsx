@@ -2507,7 +2507,7 @@ function ProductReportView({ productName, onBack }: { productName: string; onBac
     ...s,
     x: s.mentions,
     y: s.rate,
-    size: s.mentions * 1.5,
+    size: Math.max(s.mentions * 1.8, 44),
   }));
 
   return (
@@ -2852,8 +2852,15 @@ function ProductReportView({ productName, onBack }: { productName: string; onBac
           </div>
           {/* 버블들 */}
           {sovMatrix.map((s) => {
-            const xPct = Math.min((s.x / 50) * 100, 90);
-            const yPct = Math.max(100 - (s.y / 80) * 100, 5);
+            const xPct = Math.min(((s.x - 5) / 42) * 70 + 10, 88);
+            const yPct = Math.max(90 - ((s.y - 40) / 40) * 75, 8);
+            const bubbleColor = s.ours
+              ? COLORS.accent
+              : s.rate >= 65
+                ? COLORS.success
+                : s.rate >= 55
+                  ? "#6366f1"
+                  : COLORS.muted;
             return (
               <div
                 key={s.brand}
@@ -2861,29 +2868,48 @@ function ProductReportView({ productName, onBack }: { productName: string; onBac
                   position: "absolute",
                   left: `${xPct}%`,
                   top: `${yPct}%`,
-                  width: s.size,
-                  height: s.size,
-                  borderRadius: "50%",
-                  background: s.ours ? COLORS.accent : COLORS.muted,
-                  opacity: 0.8,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
                   transform: "translate(-50%,-50%)",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 2,
                 }}
               >
-                <span
+                <div
                   style={{
-                    fontSize: 9,
-                    color: "#fff",
-                    fontWeight: 700,
-                    textAlign: "center",
-                    lineHeight: 1.1,
+                    width: s.size,
+                    height: s.size,
+                    borderRadius: "50%",
+                    background: bubbleColor,
+                    border: `3px solid ${s.ours ? "#312e81" : "#e2e8f0"}`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                 >
-                  {s.brand.split(" ")[0]}
-                  <br />
-                  {s.rate}%
+                  <span
+                    style={{
+                      fontSize: 11,
+                      color: "#fff",
+                      fontWeight: 700,
+                      textShadow: "0 1px 2px rgba(0,0,0,.4)",
+                    }}
+                  >
+                    {s.rate}%
+                  </span>
+                </div>
+                <span
+                  style={{
+                    fontSize: 10,
+                    fontWeight: s.ours ? 700 : 500,
+                    color: s.ours ? COLORS.accent : "var(--text)",
+                    whiteSpace: "nowrap",
+                    background: "rgba(255,255,255,.85)",
+                    padding: "1px 4px",
+                    borderRadius: 3,
+                  }}
+                >
+                  {s.brand.split("(")[0].trim()} {s.mentions}건
                 </span>
               </div>
             );
