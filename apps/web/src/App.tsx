@@ -2412,63 +2412,6 @@ function MetricCard({
   );
 }
 
-function FunnelStep({
-  stage,
-  volume,
-  rate,
-  problem,
-  width,
-}: {
-  stage: string;
-  volume: string;
-  rate?: string;
-  problem: string;
-  width: string;
-}) {
-  return (
-    <div
-      style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 6 }}
-    >
-      <div
-        style={{
-          width,
-          background: "linear-gradient(135deg, #4F46E5, #7C3AED)",
-          color: "#fff",
-          borderRadius: 6,
-          padding: "10px 16px",
-          textAlign: "center",
-          fontSize: 13,
-          fontWeight: 600,
-        }}
-      >
-        {stage} — {volume}
-      </div>
-      <div
-        style={{
-          fontSize: 11,
-          color: "var(--text-muted)",
-          margin: "4px 0",
-          textAlign: "center",
-          maxWidth: width,
-        }}
-      >
-        {rate && <span style={{ color: COLORS.danger, fontWeight: 600 }}>{rate} </span>}
-        {problem}
-      </div>
-      <div
-        style={{
-          width: 0,
-          height: 0,
-          borderLeft: "8px solid transparent",
-          borderRight: "8px solid transparent",
-          borderTop: `8px solid ${COLORS.accent}`,
-          opacity: 0.4,
-        }}
-      />
-    </div>
-  );
-}
-
 function TagBadge({ text, color }: { text: string; color: string }) {
   return (
     <span
@@ -2700,23 +2643,71 @@ function ProductReportView({ productName, onBack }: { productName: string; onBac
 
       {/* ═══ 2. 구매 퍼널 ═══ */}
       <SectionPanel num={2} title="소비자 인식 지도 — 구매 퍼널">
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            padding: "10px 0",
-          }}
-        >
-          {funnelData.map((f) => (
-            <FunnelStep key={f.stage} {...f} />
-          ))}
+        {/* 가로 퍼널 바 */}
+        <div style={{ marginBottom: 16 }}>
+          {funnelData.map((f, i) => {
+            const widthPct = [100, 49, 17, 6][i] ?? 10;
+            const barColors = [COLORS.accent, "#6366f1", COLORS.warn, COLORS.success];
+            return (
+              <div key={f.stage} style={{ marginBottom: 12 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                  <span style={{ fontSize: 13, fontWeight: 600, minWidth: 160 }}>{f.stage}</span>
+                  <span style={{ fontSize: 13, fontWeight: 700 }}>{f.volume}</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div
+                    style={{
+                      flex: 1,
+                      background: COLORS.bg,
+                      borderRadius: 6,
+                      height: 28,
+                      overflow: "hidden",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: `${widthPct}%`,
+                        height: "100%",
+                        background: barColors[i],
+                        borderRadius: 6,
+                        minWidth: 4,
+                        transition: "width .3s",
+                      }}
+                    />
+                  </div>
+                  <span
+                    style={{
+                      fontSize: 11,
+                      color: "var(--text-muted)",
+                      minWidth: 50,
+                      textAlign: "right",
+                    }}
+                  >
+                    {widthPct === 100 ? "" : `${widthPct}%`}
+                  </span>
+                </div>
+                <div
+                  style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 3, paddingLeft: 2 }}
+                >
+                  {f.rate && (
+                    <span style={{ color: COLORS.danger, fontWeight: 600, marginRight: 4 }}>
+                      {f.rate}
+                    </span>
+                  )}
+                  {f.problem}
+                </div>
+              </div>
+            );
+          })}
         </div>
-        <div style={{ display: "flex", gap: 12, marginTop: 12, flexWrap: "wrap" }}>
+        {/* 하단 요약 */}
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
           <div
             style={{
               flex: 1,
-              background: COLORS.bg,
+              minWidth: 200,
+              background: "#fef2f2",
+              border: "1px solid #fecaca",
               borderRadius: 6,
               padding: 10,
               fontSize: 12,
@@ -2729,7 +2720,9 @@ function ProductReportView({ productName, onBack }: { productName: string; onBac
           <div
             style={{
               flex: 1,
-              background: COLORS.bg,
+              minWidth: 200,
+              background: "#eff6ff",
+              border: "1px solid #bfdbfe",
               borderRadius: 6,
               padding: 10,
               fontSize: 12,
