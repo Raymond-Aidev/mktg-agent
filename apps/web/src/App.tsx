@@ -2255,6 +2255,59 @@ function KeywordReportView({ keyword, tenantId }: { keyword: DemoKeyword; tenant
     };
   }, [tenantId]);
 
+  // reportId가 "demo"면 시드된 샘플 리포트 표시
+  if (keyword.reportId === "demo") {
+    return (
+      <>
+        <div className="kw-report-header">
+          <div>
+            <span className={`rec-badge rec-${keyword.recommendation}`}>
+              {keyword.recommendation === "invest"
+                ? "투자"
+                : keyword.recommendation === "maintain"
+                  ? "유지"
+                  : "철수"}
+            </span>
+            <span className={`trend-indicator trend-${keyword.trendDirection}`}>
+              {keyword.trendDirection === "up"
+                ? "▲ 상승"
+                : keyword.trendDirection === "down"
+                  ? "▼ 하락"
+                  : "— 보합"}
+            </span>
+          </div>
+          <div className="kw-metrics-row">
+            <span>검색량 {keyword.searchVolume.toLocaleString()}</span>
+            <span>언급 {keyword.postCount30d}건</span>
+            <span>감성 {(keyword.sentimentScore * 100).toFixed(0)}%</span>
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 12, marginBottom: 16 }}>
+          <a
+            href={`/api/v1/reports/${SAMPLE_REPORT_ID}?format=html`}
+            target="_blank"
+            rel="noreferrer"
+            className="btn-primary"
+            style={{ width: "auto", padding: "10px 24px" }}
+          >
+            새 탭에서 보기
+          </a>
+        </div>
+        <iframe
+          title="분석 리포트"
+          className="sample-frame"
+          src={`/api/v1/reports/${SAMPLE_REPORT_ID}?format=html`}
+          style={{
+            width: "100%",
+            height: 800,
+            border: "1px solid var(--border)",
+            borderRadius: 12,
+          }}
+        />
+      </>
+    );
+  }
+
   return (
     <>
       <div className="kw-report-header">
