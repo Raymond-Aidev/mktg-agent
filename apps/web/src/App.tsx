@@ -4992,38 +4992,5 @@ function AdminPanel() {
 /* ══════════════════════ Sample Report View ══════════════════════ */
 
 function SampleReportView() {
-  return (
-    <>
-      <div className="page-title">
-        <h2>분석 샘플</h2>
-        <p>
-          "토토LP 교육" 제품의 AI 마케팅 분석 리포트 샘플입니다. 실제 서비스에서 생성되는 리포트와
-          동일한 형식입니다.
-        </p>
-      </div>
-      <div className="sample-actions">
-        <a
-          href={`/api/v1/reports/${SAMPLE_REPORT_ID}?format=html`}
-          target="_blank"
-          rel="noreferrer"
-          className="btn-primary"
-        >
-          새 탭에서 보기
-        </a>
-        <a
-          href={`/api/v1/reports/${SAMPLE_REPORT_ID}`}
-          target="_blank"
-          rel="noreferrer"
-          className="btn-secondary"
-        >
-          JSON 데이터
-        </a>
-      </div>
-      <iframe
-        title="샘플 분석 리포트"
-        className="sample-frame"
-        src={`/api/v1/reports/${SAMPLE_REPORT_ID}?format=html`}
-      />
-    </>
-  );
+  return <ProductReportView productName="토토LP 교육" />;
 }
