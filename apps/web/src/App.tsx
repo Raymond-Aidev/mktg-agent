@@ -95,67 +95,67 @@ interface DemoProduct {
 const DEMO_PRODUCTS: DemoProduct[] = [
   {
     id: "prod-1",
-    name: "어린이AI 지휘자",
-    description: "AI 동작인식 기반 클래식 음악 지휘 체험 앱",
+    name: "토토LP 교육",
+    description: "LP레코드 기반 유아 영어 교육 프로그램 — 촉각 학습 + AI 발음 분석",
     keywords: [
       {
         id: "kw-1a",
-        keyword: "어린이AI 지휘자",
-        searchVolume: 8200,
-        sentimentScore: 0.58,
-        postCount30d: 165,
+        keyword: "토토LP 교육",
+        searchVolume: 9400,
+        sentimentScore: 0.52,
+        postCount30d: 187,
         trendDirection: "up",
         competitorDensity: "low",
         recommendation: "invest",
-        lastAnalyzed: "2026-04-13T05:20:00Z",
+        lastAnalyzed: "2026-04-14T06:00:00Z",
         reportId: "demo",
       },
       {
         id: "kw-1b",
-        keyword: "어린이 음악교육 앱",
-        searchVolume: 14500,
-        sentimentScore: 0.45,
-        postCount30d: 320,
+        keyword: "유아 영어 교구 추천",
+        searchVolume: 18500,
+        sentimentScore: 0.48,
+        postCount30d: 420,
         trendDirection: "up",
         competitorDensity: "high",
         recommendation: "invest",
-        lastAnalyzed: "2026-04-12T10:00:00Z",
+        lastAnalyzed: "2026-04-13T10:00:00Z",
         reportId: null,
       },
       {
         id: "kw-1c",
-        keyword: "AI 클래식 교육",
-        searchVolume: 3200,
-        sentimentScore: 0.52,
-        postCount30d: 85,
-        trendDirection: "flat",
+        keyword: "LP레코드 파닉스",
+        searchVolume: 2800,
+        sentimentScore: 0.62,
+        postCount30d: 65,
+        trendDirection: "up",
         competitorDensity: "low",
-        recommendation: "maintain",
-        lastAnalyzed: "2026-04-10T14:00:00Z",
+        recommendation: "invest",
+        lastAnalyzed: "2026-04-12T14:00:00Z",
         reportId: null,
       },
       {
         id: "kw-1d",
-        keyword: "초등 음악 수업 앱",
-        searchVolume: 9800,
-        sentimentScore: 0.38,
-        postCount30d: 210,
+        keyword: "핑크퐁 스마트펜 비교",
+        searchVolume: 12200,
+        sentimentScore: 0.35,
+        postCount30d: 280,
         trendDirection: "flat",
         competitorDensity: "high",
         recommendation: "maintain",
-        lastAnalyzed: "2026-04-08T09:00:00Z",
+        lastAnalyzed: "2026-04-10T09:00:00Z",
         reportId: null,
       },
       {
         id: "kw-1e",
-        keyword: "유아 리듬 게임",
-        searchVolume: 6100,
-        sentimentScore: 0.22,
-        postCount30d: 145,
-        trendDirection: "down",
-        competitorDensity: "high",
-        recommendation: "abandon",
-        lastAnalyzed: "2026-04-05T11:00:00Z",
+        keyword: "촉각학습 영어",
+        searchVolume: 4100,
+        sentimentScore: 0.58,
+        postCount30d: 95,
+        trendDirection: "up",
+        competitorDensity: "low",
+        recommendation: "invest",
+        lastAnalyzed: "2026-04-08T11:00:00Z",
         reportId: null,
       },
     ],
@@ -1125,10 +1125,10 @@ function LandingContent({ onOpenLogin }: { onOpenLogin: (register?: boolean) => 
             <h3>키워드 설정</h3>
             <p>제품명 + 연관 키워드 직접 등록</p>
             <div className="step-example">
-              예: &apos;어린이AI 지휘자&apos;
+              예: &apos;토토LP 교육&apos;
               <br />
-              + 동작인식 / 음악교육 / 클래식앱
-              <br />+ 경쟁사: JoyTunes, 야마하
+              + 파닉스 / 촉각학습 / 유아영어
+              <br />+ 경쟁사: 핑크퐁, 윤선생
             </div>
             <div className="step-result">내 브랜드 전용 에이전트 생성</div>
           </div>
@@ -1165,40 +1165,44 @@ function LandingContent({ onOpenLogin }: { onOpenLogin: (register?: boolean) => 
       <section className="sample-section" id="sample">
         <h2>실제 분석 결과 샘플</h2>
         <p className="section-desc">
-          키워드 &apos;어린이AI 지휘자&apos;를 등록하고 AI 에이전트가 즉시 생성한 분석 결과입니다.
+          키워드 &apos;토토LP 교육&apos;를 등록하고 AI 에이전트가 즉시 생성한 분석 결과입니다.
         </p>
         <div className="sample-stats">
           <div className="sample-stat">
-            <div className="sample-stat-value">39%</div>
+            <div className="sample-stat-value">38%</div>
             <div className="sample-stat-label">SOV 점유율</div>
-            <div className="sample-stat-sub">경쟁사 대비 1위</div>
+            <div className="sample-stat-sub">경쟁 교구 대비 1위</div>
           </div>
           <div className="sample-stat">
-            <div className="sample-stat-value">58%</div>
+            <div className="sample-stat-value">52%</div>
             <div className="sample-stat-label">긍정 감성</div>
-            <div className="sample-stat-sub">부정 18% / 중립 24%</div>
+            <div className="sample-stat-sub">부정 26% / 중립 22%</div>
           </div>
           <div className="sample-stat">
-            <div className="sample-stat-value">5만건</div>
-            <div className="sample-stat-label">3개월 언급량</div>
-            <div className="sample-stat-sub">에듀테크 최고 성장</div>
+            <div className="sample-stat-value">1.2만</div>
+            <div className="sample-stat-label">6개월 판매 세트</div>
+            <div className="sample-stat-sub">유아 교구 급성장</div>
           </div>
           <div className="sample-stat sample-stat-alert">
-            <div className="sample-stat-value">2.5x</div>
+            <div className="sample-stat-value">1.8x</div>
             <div className="sample-stat-label">가격 저항 급증</div>
-            <div className="sample-stat-sub">즉시 대응 필요</div>
+            <div className="sample-stat-sub">14.8만원 장벽</div>
           </div>
         </div>
         <div className="sample-insights">
           <div className="insight-card insight-risk">
             <div className="insight-tag">리스크 자동 감지</div>
-            <p>맘카페 &apos;비싸다/해지&apos; 언급 14건 급증 (전주 대비 2.5배)</p>
-            <div className="insight-action">AI 즉시 권고: 무료 체험 14일 연장 + 연간 할인 도입</div>
+            <p>맘카페 &apos;비싸다/핑크퐁이 반값&apos; 언급 23건 급증 (전주 대비 1.8배)</p>
+            <div className="insight-action">
+              AI 즉시 권고: 3개월 무이자 할부 + 체험 후 구매 프로그램 도입
+            </div>
           </div>
           <div className="insight-card insight-gap">
             <div className="insight-tag">경쟁사 갭 발견</div>
-            <p>JoyTunes 학부모 리뷰 영상 월 8회, 평균 5만 조회</p>
-            <div className="insight-action">AI 즉시 권고: 숏폼 챌린지 시리즈 선제 런칭</div>
+            <p>핑크퐁 유튜브 언박싱 리뷰 월 12회, 평균 8만 조회 (구매 링크 포함)</p>
+            <div className="insight-action">
+              AI 즉시 권고: LP 언박싱 + 아이 반응 숏폼 시리즈 선제 런칭
+            </div>
           </div>
         </div>
         <div className="sample-report-cta">
