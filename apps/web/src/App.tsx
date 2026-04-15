@@ -465,9 +465,118 @@ export function App() {
       ? (currentProduct.keywords.find((k) => k.id === view.keywordId) ?? null)
       : null;
 
-  if (view.screen === "landing") {
-    return <LandingPage onLogin={handleLogin} />;
-  }
+  // ── 로그인 모달 상태 (App 레벨) ──
+  const [showLogin, setShowLogin] = useState(false);
+  const [isRegister, setIsRegister] = useState(false);
+  const urlResetToken = new URLSearchParams(window.location.search).get("resetToken");
+  const [resetMode, setResetMode] = useState<"off" | "request" | "token" | "done">(
+    urlResetToken ? "token" : "off",
+  );
+  const [resetToken, setResetToken] = useState(urlResetToken ?? "");
+  const [verifyMode, setVerifyMode] = useState(false);
+  const [verifyEmail, setVerifyEmail] = useState("");
+  const [verifyCode, setVerifyCode] = useState("");
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [loginPasswordConfirm, setLoginPasswordConfirm] = useState("");
+  const [showPw, setShowPw] = useState(false);
+  const [loginName, setLoginName] = useState("");
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [authSuccess, setAuthSuccess] = useState<string | null>(null);
+  const [loginLoading, setLoginLoading] = useState(false);
+
+  useEffect(() => {
+    if (urlResetToken) {
+      setShowLogin(true);
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, [urlResetToken]);
+
+  const closeModal = () => {
+    setShowLogin(false);
+    setVerifyMode(false);
+    setVerifyEmail("");
+    setVerifyCode("");
+    setResetMode("off");
+    setResetToken("");
+    setAuthError(null);
+    setAuthSuccess(null);
+  };
+
+  const openLogin = (register = false) => {
+    closeModal();
+    setShowLogin(true);
+    setIsRegister(register);
+  };
+
+  const goBackToLogin = () => {
+    setResetMode("off");
+    setResetToken("");
+    setLoginPassword("");
+    setAuthError(null);
+    setAuthSuccess(null);
+  };
+
+  const enterDemo = () => {
+    closeModal();
+    clearToken();
+    handleLogin({
+      id: "demo",
+      tenantId: DEFAULT_TENANT,
+      email: "demo@goldencheck.kr",
+      name: "Demo User",
+      role: "owner",
+    });
+  };
+
+  const handleAuthSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError(null);
+    setAuthSuccess(null);
+    if ((isRegister || resetMode === "token") && loginPassword !== loginPasswordConfirm) {
+      setAuthError("비밀번호가 일치하지 않습니다");
+      return;
+    }
+    setLoginLoading(true);
+    try {
+      if (verifyMode) {
+        const res = await apiVerifyEmail(verifyEmail, verifyCode);
+        closeModal();
+        handleLogin(res.user);
+        return;
+      }
+      if (resetMode === "request") {
+        await apiForgotPassword(loginEmail);
+        setAuthSuccess("재설정 링크가 이메일로 발송되었습니다");
+        setResetMode("token");
+      } else if (resetMode === "token") {
+        await apiResetPassword(resetToken, loginPassword);
+        setAuthSuccess("비밀번호가 변경되었습니다. 로그인하세요.");
+        setResetMode("done");
+      } else if (isRegister) {
+        const regRes = await apiRegister(loginEmail, loginPassword, loginName || undefined);
+        if (regRes.requireVerification) {
+          setVerifyMode(true);
+          setVerifyEmail(regRes.email);
+          setAuthSuccess("인증 코드가 이메일로 발송되었습니다");
+        }
+      } else {
+        const res = await apiLogin(loginEmail, loginPassword);
+        closeModal();
+        handleLogin(res.user);
+      }
+    } catch (err) {
+      if (err instanceof EmailNotVerifiedError) {
+        setVerifyMode(true);
+        setVerifyEmail(err.email);
+        setAuthSuccess("이메일 인증이 필요합니다. 인증 코드를 발송했습니다.");
+        return;
+      }
+      setAuthError((err as Error).message);
+    } finally {
+      setLoginLoading(false);
+    }
+  };
 
   if (authLoading) {
     return (
@@ -485,282 +594,85 @@ export function App() {
     );
   }
 
+  const isLanding = view.screen === "landing";
+
   return (
-    <div className="app">
+    <div className={isLanding ? "landing" : "app"}>
       <ToastContainer toasts={toasts} />
-      <nav className="global-nav">
+
+      {/* ── 통합 네비게이션 ── */}
+      <nav className={isLanding ? "landing-nav" : "global-nav"}>
         <div className="nav-left">
           <span
             className="nav-logo"
             onClick={() => {
-              setView({ screen: "products" });
+              if (authUser) setView({ screen: "products" });
+              else {
+                setView({ screen: "landing" });
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }
             }}
+            style={{ cursor: "pointer" }}
           >
             GoldenCheck
           </span>
         </div>
-        <div className="nav-links">
-          <span
-            className={`nav-link ${view.screen === "products" ? "nav-active" : ""}`}
-            onClick={() => setView({ screen: "products" })}
-          >
-            대시보드
-          </span>
-          <span
-            className={`nav-link ${view.screen === "sample" ? "nav-active" : ""}`}
-            onClick={() => setView({ screen: "sample" })}
-          >
-            분석 샘플
-          </span>
-          {authUser?.role === "admin" && (
-            <span
-              className={`nav-link ${view.screen === "admin" ? "nav-active" : ""}`}
-              onClick={() => setView({ screen: "admin" })}
-            >
-              관리자
-            </span>
+        <div className={isLanding ? "landing-nav-links" : "nav-links"}>
+          {authUser ? (
+            <>
+              <span
+                className={`nav-link ${view.screen === "products" || view.screen === "product-detail" || view.screen === "keyword-timeline" ? "nav-active" : ""}`}
+                onClick={() => setView({ screen: "products" })}
+              >
+                내 제품
+              </span>
+              <span
+                className={`nav-link ${view.screen === "sample" ? "nav-active" : ""}`}
+                onClick={() => setView({ screen: "sample" })}
+              >
+                분석 샘플
+              </span>
+              <span
+                className={`nav-link ${view.screen === "settings" ? "nav-active" : ""}`}
+                onClick={() => setView({ screen: "settings" })}
+              >
+                설정
+              </span>
+              {authUser.role === "admin" && (
+                <span
+                  className={`nav-link ${view.screen === "admin" ? "nav-active" : ""}`}
+                  onClick={() => setView({ screen: "admin" })}
+                >
+                  관리자
+                </span>
+              )}
+            </>
+          ) : (
+            <>
+              <a href="#features">기능</a>
+              <a href="#sample">분석 샘플</a>
+              <a href="#pricing">요금제</a>
+              <a href="#faq">FAQ</a>
+            </>
           )}
         </div>
         <div className="nav-right">
-          <span className="nav-user nav-user-link" onClick={() => setView({ screen: "settings" })}>
-            {authUser?.name ?? authUser?.email ?? "Demo User"}
-          </span>
-          <button type="button" className="nav-logout" onClick={handleLogout}>
-            로그아웃
-          </button>
+          {authUser ? (
+            <>
+              <span className="nav-user">{authUser.name ?? authUser.email}</span>
+              <button type="button" className="nav-logout" onClick={handleLogout}>
+                로그아웃
+              </button>
+            </>
+          ) : (
+            <button type="button" className="btn-login" onClick={() => openLogin(false)}>
+              로그인
+            </button>
+          )}
         </div>
       </nav>
 
-      <div className="app-body">
-        {view.screen === "products" && (
-          <ProductsGrid
-            tenantId={tenantId}
-            demoProducts={DEMO_PRODUCTS}
-            onSelect={(id, isDemo) => setView({ screen: "product-detail", productId: id, isDemo })}
-          />
-        )}
-
-        {view.screen === "product-detail" && view.isDemo && currentProduct && (
-          <ProductDetail
-            product={currentProduct}
-            onKeywordSelect={(kwId) =>
-              setView({
-                screen: "keyword-report",
-                productId: currentProduct.id,
-                keywordId: kwId,
-                isDemo: true,
-              })
-            }
-          />
-        )}
-
-        {view.screen === "product-detail" && !view.isDemo && (
-          <RealProductDetail
-            tenantId={tenantId}
-            productId={view.productId}
-            onKeywordSelect={(kwId, kwName) =>
-              setView({
-                screen: "keyword-timeline",
-                productId: view.productId,
-                keywordId: kwId,
-                keywordName: kwName,
-              })
-            }
-          />
-        )}
-
-        {view.screen === "keyword-report" && view.isDemo && currentProduct && currentKeyword && (
-          <KeywordReportView keyword={currentKeyword} tenantId={tenantId} />
-        )}
-
-        {view.screen === "keyword-report" && !view.isDemo && (
-          <KeywordReportView
-            keyword={{
-              id: view.keywordId,
-              keyword: view.keywordId,
-              searchVolume: 0,
-              sentimentScore: 0,
-              postCount30d: 0,
-              trendDirection: "flat",
-              competitorDensity: "medium",
-              recommendation: "maintain",
-              lastAnalyzed: null,
-              reportId: null,
-            }}
-            tenantId={tenantId}
-          />
-        )}
-
-        {view.screen === "keyword-timeline" && (
-          <KeywordTimelineView
-            tenantId={tenantId}
-            productId={view.productId}
-            keywordId={view.keywordId}
-            keywordName={view.keywordName}
-            onBack={() => setView({ screen: "product-detail", productId: view.productId })}
-          />
-        )}
-
-        {view.screen === "admin" && authUser?.role === "admin" && <AdminPanel />}
-
-        {view.screen === "settings" && authUser && (
-          <SettingsPage user={authUser} onUpdate={(u) => setAuthUser(u)} />
-        )}
-
-        {view.screen === "sample" && <SampleReportView />}
-      </div>
-
-      <footer className="app-footer">
-        <a href="/terms">이용약관</a>
-        <a href="/privacy">개인정보처리방침</a>
-        <a href="/about">사업자 정보</a>
-      </footer>
-    </div>
-  );
-}
-
-/* ══════════════════════ Landing Page ══════════════════════ */
-
-function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
-  const [showLogin, setShowLogin] = useState(false);
-  const [isRegister, setIsRegister] = useState(false);
-  const urlResetToken = new URLSearchParams(window.location.search).get("resetToken");
-  const [resetMode, setResetMode] = useState<"off" | "request" | "token" | "done">(
-    urlResetToken ? "token" : "off",
-  );
-  const [resetToken, setResetToken] = useState(urlResetToken ?? "");
-  const [verifyMode, setVerifyMode] = useState(false);
-  const [verifyEmail, setVerifyEmail] = useState("");
-  const [verifyCode, setVerifyCode] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [passwordConfirm, setPasswordConfirm] = useState("");
-  const [showPw, setShowPw] = useState(false);
-  const [name, setName] = useState("");
-  const [authError, setAuthError] = useState<string | null>(null);
-  const [authSuccess, setAuthSuccess] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  // 이메일 재설정 링크로 진입 시 모달 자동 표시
-  useEffect(() => {
-    if (urlResetToken) {
-      setShowLogin(true);
-      // URL에서 토큰 파라미터 제거
-      window.history.replaceState({}, "", window.location.pathname);
-    }
-  }, [urlResetToken]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setAuthError(null);
-    setAuthSuccess(null);
-    if ((isRegister || resetMode === "token") && password !== passwordConfirm) {
-      setAuthError("비밀번호가 일치하지 않습니다");
-      return;
-    }
-    setLoading(true);
-    try {
-      if (verifyMode) {
-        const res = await apiVerifyEmail(verifyEmail, verifyCode);
-        onLogin(res.user);
-        return;
-      }
-      if (resetMode === "request") {
-        await apiForgotPassword(email);
-        setAuthSuccess("재설정 링크가 이메일로 발송되었습니다");
-        setResetMode("token");
-      } else if (resetMode === "token") {
-        await apiResetPassword(resetToken, password);
-        setAuthSuccess("비밀번호가 변경되었습니다. 로그인하세요.");
-        setResetMode("done");
-      } else if (isRegister) {
-        const regRes = await apiRegister(email, password, name || undefined);
-        if (regRes.requireVerification) {
-          setVerifyMode(true);
-          setVerifyEmail(regRes.email);
-          setAuthSuccess("인증 코드가 이메일로 발송되었습니다");
-        }
-      } else {
-        const res = await apiLogin(email, password);
-        onLogin(res.user);
-      }
-    } catch (err) {
-      if (err instanceof EmailNotVerifiedError) {
-        setVerifyMode(true);
-        setVerifyEmail(err.email);
-        setAuthSuccess("이메일 인증이 필요합니다. 인증 코드를 발송했습니다.");
-        return;
-      }
-      setAuthError((err as Error).message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const goBackToLogin = () => {
-    setResetMode("off");
-    setResetToken("");
-    setPassword("");
-    setAuthError(null);
-    setAuthSuccess(null);
-  };
-
-  const closeModal = () => {
-    setShowLogin(false);
-    setVerifyMode(false);
-    setVerifyEmail("");
-    setVerifyCode("");
-    setResetMode("off");
-    setResetToken("");
-    setAuthError(null);
-    setAuthSuccess(null);
-  };
-
-  const enterDemo = () => {
-    clearToken();
-    onLogin({
-      id: "demo",
-      tenantId: DEFAULT_TENANT,
-      email: "demo@goldencheck.kr",
-      name: "Demo User",
-      role: "owner",
-    });
-  };
-
-  return (
-    <div className="landing">
-      <nav className="landing-nav">
-        <span
-          className="nav-logo"
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          style={{ cursor: "pointer" }}
-        >
-          GoldenCheck
-        </span>
-        <div className="landing-nav-links">
-          <a href="#features">기능</a>
-          <a href="#sample">분석 샘플</a>
-          <a href="#pricing">요금제</a>
-          <a href="#faq">FAQ</a>
-          <button
-            type="button"
-            className="btn-login"
-            onClick={() => {
-              setShowLogin(true);
-              setIsRegister(false);
-              setVerifyMode(false);
-              setVerifyEmail("");
-              setVerifyCode("");
-              setResetMode("off");
-              setAuthError(null);
-              setAuthSuccess(null);
-            }}
-          >
-            로그인
-          </button>
-        </div>
-      </nav>
-
+      {/* ── 로그인/회원가입 모달 ── */}
       {showLogin && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
@@ -773,7 +685,7 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
                     ? "회원가입"
                     : "로그인"}
             </h2>
-            <form className="login-form" onSubmit={handleSubmit}>
+            <form className="login-form" onSubmit={handleAuthSubmit}>
               {verifyMode && (
                 <>
                   <p style={{ fontSize: 14, color: "#666", margin: "0 0 12px" }}>
@@ -798,9 +710,9 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
                   <button
                     type="submit"
                     className="btn-primary-lg"
-                    disabled={loading || verifyCode.length !== 6}
+                    disabled={loginLoading || verifyCode.length !== 6}
                   >
-                    {loading ? "처리 중..." : "인증 완료"}
+                    {loginLoading ? "처리 중..." : "인증 완료"}
                   </button>
                   <p className="login-sub">
                     <span
@@ -825,8 +737,8 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
                   <input
                     type="email"
                     placeholder="name@company.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={loginEmail}
+                    onChange={(e) => setLoginEmail(e.target.value)}
                     required
                   />
                 </>
@@ -849,8 +761,8 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
                     <input
                       type={showPw ? "text" : "password"}
                       placeholder="8자 이상, 대소문자+숫자+특수문자"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      value={loginPassword}
+                      onChange={(e) => setLoginPassword(e.target.value)}
                       required
                       minLength={8}
                     />
@@ -863,8 +775,8 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
                     <input
                       type={showPw ? "text" : "password"}
                       placeholder="비밀번호를 다시 입력"
-                      value={passwordConfirm}
-                      onChange={(e) => setPasswordConfirm(e.target.value)}
+                      value={loginPasswordConfirm}
+                      onChange={(e) => setLoginPasswordConfirm(e.target.value)}
                       required
                       minLength={8}
                     />
@@ -884,8 +796,8 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
                       <input
                         type="text"
                         placeholder="홍길동"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
+                        value={loginName}
+                        onChange={(e) => setLoginName(e.target.value)}
                       />
                     </>
                   )}
@@ -893,8 +805,8 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
                   <input
                     type="email"
                     placeholder="name@company.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={loginEmail}
+                    onChange={(e) => setLoginEmail(e.target.value)}
                     required
                   />
                   <label>비밀번호</label>
@@ -904,8 +816,8 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
                       placeholder={
                         isRegister ? "8자 이상, 대소문자+숫자+특수문자" : "비밀번호 입력"
                       }
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      value={loginPassword}
+                      onChange={(e) => setLoginPassword(e.target.value)}
                       required
                       minLength={isRegister ? 8 : 1}
                     />
@@ -916,19 +828,21 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
                   {isRegister && (
                     <>
                       <ul className="pw-rules">
-                        <li className={password.length >= 8 ? "pw-ok" : ""}>8자 이상</li>
-                        <li className={/[a-z]/.test(password) ? "pw-ok" : ""}>소문자</li>
-                        <li className={/[A-Z]/.test(password) ? "pw-ok" : ""}>대문자</li>
-                        <li className={/[0-9]/.test(password) ? "pw-ok" : ""}>숫자</li>
-                        <li className={/[^a-zA-Z0-9]/.test(password) ? "pw-ok" : ""}>특수문자</li>
+                        <li className={loginPassword.length >= 8 ? "pw-ok" : ""}>8자 이상</li>
+                        <li className={/[a-z]/.test(loginPassword) ? "pw-ok" : ""}>소문자</li>
+                        <li className={/[A-Z]/.test(loginPassword) ? "pw-ok" : ""}>대문자</li>
+                        <li className={/[0-9]/.test(loginPassword) ? "pw-ok" : ""}>숫자</li>
+                        <li className={/[^a-zA-Z0-9]/.test(loginPassword) ? "pw-ok" : ""}>
+                          특수문자
+                        </li>
                       </ul>
                       <label>비밀번호 확인</label>
                       <div className="pw-field">
                         <input
                           type={showPw ? "text" : "password"}
                           placeholder="비밀번호를 다시 입력"
-                          value={passwordConfirm}
-                          onChange={(e) => setPasswordConfirm(e.target.value)}
+                          value={loginPasswordConfirm}
+                          onChange={(e) => setLoginPasswordConfirm(e.target.value)}
                           required
                           minLength={8}
                         />
@@ -949,8 +863,8 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
                     로그인으로 돌아가기
                   </button>
                 ) : (
-                  <button type="submit" className="btn-primary-lg" disabled={loading}>
-                    {loading
+                  <button type="submit" className="btn-primary-lg" disabled={loginLoading}>
+                    {loginLoading
                       ? "처리 중..."
                       : resetMode === "request"
                         ? "재설정 링크 보내기"
@@ -1028,6 +942,110 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
         </div>
       )}
 
+      {/* ── 메인 콘텐츠 영역 ── */}
+      {isLanding && <LandingContent onOpenLogin={openLogin} />}
+
+      {!isLanding && (
+        <div className="app-body">
+          {view.screen === "products" && (
+            <ProductsGrid
+              tenantId={tenantId}
+              demoProducts={DEMO_PRODUCTS}
+              onSelect={(id, isDemo) =>
+                setView({ screen: "product-detail", productId: id, isDemo })
+              }
+            />
+          )}
+
+          {view.screen === "product-detail" && view.isDemo && currentProduct && (
+            <ProductDetail
+              product={currentProduct}
+              onKeywordSelect={(kwId) =>
+                setView({
+                  screen: "keyword-report",
+                  productId: currentProduct.id,
+                  keywordId: kwId,
+                  isDemo: true,
+                })
+              }
+            />
+          )}
+
+          {view.screen === "product-detail" && !view.isDemo && (
+            <RealProductDetail
+              tenantId={tenantId}
+              productId={view.productId}
+              onKeywordSelect={(kwId, kwName) =>
+                setView({
+                  screen: "keyword-timeline",
+                  productId: view.productId,
+                  keywordId: kwId,
+                  keywordName: kwName,
+                })
+              }
+            />
+          )}
+
+          {view.screen === "keyword-report" && view.isDemo && currentProduct && currentKeyword && (
+            <KeywordReportView keyword={currentKeyword} tenantId={tenantId} />
+          )}
+
+          {view.screen === "keyword-report" && !view.isDemo && (
+            <KeywordReportView
+              keyword={{
+                id: view.keywordId,
+                keyword: view.keywordId,
+                searchVolume: 0,
+                sentimentScore: 0,
+                postCount30d: 0,
+                trendDirection: "flat",
+                competitorDensity: "medium",
+                recommendation: "maintain",
+                lastAnalyzed: null,
+                reportId: null,
+              }}
+              tenantId={tenantId}
+            />
+          )}
+
+          {view.screen === "keyword-timeline" && (
+            <KeywordTimelineView
+              tenantId={tenantId}
+              productId={view.productId}
+              keywordId={view.keywordId}
+              keywordName={view.keywordName}
+              onBack={() => setView({ screen: "product-detail", productId: view.productId })}
+            />
+          )}
+
+          {view.screen === "admin" && authUser?.role === "admin" && <AdminPanel />}
+
+          {view.screen === "settings" && authUser && (
+            <SettingsPage user={authUser} onUpdate={(u) => setAuthUser(u)} />
+          )}
+
+          {view.screen === "sample" && <SampleReportView />}
+        </div>
+      )}
+
+      <footer className={isLanding ? "landing-footer" : "app-footer"}>
+        <div className="footer-left">GoldenCheck &copy; 2026</div>
+        <div className="footer-links">
+          <a href="/terms">이용약관</a>
+          <a href="/privacy">개인정보처리방침</a>
+          <a href="/about">사업자 정보</a>
+          <a href="mailto:konnect-operation@konnect-ai.net">문의</a>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+/* ══════════════════════ Landing Content ══════════════════════ */
+
+function LandingContent({ onOpenLogin }: { onOpenLogin: (register?: boolean) => void }) {
+  return (
+    <>
       {/* ── Hero ── */}
       <section className="hero hero-dark">
         <div className="hero-badge">AI Marketing Agent</div>
@@ -1042,14 +1060,7 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
           기존 서비스에 없는 데이터, 실시간 이슈, 경쟁사의 오늘 움직임까지.
         </p>
         <div className="hero-cta">
-          <button
-            type="button"
-            className="btn-primary-lg"
-            onClick={() => {
-              setShowLogin(true);
-              setIsRegister(true);
-            }}
-          >
+          <button type="button" className="btn-primary-lg" onClick={() => onOpenLogin(true)}>
             무료로 시작하기
           </button>
           <button
@@ -1116,7 +1127,7 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
             <h3>키워드 설정</h3>
             <p>제품명 + 연관 키워드 직접 등록</p>
             <div className="step-example">
-              예: '어린이AI 지휘자'
+              예: &apos;어린이AI 지휘자&apos;
               <br />
               + 동작인식 / 음악교육 / 클래식앱
               <br />+ 경쟁사: JoyTunes, 야마하
@@ -1156,7 +1167,7 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
       <section className="sample-section" id="sample">
         <h2>실제 분석 결과 샘플</h2>
         <p className="section-desc">
-          키워드 '어린이AI 지휘자'를 등록하고 AI 에이전트가 즉시 생성한 분석 결과입니다.
+          키워드 &apos;어린이AI 지휘자&apos;를 등록하고 AI 에이전트가 즉시 생성한 분석 결과입니다.
         </p>
         <div className="sample-stats">
           <div className="sample-stat">
@@ -1180,11 +1191,10 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
             <div className="sample-stat-sub">즉시 대응 필요</div>
           </div>
         </div>
-
         <div className="sample-insights">
           <div className="insight-card insight-risk">
             <div className="insight-tag">리스크 자동 감지</div>
-            <p>맘카페 '비싸다/해지' 언급 14건 급증 (전주 대비 2.5배)</p>
+            <p>맘카페 &apos;비싸다/해지&apos; 언급 14건 급증 (전주 대비 2.5배)</p>
             <div className="insight-action">AI 즉시 권고: 무료 체험 14일 연장 + 연간 할인 도입</div>
           </div>
           <div className="insight-card insight-gap">
@@ -1193,7 +1203,6 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
             <div className="insight-action">AI 즉시 권고: 숏폼 챌린지 시리즈 선제 런칭</div>
           </div>
         </div>
-
         <div className="sample-report-cta">
           <a
             href={`/api/v1/reports/${SAMPLE_REPORT_ID}?format=html`}
@@ -1269,14 +1278,7 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
               <li>기본 리포트</li>
               <li>이메일 알림</li>
             </ul>
-            <button
-              type="button"
-              className="btn-primary"
-              onClick={() => {
-                setShowLogin(true);
-                setIsRegister(true);
-              }}
-            >
+            <button type="button" className="btn-primary" onClick={() => onOpenLogin(true)}>
               시작하기
             </button>
           </div>
@@ -1291,14 +1293,7 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
               <li>리스크 시그널 실시간 알림</li>
               <li>전담 매니저</li>
             </ul>
-            <button
-              type="button"
-              className="btn-primary"
-              onClick={() => {
-                setShowLogin(true);
-                setIsRegister(true);
-              }}
-            >
+            <button type="button" className="btn-primary" onClick={() => onOpenLogin(true)}>
               시작하기
             </button>
           </div>
@@ -1378,28 +1373,11 @@ function LandingPage({ onLogin }: { onLogin: (user: AuthUser) => void }) {
           <span>완전 맞춤 설정</span>
           <span>기존 서비스 대비 직접 비교 환영</span>
         </div>
-        <button
-          type="button"
-          className="btn-primary-lg"
-          onClick={() => {
-            setShowLogin(true);
-            setIsRegister(true);
-          }}
-        >
+        <button type="button" className="btn-primary-lg" onClick={() => onOpenLogin(true)}>
           무료 체험 시작하기
         </button>
       </section>
-
-      <footer className="landing-footer">
-        <div className="footer-left">GoldenCheck &copy; 2026</div>
-        <div className="footer-links">
-          <a href="/terms">이용약관</a>
-          <a href="/privacy">개인정보처리방침</a>
-          <a href="/about">사업자 정보</a>
-          <a href="mailto:konnect-operation@konnect-ai.net">문의</a>
-        </div>
-      </footer>
-    </div>
+    </>
   );
 }
 
