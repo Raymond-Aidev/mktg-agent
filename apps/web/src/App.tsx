@@ -479,6 +479,182 @@ function ToastContainer({ toasts }: { toasts: ToastItem[] }) {
   );
 }
 
+/* ══════════════════════ Profile Dropdown ══════════════════════ */
+
+function ProfileDropdown({
+  user,
+  onSettings,
+  onLogout,
+}: {
+  user: AuthUser;
+  onSettings: () => void;
+  onLogout: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  // 외부 클릭으로 닫기
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  // 이니셜 생성
+  const name = user.name ?? user.email;
+  const initials = name.length <= 2 ? name.toUpperCase() : name.slice(0, 2).toUpperCase();
+
+  const roleLabel: Record<string, string> = { admin: "관리자", owner: "소유자" };
+  const roleText = roleLabel[user.role] ?? "멤버";
+
+  const itemStyle: React.CSSProperties = {
+    display: "block",
+    width: "100%",
+    padding: "9px 16px",
+    fontSize: 13,
+    border: "none",
+    background: "none",
+    textAlign: "left",
+    cursor: "pointer",
+    color: "var(--text)",
+  };
+
+  return (
+    <div ref={ref} style={{ position: "relative" }}>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          background: "none",
+          border: "none",
+          cursor: "pointer",
+          padding: "4px 0",
+        }}
+      >
+        <div
+          style={{
+            width: 32,
+            height: 32,
+            borderRadius: "50%",
+            background: "#4F46E5",
+            color: "#fff",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 13,
+            fontWeight: 700,
+          }}
+        >
+          {initials}
+        </div>
+        <span style={{ fontSize: 13, color: "var(--text)", fontWeight: 500 }}>
+          {user.name ?? user.email.split("@")[0]}
+        </span>
+        <span
+          style={{
+            fontSize: 10,
+            color: "var(--text-muted)",
+            transition: "transform .2s",
+            transform: open ? "rotate(180deg)" : "none",
+          }}
+        >
+          ▼
+        </span>
+      </button>
+
+      {open && (
+        <div
+          style={{
+            position: "absolute",
+            right: 0,
+            top: "calc(100% + 6px)",
+            width: 240,
+            background: "var(--bg-card, #fff)",
+            border: "1px solid var(--border)",
+            borderRadius: 10,
+            boxShadow: "0 8px 24px rgba(0,0,0,.12)",
+            zIndex: 999,
+            overflow: "hidden",
+          }}
+        >
+          {/* 프로필 정보 */}
+          <div style={{ padding: "14px 16px", borderBottom: "1px solid var(--border)" }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 2 }}>
+              {user.name ?? "이름 미설정"}
+            </div>
+            <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{user.email}</div>
+            <div style={{ fontSize: 11, color: "#4F46E5", marginTop: 4, fontWeight: 500 }}>
+              {roleText}
+            </div>
+          </div>
+
+          {/* 메뉴 항목 */}
+          <div style={{ padding: "4px 0", borderBottom: "1px solid var(--border)" }}>
+            <button
+              type="button"
+              style={itemStyle}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "var(--bg-subtle, #f1f5f9)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "none";
+              }}
+              onClick={() => {
+                setOpen(false);
+                onSettings();
+              }}
+            >
+              프로필 설정
+            </button>
+            <button
+              type="button"
+              style={itemStyle}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "var(--bg-subtle, #f1f5f9)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "none";
+              }}
+              onClick={() => {
+                setOpen(false);
+                onSettings();
+              }}
+            >
+              비밀번호 변경
+            </button>
+          </div>
+
+          {/* 로그아웃 */}
+          <div style={{ padding: "4px 0" }}>
+            <button
+              type="button"
+              style={{ ...itemStyle, color: "var(--danger, #dc2626)" }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "var(--bg-subtle, #f1f5f9)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "none";
+              }}
+              onClick={() => {
+                setOpen(false);
+                onLogout();
+              }}
+            >
+              로그아웃
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ══════════════════════ App Root ══════════════════════ */
 
 export function App() {
@@ -691,12 +867,6 @@ export function App() {
               >
                 분석 샘플
               </span>
-              <span
-                className={`nav-link ${view.screen === "settings" ? "nav-active" : ""}`}
-                onClick={() => setView({ screen: "settings" })}
-              >
-                설정
-              </span>
               {authUser.role === "admin" && (
                 <span
                   className={`nav-link ${view.screen === "admin" ? "nav-active" : ""}`}
@@ -717,12 +887,11 @@ export function App() {
         </div>
         <div className="nav-right">
           {authUser ? (
-            <>
-              <span className="nav-user">{authUser.name ?? authUser.email}</span>
-              <button type="button" className="nav-logout" onClick={handleLogout}>
-                로그아웃
-              </button>
-            </>
+            <ProfileDropdown
+              user={authUser}
+              onSettings={() => setView({ screen: "settings" })}
+              onLogout={handleLogout}
+            />
           ) : (
             <button type="button" className="btn-login" onClick={() => openLogin(false)}>
               로그인
