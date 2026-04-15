@@ -447,13 +447,6 @@ export function App() {
     setView({ screen: "landing" });
   };
 
-  const goBack = () => {
-    if (view.screen === "keyword-report")
-      setView({ screen: "product-detail", productId: view.productId });
-    else if (view.screen === "product-detail") setView({ screen: "products" });
-    else setView({ screen: "products" });
-  };
-
   const currentProduct =
     view.screen === "product-detail" || view.screen === "keyword-report"
       ? (DEMO_PRODUCTS.find((p) => p.id === view.productId) ?? null)
@@ -530,17 +523,6 @@ export function App() {
       </nav>
 
       <div className="app-body">
-        {view.screen !== "products" &&
-          view.screen !== "admin" &&
-          view.screen !== "sample" &&
-          view.screen !== "settings" && (
-            <div className="back-row">
-              <button type="button" className="back-btn" onClick={goBack}>
-                ← 뒤로
-              </button>
-            </div>
-          )}
-
         {view.screen === "products" && (
           <ProductsGrid
             tenantId={tenantId}
