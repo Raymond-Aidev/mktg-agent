@@ -28,7 +28,7 @@ MVP 목표: 2026년 10월 (볼로냐 북페어 시즌 대비).
 ## 현재 Phase
 Phase 7 — W22 — 관측성 (Prometheus /metrics · Sentry · 부하 테스트 · DLQ 플레이북)
 
-## 구현 완료 현황 (2026-04-14 기준)
+## 구현 완료 현황 (2026-04-15 기준)
 
 ### DB 스키마 (12 마이그레이션)
 - 0001 extensions · 0002 master tables (buyers/competitors/market_trends/fx_rates/rights_deals/bestsellers)
@@ -50,20 +50,37 @@ Phase 7 — W22 — 관측성 (Prometheus /metrics · Sentry · 부하 테스트
 - 어드민: admin-users (회원 관리/통계), admin-batch, operator
 - 기타: events, email-webhook, metrics, legal (terms/privacy/about/pricing)
 
-### 프론트엔드 (React SPA, 21개 컴포넌트)
-- 랜딩 페이지: 히어로, 기능 소개, 분석 샘플 (iframe), 3단계 요금제, FAQ, 로그인/회원가입 모달
-- 글로벌 네비게이션: sticky 상단 바, 대시보드/분석 샘플/설정/관리자, 사용자명, 로그아웃
+### 프론트엔드 (React SPA, 25개 컴포넌트)
+- 랜딩 페이지: 히어로, 기능 소개, 분석 샘플, 3단계 요금제, FAQ, 로그인/회원가입 모달
+- 글로벌 네비게이션: sticky 상단 바, 대시보드/분석 샘플/관리자 + 이니셜 아바타 프로필 드롭다운
+- 프로필 드롭다운: 이니셜 아바타 + 이름·이메일·역할 표시 + 프로필 설정/비밀번호 변경/로그아웃
 - 제품/키워드 포트폴리오: 3단계 드릴다운 (제품 목록 → 키워드 테이블 → 분석 리포트)
-- 제품 CRUD: API 연동 추가/삭제 + 데모 제품 병렬 표시
-- 분석 리포트: 시각화 (도넛 차트, SOV 바, 포지셔닝 맵, 콘텐츠 갭, 리스크 시그널, 타임라인)
-- 분석 샘플: 랜딩 페이지 + 로그인 후 탭에서 "어린이AI 지휘자" 리포트 표시
+- 제품 상세: "통합 분석 리포트 보기" 버튼 (토토LP 교육 제품)
+- 통합 분석 리포트 (ProductReportView): 10개 시각화 섹션
+  - KPI 대시보드 6개 카드 (검색량/SOV/긍정률/이탈률/미포획/매출잠재력)
+  - 구매 퍼널 가로 바 차트 (인지→탐색→비교→구매)
+  - SOV-긍정률 버블 매트릭스 (경쟁사 포지션 시각화)
+  - 가격 비교 양방향 바 차트 (초기 가격 vs 1년 TCO)
+  - 경쟁 SOV 바 + 전장별 승/패 카드 + 해자 태그
+  - 전환 병목 손실 카드 (색상 코딩)
+  - 방치 vs 실행 시나리오 적/녹 대비 타임라인
+  - 3단계 로드맵 색상 코딩 카드
+  - 투자 ROI 테이블
+  - 30일 액션 주차 타임라인 + KPI from→to 카드
+- 분석 샘플 탭: ProductReportView 재사용 (iframe 제거)
 - 어드민 패널: 시스템 통계 7개, 회원 목록/생성/권한 변경/삭제
-- 디자인: FlareLane 스타일 (인디고 블루 #4F46E5, 순백 배경, Inter 폰트)
+- 디자인: FlareLane 스타일 (인디고 블루 #4F46E5, 라이트/다크모드 자동 대응)
+- 다크모드: @media prefers-color-scheme 기반 전체 테마 (배경/카드/텍스트/보더/네비게이션)
 
 ### LLM 모듈 (6개 구현)
 - #01 Macro View · #03 Sentiment · #06 Market Intelligence (SOV/포지셔닝/콘텐츠갭/리스크)
 - #07 Strategy · #08 Summary · #13 Integrated Report
 - #06은 SWOT에서 Market Intelligence로 변경 (키워드 검색 데이터 기반 분석에 적합하도록)
+- #13 프롬프트 전면 재설계: 키워드별 개별 13섹션 → 상품 중심 복합 분석 11섹션 (구매퍼널/인식갭/해자/전환병목/시나리오/로드맵)
+
+### AI 에이전트
+- integrated-report-writer: 통합분석 리포트 작성 가이드 (11섹션 구조 + 시각화 명세 + 품질 체크리스트)
+- hallucination-checker, prompt-engineer, zod-schema-designer, ui-test (기존)
 
 ### 크롤러 (7개)
 - Category A: fx-rates, bestsellers, competitors, market-trends, rights-deals
@@ -77,9 +94,11 @@ Phase 7 — W22 — 관측성 (Prometheus /metrics · Sentry · 부하 테스트
 - 법적 문서 v1.0 (이용약관/개인정보처리방침/사업자정보/요금제)
 
 ### 시드/데모 데이터
-- "어린이AI 지휘자" 제품 기준 시드 스크립트 (seed-signalcraft.ts)
-- 15개 raw_posts, 6개 module outputs, 통합 리포트, 2개 actions
-- 데모 제품 4개 x 키워드 4~6개 (프론트엔드 하드코딩)
+- "토토LP 교육" 제품 기준 시드 스크립트 (seed-signalcraft.ts)
+- 14개 raw_posts, 6개 module outputs (감성/기회/전략/요약/매크로/통합), 통합 리포트, 2개 actions
+- 데모 제품 4개 x 키워드 4~10개 (프론트엔드 하드코딩)
+- 토토LP 10개 연관검색어: 키즈LP토토/한국삐아제/토토LP후기/토토LP단점/유아오디오교구/동화카드플레이어/말하는카드교구/유아음악교구추천/두돌세돌교구추천/누리과정교구
+- 경쟁사 데이터: 세이펜/핑크퐁/윤선생/하티하티 (SOV/가격/1년TCO 포함)
 
 ## 팀 역할
 - **FSL (풀스택 리드)**: 인프라·BullMQ·DB 스키마·API·배포·코드 리뷰
