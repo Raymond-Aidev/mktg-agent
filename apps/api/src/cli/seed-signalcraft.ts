@@ -734,141 +734,80 @@ const SUMMARY_OUTPUT = {
 const INTEGRATED_SECTIONS = [
   {
     id: "section-1",
-    title: "판매사 브리핑 — 핵심 요약",
-    content:
-      SUMMARY_OUTPUT.oneLiner +
-      "\n\n" +
-      SUMMARY_OUTPUT.keyTakeaways.map((t) => `• ${t}`).join("\n"),
+    title: "진단 요약 — 토토LP는 지금 어디에 있는가",
+    content: `${SUMMARY_OUTPUT.oneLiner}\n\n핵심 진단:\n${SUMMARY_OUTPUT.keyTakeaways.map((t) => `• ${t}`).join("\n")}\n\n결론: 토토LP는 '광고 투자' 전에 '가격 오해 해소 + 긍정 후기 확보 + 미인지 시장 진입'을 선행해야 한다.`,
     sourceModule: "#08",
   },
   {
     id: "section-2",
-    title: "구매 퍼널 분석 — 검색에서 구매까지",
-    content: `◆ 1단계: 인지 (Awareness) — 월 합산 ${OPPORTUNITY_OUTPUT.purchaseFunnel.awareness.totalSearchVolume.toLocaleString()}건\n  키워드: ${OPPORTUNITY_OUTPUT.purchaseFunnel.awareness.keywords.join(", ")}\n  토토LP 노출률: ${(OPPORTUNITY_OUTPUT.purchaseFunnel.awareness.totoLPExposureRate * 100).toFixed(0)}% — 경쟁사 세이펜(34%) 대비 절반 수준\n\n◆ 2단계: 탐색 (Consideration) — 월 합산 ${OPPORTUNITY_OUTPUT.purchaseFunnel.consideration.totalSearchVolume.toLocaleString()}건\n  키워드: ${OPPORTUNITY_OUTPUT.purchaseFunnel.consideration.keywords.join(", ")}\n  브랜드→제품 전환율: ${(OPPORTUNITY_OUTPUT.purchaseFunnel.consideration.brandToProductConversionRate * 100).toFixed(0)}%\n\n◆ 3단계: 비교/평가 — 월 합산 ${OPPORTUNITY_OUTPUT.purchaseFunnel.evaluation.totalSearchVolume.toLocaleString()}건\n  키워드: ${OPPORTUNITY_OUTPUT.purchaseFunnel.evaluation.keywords.join(", ")}\n  부정 검색 비율: ${(OPPORTUNITY_OUTPUT.purchaseFunnel.evaluation.negativeSearchRatio * 100).toFixed(0)}% (업계 평균 35~40% 대비 1.6배)\n\n◆ 월간 추정 구매: ${OPPORTUNITY_OUTPUT.purchaseFunnel.estimatedMonthlyPurchases}\n  전체 전환율: ${OPPORTUNITY_OUTPUT.purchaseFunnel.overallConversionRate}`,
+    title: "시장 속의 토토LP — 소비자 인식 지도",
+    content: `10개 연관검색어를 소비자 인식 단계별로 재구성:\n\n[1층: 토토LP를 모르는 시장 — 월 32,300건] 감성 54~65%로 높음, 선점 효과 극대\n  인지: ${OPPORTUNITY_OUTPUT.purchaseFunnel.awareness.keywords.join(", ")}\n  토토LP 노출률: ${(OPPORTUNITY_OUTPUT.purchaseFunnel.awareness.totoLPExposureRate * 100).toFixed(0)}% (세이펜 34% 대비 절반)\n\n[2층: 비교 대상으로만 보는 시장 — 월 36,900건] '비싸다' 프레임에 갇힘\n  비교: ${OPPORTUNITY_OUTPUT.purchaseFunnel.consideration.keywords.join(", ")}\n  브랜드→제품 전환: ${(OPPORTUNITY_OUTPUT.purchaseFunnel.consideration.brandToProductConversionRate * 100).toFixed(0)}%\n\n[3층: 구매 직전 이탈 — 월 11,000건] 후기→단점 전환 ${(OPPORTUNITY_OUTPUT.purchaseFunnel.evaluation.negativeSearchRatio * 100).toFixed(0)}% (업계 평균 35~40%)\n  평가: ${OPPORTUNITY_OUTPUT.purchaseFunnel.evaluation.keywords.join(", ")}\n\n전체 전환율: ${OPPORTUNITY_OUTPUT.purchaseFunnel.overallConversionRate}`,
     sourceModule: "#01",
   },
   {
     id: "section-3",
-    title: "감성 분석 — 키워드별 고객 심리",
-    content: `종합 감성: 긍정 ${(SENTIMENT_OUTPUT.sentimentRatio.positive * 100).toFixed(0)}% · 부정 ${(SENTIMENT_OUTPUT.sentimentRatio.negative * 100).toFixed(0)}% · 중립 ${(SENTIMENT_OUTPUT.sentimentRatio.neutral * 100).toFixed(0)}%\n\n[키워드별 감성 온도]\n${SENTIMENT_OUTPUT.keywordSentiment.map((k) => `• '${k.keyword}' (감성 ${(k.score * 100).toFixed(0)}%, ${k.postCount}건)`).join("\n")}\n\n[프레임 경쟁]\n${SENTIMENT_OUTPUT.frameCompetition.map((f) => `• ${f.label}: ${(f.share * 100).toFixed(0)}%`).join("\n")}\n\n시사점: 긍정률 높은 키워드(두돌 세돌 65%, 음악 교구 62%)에 토토LP 노출이 가장 적음 → 즉각 SEO 투자 필요`,
+    title: "인식 vs 현실 — 토토LP가 풀어야 할 3가지 오해",
+    content: `종합 감성: 긍정 ${(SENTIMENT_OUTPUT.sentimentRatio.positive * 100).toFixed(0)}% · 부정 ${(SENTIMENT_OUTPUT.sentimentRatio.negative * 100).toFixed(0)}% · 중립 ${(SENTIMENT_OUTPUT.sentimentRatio.neutral * 100).toFixed(0)}%\n\n오해 1: '토토LP는 가장 비싼 교구'\n  소비자 인식: 초기 14.8만원 → 불만 ${SENTIMENT_OUTPUT.topKeywords.find((k) => k.term === "가격저항")?.count}건\n  현실: 1년 총비용 ${OPPORTUNITY_OUTPUT.pricePositioning.competitors.map((c) => `${c.brand} ${(c.annualTotalCost / 10000).toFixed(0)}만원`).join(" < ")}\n  ${OPPORTUNITY_OUTPUT.pricePositioning.insight}\n\n오해 2: '품질이 나쁘다' → 별점 4.2→3.6, 내구성 불만 ${SENTIMENT_OUTPUT.topKeywords.find((k) => k.term === "내구성불만")?.count}건\n  현실: 고장률 8%(업계 5~7%), AS 대응 속도(7일)가 핵심 문제\n\n오해 3: 'LP만 틀어주는 단순 교구' → 비교 문의 ${SENTIMENT_OUTPUT.topKeywords.find((k) => k.term === "세이펜비교")?.count}건이나 공식 비교 콘텐츠 0건\n  현실: AI 발음 분석(87%), 파닉스 체계, 어휘 유지율 +28%, 누리과정 인증`,
     sourceModule: "#03",
   },
   {
     id: "section-4",
-    title: "시장 변곡점 — 판매 영향 이벤트",
-    content: MACRO_VIEW_OUTPUT.inflectionPoints
-      .map((p) => `[${p.date}] ${p.event} (영향도: ${p.impact})`)
-      .join("\n"),
-    sourceModule: "#01",
+    title: "경쟁 지형과 토토LP의 해자",
+    content: `SOV 통합:\n${OPPORTUNITY_OUTPUT.shareOfVoice.map((s) => `${s.isOurs ? "★ " : ""}${s.brand}: ${s.mentions}건 (긍정률 ${Math.round(s.sentimentPositive * 100)}%)`).join("\n")}\n\n전장별 승패:\n${OPPORTUNITY_OUTPUT.sovByKeyword.map((s) => `• '${s.keyword}' — 토토LP ${(s.totoLP * 100).toFixed(0)}% vs ${s.competitor} ${(s.competitorShare * 100).toFixed(0)}%`).join("\n")}\n\n경쟁사 약점 vs 토토LP 셀링포인트:\n${OPPORTUNITY_OUTPUT.competitorGaps.map((c) => `■ ${c.competitor}(${c.price}): ${c.gap}\n  → ${c.ourAdvantage}`).join("\n")}\n\n토토LP의 해자(경쟁사가 단기 모방 불가):\n① 촉각학습 효과 논문(어휘 유지율 +28%)\n② 교육청 인증 + 유치원 50곳 채택\n③ LP카드라는 독특한 물리적 학습 경험`,
+    sourceModule: "#06",
   },
   {
     id: "section-5",
-    title: "SOV 점유율 — 경쟁 교구 비교",
-    content:
-      OPPORTUNITY_OUTPUT.shareOfVoice
-        .map(
-          (s) =>
-            `${s.isOurs ? "★ " : ""}${s.brand}: ${s.mentions}건 (긍정률 ${Math.round(s.sentimentPositive * 100)}%)`,
-        )
-        .join("\n") +
-      `\n\n[키워드별 SOV]\n${OPPORTUNITY_OUTPUT.sovByKeyword.map((s) => `• '${s.keyword}' — 토토LP ${(s.totoLP * 100).toFixed(0)}% vs ${s.competitor} ${(s.competitorShare * 100).toFixed(0)}%`).join("\n")}\n\n시사점: '말하는 카드 교구' '동화 카드 플레이어' 2개 키워드에서 경쟁사에 SOV 뒤처짐`,
+    title: "구매 전환 병목 해부 — 3곳의 누수",
+    content: `병목 1: 브랜드→제품 전환 단절 (월 15,800건 소실)\n  '한국삐아제' 22,000건 중 '키즈LP토토' 9,400건 전환 43% — 삐아제를 아는데 토토LP 페이지에 안 감\n\n병목 2: 후기→부정 이탈 (월 2,600건 이탈)\n  후기→단점 전환 62% (업계 35~40%). 긍정 영상 후기 12% (핑크퐁 35%). 부정 콘텐츠가 SEO 상위 독점.\n\n병목 3: 카테고리→제품 미연결 (월 32,300건 미접촉)\n  6개 카테고리 키워드 중 토토LP SOV 1위는 '유아 오디오 교구' 1곳뿐. 나머지 5곳에서 5~24%로 열세.\n\n콘텐츠 갭:\n${OPPORTUNITY_OUTPUT.contentGaps.map((g) => `• ${g.topic} [${g.ourStatus}] → ${g.revenueImpact}`).join("\n")}\n\n3개 병목 합산 판매 손실: 월 추정 370세트(약 5,480만원)`,
     sourceModule: "#06",
   },
   {
     id: "section-6",
-    title: "가격 포지셔닝 분석 — 가격 장벽 해소 전략",
-    content: `경쟁 교구 가격 비교 (초기 + 1년 총비용):\n${OPPORTUNITY_OUTPUT.pricePositioning.competitors.map((c) => `  ${c.brand}: 초기 ${(c.initialCost / 10000).toFixed(1)}만원 | 1년 ${(c.annualTotalCost / 10000).toFixed(0)}만원`).join("\n")}\n\n${OPPORTUNITY_OUTPUT.pricePositioning.insight}\n\n가격 전략 제안:\n① '1년 비용 비교 인포그래픽' 상세페이지 최상단 배치\n② '체험 후 구매' 2주 대여(2만원) → 구매 시 전액 차감\n③ 3개월 무이자 할부(월 49,333원) — '하루 1,644원으로 영어 교육'\n④ 첫 구매 LP카드 5장 추가 증정`,
-    sourceModule: "#06",
+    title: "숨은 시장과 변곡점 — 기회의 창",
+    content: `◆ 잠재 시장 (토토LP 미인지, 합산 32,300건/월)\n  첫 교구 탐색 부모(19,800건) — 감성 65%, 토토LP 노출 5% 미만\n  비디지털 교구 탐색(5,300건) — 토토LP 해자와 완벽 부합하나 SOV 19%(3위)\n  기관 구매(7,200건) — 교육청 50곳 레퍼런스 보유, 교사 콘텐츠 0건\n  → 전환율 1.5% 기준 월 +150세트(+2,220만원) 잠재력\n\n◆ 모멘텀 (2~3주 내 소멸)\n${MACRO_VIEW_OUTPUT.inflectionPoints.map((p) => `  [${p.date}] ${p.event} (${p.impact})`).join("\n")}\n\n◆ 리스크 (매일 누적)\n${OPPORTUNITY_OUTPUT.riskSignals.map((r) => `  [${r.severity.toUpperCase()}] ${r.signal}`).join("\n")}\n\n결론: 모멘텀의 유통기한은 2~3주, 위협은 매일 누적. 지금이 행동 시점.`,
+    sourceModule: "#01",
   },
   {
     id: "section-7",
-    title: "고객 세그먼트 분석 — 타깃별 공략법",
-    content: STRATEGY_OUTPUT.messageStrategy.segmentMessages
-      .map((s) => `◆ ${s.segment}\n  메시지: ${s.messages.join(" | ")}\n  CTA: ${s.cta}`)
-      .join("\n\n"),
-    sourceModule: "#06",
-  },
-  {
-    id: "section-7b",
-    title: "콘텐츠 갭 — 판매 직결 기회",
-    content: OPPORTUNITY_OUTPUT.contentGaps
-      .map(
-        (g) =>
-          `■ ${g.topic} [${g.ourStatus}] → 매출 영향: ${g.revenueImpact}\n  경쟁사: ${g.competitorActivity}\n  제안: ${g.suggestedAction}`,
-      )
-      .join("\n\n"),
-    sourceModule: "#06",
+    title: "방치 vs 실행 — 6개월 후 시나리오",
+    content:
+      "시나리오 A (방치):\n  1개월: 부정 게시물 검색 상위 고착, 세이펜 신제품으로 비교 열세 심화\n  3개월: 하티하티 SOV 40% 장악, 토토LP SOV 38%→30%, 교육청 모멘텀 소멸\n  6개월: 긍정률 47%→40%, 월 판매 350→220건, 연 매출 -2.3억\n\n시나리오 B (실행):\n  1개월: 가격 오해 해소로 불만 40% 감소, 검색광고 가동, 영상 후기 12%→20%\n  3개월: SEO 3→7개 키워드, 신규 고객층 확보, 긍정률 47%→55%\n  6개월: SOV 38%→42%, 월 판매 350→600건, 연 매출 +4.4억\n\n격차: 연 6.7억원 | 투자: 월 1,200만원(6개월 7,200만원) | ROI 9.3x",
+    sourceModule: "#07",
   },
   {
     id: "section-8",
-    title: "리스크 시그널 — 판매 저해 요인",
-    content: OPPORTUNITY_OUTPUT.riskSignals
-      .map(
-        (r) =>
-          `[${r.severity.toUpperCase()}] ${r.signal}\n  근거: ${r.evidence}\n  대응: ${r.suggestedResponse}`,
-      )
-      .join("\n\n"),
-    sourceModule: "#06",
-  },
-  {
-    id: "section-8b",
-    title: "경쟁 교구 갭 분석 — 판매 차별점",
-    content: OPPORTUNITY_OUTPUT.competitorGaps
-      .map(
-        (c) => `■ ${c.competitor} — ${c.price}\n  약점: ${c.gap}\n  셀링포인트: ${c.ourAdvantage}`,
-      )
-      .join("\n\n"),
-    sourceModule: "#06",
+    title: "통합 전략 — 3단계 시장 공략 로드맵",
+    content: `━━ 1단계: 방어 (1~2주) — 부정 인식 차단 ━━\n  ① 상세페이지 '1년 총비용 비교표' 최상단\n  ② 2년 무상 보증 + 48시간 교환 정책 발표\n  ③ 맘카페 부정 게시물 팩트 기반 공식 답변\n  ④ 3개월 무이자(하루 1,644원) + 체험 후 구매 프로그램\n  목표: 가격 불만 40% 감소, 이탈률 65%→45%\n\n━━ 2단계: 전환 (3~4주) — 긍정 콘텐츠 우위 ━━\n  ① 아이 반응 숏폼 월 8회 (인스타+유튜브)\n  ② 'VS 세이펜' 데이터 기반 비교 블로그 (네이버 SEO)\n  ③ 만족 구매자 후기 캠페인 + 네이버 쇼핑 광고 3키워드(월 300만원)\n  목표: 긍정률 +8%p, 월 +120세트\n\n━━ 3단계: 확장 (5~8주) — 미인지 시장 진입 ━━\n  ① '두돌 교구 추천' 연령별 가이드 시리즈\n  ② '말하는 카드 교구 TOP4' 차별화 콘텐츠\n  ③ 교사 활용 가이드 PDF + 체험존 전국 확대\n  ④ LP카드 번들팩·정기구독 상품 기획\n  목표: 잠재 시장 노출 5%→25%, 월 +150세트\n\n순서의 이유: 부정 차단(1단계) 없이 콘텐츠(2단계)를 만들면 '비싸다' 댓글이 달리고, 신규 시장(3단계)에 가도 불만 선입견이 따라온다.`,
+    sourceModule: "#07",
   },
   {
     id: "section-9",
-    title: "메시지 전략 — 세그먼트별 판매 화법",
+    title: "세그먼트별 메시지 전략",
     content: `핵심 메시지: "${STRATEGY_OUTPUT.messageStrategy.primaryMessage}"\n\n${STRATEGY_OUTPUT.messageStrategy.segmentMessages.map((s) => `● ${s.segment}\n${s.messages.map((m) => `  • "${m}"`).join("\n")}\n  CTA: ${s.cta}`).join("\n\n")}\n\n톤앤매너: ${STRATEGY_OUTPUT.messageStrategy.tone}`,
     sourceModule: "#07",
   },
   {
     id: "section-10",
-    title: "주간 콘텐츠 전략 — 키워드별 SEO 공략",
-    content: STRATEGY_OUTPUT.contentStrategy.weeklyTopics
-      .map(
-        (t) =>
-          `${t.timing} | ${t.channel} | ${t.format}\n  타깃 키워드: ${t.targetKeyword}\n  → ${t.topic}`,
-      )
-      .join("\n\n"),
-    sourceModule: "#07",
-  },
-  {
-    id: "section-11",
-    title: "채널 우선순위 — ROI 기반 투자 순위",
+    title: "투자 계획과 기대 수익",
     content:
       STRATEGY_OUTPUT.channelPriority
         .map(
           (c) =>
-            `${c.priority}/10 — ${c.channel} (투자: ${c.investment} / ROI: ${c.expectedROI})\n  ${c.reason}`,
+            `${c.priority}/10 — ${c.channel} (${c.investment} / ROI ${c.expectedROI})\n  ${c.reason}`,
         )
         .join("\n\n") +
-      `\n\n총 투자 제안: 월 ${(STRATEGY_OUTPUT.totalInvestment.monthly / 10000).toLocaleString()}만원 / 예상 추가 매출: 월 ${(STRATEGY_OUTPUT.totalInvestment.expectedAdditionalRevenue / 10000).toLocaleString()}만원 (ROI ${STRATEGY_OUTPUT.totalInvestment.overallROI})`,
+      `\n\n월 총 투자: ${(STRATEGY_OUTPUT.totalInvestment.monthly / 10000).toLocaleString()}만원\n예상 추가 매출: ${(STRATEGY_OUTPUT.totalInvestment.expectedAdditionalRevenue / 10000).toLocaleString()}만원/월 (ROI ${STRATEGY_OUTPUT.totalInvestment.overallROI})\n손익분기점: 82세트/월`,
     sourceModule: "#07",
   },
   {
-    id: "section-12",
-    title: "리스크 완화 — 구체적 실행 방안",
-    content: STRATEGY_OUTPUT.riskMitigation
-      .map(
-        (r) =>
-          `◆ ${r.risk}\n  타임라인: ${r.timeline}\n${r.actions.map((a) => `  → ${a}`).join("\n")}\n  목표: ${r.target}`,
-      )
-      .join("\n\n"),
-    sourceModule: "#07",
-  },
-  {
-    id: "section-13",
-    title: "즉시 실행 과제 — 30일 액션 플랜",
+    id: "section-11",
+    title: "30일 액션 플랜",
     content:
       SUMMARY_OUTPUT.criticalActions
         .map((a) => `[${a.priority.toUpperCase()}] W${a.week} | ${a.action}`)
         .join("\n") +
-      `\n\n30일 목표 KPI:\n• SEO 상위 10위 키워드: ${SUMMARY_OUTPUT.thirtyDayKPI.seoTop10Keywords}\n• 추가 판매: ${SUMMARY_OUTPUT.thirtyDayKPI.additionalMonthlySales}\n• 긍정률: ${SUMMARY_OUTPUT.thirtyDayKPI.positiveRate}\n• 장바구니 이탈률: ${SUMMARY_OUTPUT.thirtyDayKPI.cartAbandonRate}\n• 부정/긍정 비율: ${SUMMARY_OUTPUT.thirtyDayKPI.negativeToPositiveRatio}`,
+      `\n\n30일 목표:\n• SEO 상위 10위: ${SUMMARY_OUTPUT.thirtyDayKPI.seoTop10Keywords}\n• 추가 판매: ${SUMMARY_OUTPUT.thirtyDayKPI.additionalMonthlySales}\n• 긍정률: ${SUMMARY_OUTPUT.thirtyDayKPI.positiveRate}\n• 이탈률: ${SUMMARY_OUTPUT.thirtyDayKPI.cartAbandonRate}\n• 부정/긍정 비율: ${SUMMARY_OUTPUT.thirtyDayKPI.negativeToPositiveRatio}`,
     sourceModule: "#08",
   },
 ];
