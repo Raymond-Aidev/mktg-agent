@@ -2224,6 +2224,250 @@ function KeywordTimelineView({
   );
 }
 
+/* ══════════════════════ Demo Report View (시드 데이터 기반) ══════════════════════ */
+
+const DEMO_REPORT_SECTIONS = [
+  {
+    id: "section-1",
+    title: "핵심 요약 (Executive Summary)",
+    sourceModule: "#08",
+    content:
+      "토토LP 교육, 촉각 학습의 검증된 효과와 가격·품질 장벽 사이에서 판매 전환 극대화가 핵심 과제\n\n시장 기회: 유아 영어 교구 시장 연 15% 성장, 아날로그+디지털 융합 교구는 토토LP가 유일 — 카테고리 선점 기회\n고객 니즈: 학부모는 '스크린 걱정 없는 영어 교육'에 높은 관심 → 촉각 학습 메시지가 구매 결정의 핵심 트리거\n경쟁 상황: SOV 1위(38%) 확보했으나 핑크퐁(25%)의 가성비 포지셔닝에 밀리는 구간 존재 → 프리미엄 가치 입증 필수\n구매 장벽: 가격 14.8만원 저항(23건 불만), 턴테이블 품질 불만(19건) → 체험·할부·보증 3종 대응 시급\n프로모션 기회: 교보문고 팝업 전환율 데이터 확보 후 전국 오프라인 체험 확대 + 형제 할인으로 객단가 유지하며 볼륨 확대",
+  },
+  {
+    id: "section-2",
+    title: "시장 여론 동향 (Macro View)",
+    sourceModule: "#01",
+    content:
+      "토토LP 교육은 실물 LP레코드와 AI 발음 분석 앱을 결합한 유아 영어 교구로, 출시 6개월 만에 1만 2천 세트를 판매하며 시장의 주목을 받고 있다. 서울시교육청 혁신 사례 선정, 촉각 학습 효과 논문 발표, 프리A 15억 투자 유치 등 핵심 성장 지표가 긍정적이다. 그러나 세트 가격 14만 8천원에 대한 가격 저항, 턴테이블 품질 이슈, 경쟁 교구 대비 가성비 비판이 구매 전환의 주요 장벽으로 작용하고 있다.",
+  },
+  {
+    id: "section-3",
+    title: "감성 분석 (Sentiment Analysis)",
+    sourceModule: "#03",
+    content:
+      "긍정 52% · 부정 26% · 중립 22%\n\n상위 키워드: LP레코드(61), 파닉스(44), 촉각학습(36), 가격(33), 턴테이블(29), 발음분석(27), 유치원(24)\n\n프레임 경쟁:\n• 아날로그+디지털 융합 혁신: 32%\n• 촉각 학습 효과·몰입 체험: 25%\n• 가격·가성비 이슈: 22%\n• 하드웨어 품질·AS 불만: 13%\n• 글로벌 확장·투자 소식: 8%",
+  },
+  {
+    id: "section-4",
+    title: "주요 변곡점 (Inflection Points)",
+    sourceModule: "#01",
+    content:
+      "[2026-04-11] 서울시교육청 유아 영어 혁신 사례 선정 (50개 유치원 채택) (영향도: high)\n[2026-04-09] 촉각 학습 효과 연구 논문 발표 (어휘 유지율 28% 향상) (영향도: high)\n[2026-04-08] 프리A 15억원 투자 유치 발표 (영향도: high)\n[2026-04-04] 교보문고 팝업 체험존 사전예약 500건 돌파 (1일 만) (영향도: medium)\n[2026-04-06] 소비자원 상담 건수 전월 대비 40% 증가 (품질·가격 불만) (영향도: low)",
+  },
+  {
+    id: "section-5",
+    title: "SOV 점유율 분석 (Share of Voice)",
+    sourceModule: "#06",
+    content:
+      "★ 토토LP 교육: 42건 (긍정률 62%)\n핑크퐁 스마트펜: 28건 (긍정률 71%)\n윤선생 스마트랜드: 18건 (긍정률 55%)\n리틀팍스: 14건 (긍정률 48%)\n디즈니 잉글리시: 10건 (긍정률 65%)",
+  },
+  {
+    id: "section-6",
+    title: "콘텐츠 갭 분석",
+    sourceModule: "#06",
+    content:
+      "■ 학부모 구매 후기 영상 (언박싱 + 아이 반응) [weak] → 영향: high\n  경쟁사: 핑크퐁이 유튜브에서 학부모 언박싱 리뷰 시리즈 운영 (월 12회, 평균 8만 조회, 구매 링크 포함)\n  제안: 아이가 LP판 올리는 순간 반응 숏폼 영상 + 구매 페이지 CTA 직결 시리즈 런칭\n\n■ 타 교구 비교 분석 콘텐츠 [absent] → 영향: high\n  경쟁사: 윤선생이 네이버 블로그에서 '교구 비교 가이드' 시리즈 (주 2회, SEO 상위 3위 점유)\n  제안: 촉각 학습 연구 데이터 기반 '왜 LP 교구가 다른가' 비교 콘텐츠 발행 + 체험 신청 CTA\n\n■ 유치원 교사 추천 콘텐츠 [absent] → 영향: medium\n  경쟁사: 리틀팍스가 교사 대상 무료 수업 자료 배포 (월 4회, 교사 커뮤니티 팔로워 1.2만)\n  제안: 시범 유치원 50곳 교사 인터뷰 콘텐츠 + 교사 전용 할인 프로그램\n\n■ 학습 성과 추적 콘텐츠 [absent] → 영향: medium\n  경쟁사: 디즈니 잉글리시가 인스타에서 '우리 아이 영어 성장 기록' 카드뉴스 (일 1회, 팔로워 3.8만)\n  제안: 앱 발음 분석 데이터 기반 '우리 아이 파닉스 성장 리포트' 공유 기능 + SNS 챌린지",
+  },
+  {
+    id: "section-7",
+    title: "리스크 시그널",
+    sourceModule: "#06",
+    content:
+      "[WARNING] 세트 가격 14만 8천원에 대한 가격 저항 — 구매 전환 최대 장벽\n  근거: 맘카페에서 '비싸다' '핑크퐁이 반값' '할인 언제' 관련 언급 23건, 전주 대비 1.8배 증가. 장바구니 이탈률 추정 65%.\n  대응: 3개월 무이자 할부 + 형제 2세트 20% 할인 + 체험 후 구매 프로그램 도입.\n\n[WARNING] 턴테이블 품질 이슈 — 구매 망설임 및 부정 구전 확산\n  근거: 소비자원 상담 40% 증가, '모터 소리' 'AS 느림' 언급 19건. 구매 후기에서 별점 하락 추세 (4.2→3.6).\n  대응: 턴테이블 2년 무상 보증 발표 + 24시간 내 교환 보장 정책 시행.\n\n[WATCH] 핑크퐁 스마트펜 신제품 출시 예고 — 가격대 동일 구간 경쟁 심화\n  근거: 핑크퐁 SNS에서 '새로운 영어 교구 곧 출시' 티저 + 네이버 검색량 전주 대비 2.1배 증가.\n  대응: 차별점(촉각 학습 논문 + 교육청 인증) 강조 캠페인 선제 집행.",
+  },
+  {
+    id: "section-7b",
+    title: "경쟁사 갭 분석",
+    sourceModule: "#06",
+    content:
+      "■ 핑크퐁 스마트펜\n  갭: 캐릭터 의존도 높음, 학습 심도 부족. 가격 7만원대로 가성비 우위이나 교육 연구 근거 없음.\n  우리 강점: 촉각 학습 논문으로 교육 효과 입증 — 판매 포인트: '연구로 증명된 28% 높은 어휘 유지율'\n\n■ 윤선생 스마트랜드\n  갭: 방문 학습 필수, 교구 단독 사용 불가. 월 구독 5만원으로 연간 비용 60만원 이상.\n  우리 강점: 1회 구매로 무한 반복 학습 — 판매 포인트: '60만원 vs 15만원, 같은 효과'\n\n■ 리틀팍스\n  갭: 스크린 의존형, 유아 시력 우려. 실물 교구 없이 앱 전용.\n  우리 강점: LP레코드 실물 조작 → 스크린 타임 최소화. 판매 포인트: '눈 걱정 없는 영어 교육'\n\n■ 디즈니 잉글리시\n  갭: IP 라이선싱 비용으로 가격 높음(20만원대). 한국어 학습 최적화 부족.\n  우리 강점: 한국 유아 발음 특화 AI 분석 (정확도 87%). 판매 포인트: '한국 아이 발음에 맞춘 유일한 교구'",
+  },
+  {
+    id: "section-8",
+    title: "메시지 전략 (Message Strategy)",
+    sourceModule: "#07",
+    content:
+      '핵심 메시지: "LP 한 장이면, 우리 아이 영어가 시작됩니다"\n\n보조 메시지:\n• 연구로 증명: LP 촉각 학습이 어휘 기억력 28% 높인다 (유아교육연구소 논문)\n• 서울시교육청이 선정한 유아 영어 혁신 교구 — 전국 50개 유치원 정규 채택\n• 1만 2천 가정이 선택한 우리 아이 첫 영어 친구\n• 스크린 걱정 없이, LP레코드로 자연스럽게 파닉스 완성\n• 지금 체험하면 LP 2장 추가 증정 — 한정 수량\n\n톤앤매너: 따뜻하고 신뢰감 있는 — 연구 데이터와 학부모 공감을 균형있게',
+  },
+  {
+    id: "section-9",
+    title: "콘텐츠 전략 (Content Calendar)",
+    sourceModule: "#07",
+    content:
+      "월요일 오전 10시 | instagram | 구매 후기 릴스 30초 + 구매 링크 CTA\n  → LP 언박싱: 아이가 처음 턴테이블에 LP를 올리는 순간\n\n화요일 오후 2시 | naver_blog | 비교 분석 블로그 (촉각 vs 스크린) + 체험 신청 CTA\n  → 촉각 학습이 뭔가요? — 연구 논문 쉽게 풀어보기\n\n수요일 오후 6시 | youtube | 교사 인터뷰 숏폼 3분 + 교사 할인 정보\n  → 유치원 선생님이 말하는 토토LP 수업 효과\n\n목요일 오전 9시 | email | 개인화 뉴스레터 + 추가 LP판 구매 CTA\n  → 이번 주 우리 아이 파닉스 성장 리포트\n\n금요일 오후 1시 | naver_blog | 객관적 비교 카드뉴스 + 체험 프로그램 안내\n  → 토토LP vs 스마트펜: 우리 아이에게 맞는 교구는?\n\n토요일 오전 11시 | instagram | 스토리 하이라이트 + 체험 예약 CTA\n  → 교보문고 체험존 현장: 아이들 반응 라이브",
+  },
+  {
+    id: "section-10",
+    title: "채널 우선순위",
+    sourceModule: "#07",
+    content:
+      "10/10 — 네이버 블로그\n  학부모 교구 검색의 70%가 네이버 — '유아 영어 교구 추천' SEO 선점 필수.\n\n9/10 — 인스타그램\n  아이 반응 영상의 바이럴 잠재력 극대. 구매 링크 연결 용이.\n\n8/10 — 네이버 쇼핑 검색광고\n  구매 의향 높은 검색 트래픽 직접 포획.\n\n7/10 — 유튜브\n  교사·전문가 추천 콘텐츠로 신뢰도 강화.\n\n6/10 — 이메일 뉴스레터\n  기존 구매자 리텐션 + 추가 LP판 크로스셀.",
+  },
+  {
+    id: "section-11",
+    title: "리스크 완화 방안",
+    sourceModule: "#07",
+    content:
+      "가격 저항(14만 8천원)으로 장바구니 이탈률 높음\n  → 3개월 무이자 할부 + 체험 후 구매 프로그램(2주 대여 후 구매 시 대여비 차감) + 형제 세트 20% 할인\n\n턴테이블 품질 불만으로 구매 망설임 및 부정 구전 확산\n  → 2년 무상 보증 + 24시간 내 교환 정책 공식 발표.\n\n핑크퐁 신제품 출시로 가격대 직접 경쟁 심화\n  → 촉각 학습 논문 + 교육청 인증 강조 차별화 캠페인 선제 집행.",
+  },
+  {
+    id: "section-12",
+    title: "즉시 실행 과제 (Critical Actions)",
+    sourceModule: "#08",
+    content:
+      "[HIGH] 네이버 쇼핑 검색광고 세팅 — '유아 영어 교구 추천' 키워드 구매 전환 직결\n[HIGH] 학부모 체험 후기 언박싱 숏폼 시리즈 런칭 — 월 8회, 구매 링크 CTA 필수 포함\n[HIGH] 체험 후 구매 프로그램 설계 — 2주 대여 → 구매 시 대여비 차감, 전환율 목표 40%\n[HIGH] 턴테이블 2년 무상 보증 + 24시간 교환 정책 공식 발표 — 구매 망설임 해소\n[MEDIUM] 촉각 학습 연구 데이터 기반 교구 비교 콘텐츠 발행 — 프리미엄 가격 정당화",
+  },
+];
+
+const DEMO_SENTIMENT = { positive: 0.52, negative: 0.26, neutral: 0.22 };
+const DEMO_SOV = [
+  { brand: "토토LP 교육", mentions: 42, rate: 62, ours: true },
+  { brand: "핑크퐁 스마트펜", mentions: 28, rate: 71, ours: false },
+  { brand: "윤선생 스마트랜드", mentions: 18, rate: 55, ours: false },
+  { brand: "리틀팍스", mentions: 14, rate: 48, ours: false },
+  { brand: "디즈니 잉글리시", mentions: 10, rate: 65, ours: false },
+];
+
+function DemoReportView({ keyword }: { keyword: DemoKeyword }) {
+  const totalMentions = DEMO_SOV.reduce((s, v) => s + v.mentions, 0);
+
+  return (
+    <>
+      {/* 헤더 */}
+      <div className="kw-report-header">
+        <div>
+          <span className={`rec-badge rec-${keyword.recommendation}`}>
+            {keyword.recommendation === "invest"
+              ? "투자"
+              : keyword.recommendation === "maintain"
+                ? "유지"
+                : "철수"}
+          </span>
+          <span className={`trend-indicator trend-${keyword.trendDirection}`}>
+            {keyword.trendDirection === "up"
+              ? "▲ 상승"
+              : keyword.trendDirection === "down"
+                ? "▼ 하락"
+                : "— 보합"}
+          </span>
+        </div>
+        <div className="kw-metrics-row">
+          <span>검색량 {keyword.searchVolume.toLocaleString()}</span>
+          <span>언급 {keyword.postCount30d}건</span>
+          <span>감성 {(keyword.sentimentScore * 100).toFixed(0)}%</span>
+        </div>
+      </div>
+
+      {/* 감성 분석 바 */}
+      <section className="panel" style={{ marginBottom: 16 }}>
+        <h3 style={{ margin: "0 0 12px", fontSize: 15 }}>브랜드 온라인 반응</h3>
+        <div
+          style={{
+            display: "flex",
+            height: 24,
+            borderRadius: 6,
+            overflow: "hidden",
+            marginBottom: 8,
+          }}
+        >
+          <div
+            style={{ width: `${DEMO_SENTIMENT.positive * 100}%`, background: "var(--success)" }}
+          />
+          <div
+            style={{ width: `${DEMO_SENTIMENT.negative * 100}%`, background: "var(--danger)" }}
+          />
+          <div style={{ width: `${DEMO_SENTIMENT.neutral * 100}%`, background: "#d1d5db" }} />
+        </div>
+        <p style={{ margin: 0, fontSize: 13, color: "var(--text-muted)" }}>
+          긍정 {(DEMO_SENTIMENT.positive * 100).toFixed(0)}% / 부정{" "}
+          {(DEMO_SENTIMENT.negative * 100).toFixed(0)}% / 중립{" "}
+          {(DEMO_SENTIMENT.neutral * 100).toFixed(0)}%
+        </p>
+      </section>
+
+      {/* SOV 차트 */}
+      <section className="panel" style={{ marginBottom: 16 }}>
+        <h3 style={{ margin: "0 0 12px", fontSize: 15 }}>SOV 점유율 (Share of Voice)</h3>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {DEMO_SOV.map((s) => (
+            <div
+              key={s.brand}
+              style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}
+            >
+              <span
+                style={{
+                  width: 140,
+                  fontWeight: s.ours ? 700 : 400,
+                  color: s.ours ? "var(--accent)" : "var(--text)",
+                }}
+              >
+                {s.ours ? "★ " : ""}
+                {s.brand}
+              </span>
+              <div
+                style={{
+                  flex: 1,
+                  background: "var(--bg-subtle)",
+                  borderRadius: 4,
+                  height: 18,
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  style={{
+                    width: `${(s.mentions / totalMentions) * 100}%`,
+                    height: "100%",
+                    background: s.ours ? "var(--accent)" : "#94a3b8",
+                    borderRadius: 4,
+                  }}
+                />
+              </div>
+              <span
+                style={{ width: 80, textAlign: "right", fontSize: 12, color: "var(--text-muted)" }}
+              >
+                {s.mentions}건 ({s.rate}%)
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 리포트 섹션 렌더링 */}
+      {DEMO_REPORT_SECTIONS.map((section) => (
+        <section key={section.id} className="panel" style={{ marginBottom: 16 }}>
+          <h3 style={{ margin: "0 0 12px", fontSize: 15 }}>
+            {section.title}
+            <span
+              style={{ fontSize: 11, color: "var(--text-muted)", marginLeft: 8, fontWeight: 400 }}
+            >
+              {section.sourceModule}
+            </span>
+          </h3>
+          <div
+            style={{ fontSize: 14, color: "var(--text)", lineHeight: 1.8, whiteSpace: "pre-wrap" }}
+          >
+            {section.content}
+          </div>
+        </section>
+      ))}
+
+      {/* 전체 리포트 링크 */}
+      <div style={{ textAlign: "center", padding: "20px 0" }}>
+        <a
+          href={`/api/v1/reports/${SAMPLE_REPORT_ID}?format=html`}
+          target="_blank"
+          rel="noreferrer"
+          className="btn-primary"
+          style={{ width: "auto", padding: "12px 28px", display: "inline-block" }}
+        >
+          시각화 리포트 전체 보기
+        </a>
+      </div>
+    </>
+  );
+}
+
 /* ══════════════════════ Keyword Report View ══════════════════════ */
 
 function KeywordReportView({ keyword, tenantId }: { keyword: DemoKeyword; tenantId: string }) {
@@ -2255,57 +2499,9 @@ function KeywordReportView({ keyword, tenantId }: { keyword: DemoKeyword; tenant
     };
   }, [tenantId]);
 
-  // reportId가 "demo"면 시드된 샘플 리포트 표시
+  // reportId가 "demo"면 시드된 분석 결과를 네이티브 렌더링
   if (keyword.reportId === "demo") {
-    return (
-      <>
-        <div className="kw-report-header">
-          <div>
-            <span className={`rec-badge rec-${keyword.recommendation}`}>
-              {keyword.recommendation === "invest"
-                ? "투자"
-                : keyword.recommendation === "maintain"
-                  ? "유지"
-                  : "철수"}
-            </span>
-            <span className={`trend-indicator trend-${keyword.trendDirection}`}>
-              {keyword.trendDirection === "up"
-                ? "▲ 상승"
-                : keyword.trendDirection === "down"
-                  ? "▼ 하락"
-                  : "— 보합"}
-            </span>
-          </div>
-          <div className="kw-metrics-row">
-            <span>검색량 {keyword.searchVolume.toLocaleString()}</span>
-            <span>언급 {keyword.postCount30d}건</span>
-            <span>감성 {(keyword.sentimentScore * 100).toFixed(0)}%</span>
-          </div>
-        </div>
-        <div style={{ display: "flex", gap: 12, marginBottom: 16 }}>
-          <a
-            href={`/api/v1/reports/${SAMPLE_REPORT_ID}?format=html`}
-            target="_blank"
-            rel="noreferrer"
-            className="btn-primary"
-            style={{ width: "auto", padding: "10px 24px" }}
-          >
-            새 탭에서 보기
-          </a>
-        </div>
-        <iframe
-          title="분석 리포트"
-          className="sample-frame"
-          src={`/api/v1/reports/${SAMPLE_REPORT_ID}?format=html`}
-          style={{
-            width: "100%",
-            height: 800,
-            border: "1px solid var(--border)",
-            borderRadius: 12,
-          }}
-        />
-      </>
-    );
+    return <DemoReportView keyword={keyword} />;
   }
 
   return (
