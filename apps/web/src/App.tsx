@@ -2318,9 +2318,258 @@ function KeywordTimelineView({
 
 /* ══════════════════════ Product Report View (통합 리포트) ══════════════════════ */
 
+/* ── 시각화 헬퍼 ── */
+const BAR_H = 22;
+const COLORS = {
+  accent: "#4F46E5",
+  success: "#16a34a",
+  danger: "#dc2626",
+  warn: "#f59e0b",
+  muted: "#94a3b8",
+  bg: "#f1f5f9",
+};
+
+function HBar({
+  value,
+  max,
+  color,
+  label,
+  sub,
+}: {
+  value: number;
+  max: number;
+  color: string;
+  label: string;
+  sub?: string;
+}) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, marginBottom: 4 }}>
+      <span
+        style={{
+          width: 150,
+          fontWeight: 500,
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+        }}
+      >
+        {label}
+      </span>
+      <div
+        style={{
+          flex: 1,
+          background: COLORS.bg,
+          borderRadius: 4,
+          height: BAR_H,
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            width: `${(value / max) * 100}%`,
+            height: "100%",
+            background: color,
+            borderRadius: 4,
+            transition: "width .3s",
+          }}
+        />
+      </div>
+      <span style={{ width: 90, textAlign: "right", fontSize: 12, color: "var(--text-muted)" }}>
+        {sub ?? value.toLocaleString()}
+      </span>
+    </div>
+  );
+}
+
+function MetricCard({
+  label,
+  value,
+  sub,
+  color,
+}: {
+  label: string;
+  value: string;
+  sub?: string;
+  color?: string;
+}) {
+  return (
+    <div
+      style={{
+        flex: "1 1 140px",
+        background: "var(--bg-card, #fff)",
+        border: "1px solid var(--border)",
+        borderRadius: 8,
+        padding: "14px 16px",
+        textAlign: "center",
+      }}
+    >
+      <div style={{ fontSize: 22, fontWeight: 700, color: color ?? "var(--text)" }}>{value}</div>
+      <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>{label}</div>
+      {sub && (
+        <div style={{ fontSize: 11, color: color ?? "var(--text-muted)", marginTop: 2 }}>{sub}</div>
+      )}
+    </div>
+  );
+}
+
+function FunnelStep({
+  stage,
+  volume,
+  rate,
+  problem,
+  width,
+}: {
+  stage: string;
+  volume: string;
+  rate?: string;
+  problem: string;
+  width: string;
+}) {
+  return (
+    <div
+      style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 6 }}
+    >
+      <div
+        style={{
+          width,
+          background: "linear-gradient(135deg, #4F46E5, #7C3AED)",
+          color: "#fff",
+          borderRadius: 6,
+          padding: "10px 16px",
+          textAlign: "center",
+          fontSize: 13,
+          fontWeight: 600,
+        }}
+      >
+        {stage} — {volume}
+      </div>
+      <div
+        style={{
+          fontSize: 11,
+          color: "var(--text-muted)",
+          margin: "4px 0",
+          textAlign: "center",
+          maxWidth: width,
+        }}
+      >
+        {rate && <span style={{ color: COLORS.danger, fontWeight: 600 }}>{rate} </span>}
+        {problem}
+      </div>
+      <div
+        style={{
+          width: 0,
+          height: 0,
+          borderLeft: "8px solid transparent",
+          borderRight: "8px solid transparent",
+          borderTop: `8px solid ${COLORS.accent}`,
+          opacity: 0.4,
+        }}
+      />
+    </div>
+  );
+}
+
+function TagBadge({ text, color }: { text: string; color: string }) {
+  return (
+    <span
+      style={{
+        display: "inline-block",
+        padding: "3px 10px",
+        borderRadius: 12,
+        fontSize: 11,
+        fontWeight: 600,
+        background: color + "18",
+        color,
+        marginRight: 6,
+        marginBottom: 4,
+      }}
+    >
+      {text}
+    </span>
+  );
+}
+
+function SectionPanel({
+  num,
+  title,
+  children,
+}: {
+  num: number;
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="panel" style={{ marginBottom: 20 }}>
+      <h3
+        style={{
+          margin: "0 0 16px",
+          fontSize: 16,
+          borderBottom: "2px solid var(--accent, #4F46E5)",
+          paddingBottom: 8,
+          color: "var(--accent, #4F46E5)",
+        }}
+      >
+        {num}. {title}
+      </h3>
+      {children}
+    </section>
+  );
+}
+
 function ProductReportView({ productName, onBack }: { productName: string; onBack: () => void }) {
+  const totalMentions = DEMO_SOV.reduce((s, v) => s + v.mentions, 0);
+
+  /* 가격 비교 데이터 */
+  const priceData = [
+    { name: "토토LP", initial: 14.8, annual: 22, ours: true },
+    { name: "하티하티", initial: 7.9, annual: 18, ours: false },
+    { name: "세이펜", initial: 4.9, annual: 29, ours: false },
+    { name: "핑크퐁", initial: 6.9, annual: 25, ours: false },
+    { name: "윤선생", initial: 0, annual: 59, ours: false },
+  ];
+  const maxAnnual = Math.max(...priceData.map((p) => p.annual));
+
+  /* 키워드 퍼널 데이터 */
+  const funnelData = [
+    {
+      stage: "인지 (미인지 시장)",
+      volume: "64,500건/월",
+      width: "100%",
+      problem: "토토LP 노출률 18% — 세이펜(34%) 대비 절반",
+    },
+    {
+      stage: "탐색 (브랜드 관심)",
+      volume: "31,400건/월",
+      rate: "전환 43%↓",
+      width: "75%",
+      problem: "삐아제 아는데 토토LP 페이지에 안 감",
+    },
+    {
+      stage: "비교 (후기 탐색)",
+      volume: "11,000건/월",
+      rate: "이탈 62%↑",
+      width: "50%",
+      problem: "후기→단점 이탈 62% (업계 평균 35~40%)",
+    },
+    {
+      stage: "구매",
+      volume: "350~400건/월",
+      width: "28%",
+      problem: "전환율 0.54% — 업계 평균(1.2%) 절반",
+    },
+  ];
+
+  /* SOV-긍정률 매트릭스 데이터 */
+  const sovMatrix = DEMO_SOV.map((s) => ({
+    ...s,
+    x: s.mentions,
+    y: s.rate,
+    size: s.mentions * 1.5,
+  }));
+
   return (
     <>
+      {/* 헤더 */}
       <div className="page-title" style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <button
           type="button"
@@ -2345,121 +2594,828 @@ function ProductReportView({ productName, onBack }: { productName: string; onBac
         </div>
       </div>
 
-      {/* 감성 분석 바 */}
-      <section className="panel" style={{ marginBottom: 16 }}>
-        <h3 style={{ margin: "0 0 12px", fontSize: 15 }}>토토LP 온라인 여론 종합</h3>
+      {/* ═══ KPI 대시보드 ═══ */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 20 }}>
+        <MetricCard label="월간 검색량" value="111,700" sub="10개 연관검색어 합산" />
+        <MetricCard
+          label="SOV (점유율)"
+          value="38%"
+          sub="1위 — 그러나 위태"
+          color={COLORS.accent}
+        />
+        <MetricCard label="긍정률" value="47%" sub="경쟁 5사 중 최하위" color={COLORS.danger} />
+        <MetricCard label="장바구니 이탈" value="65%" sub="가격 오해가 원인" color={COLORS.warn} />
+        <MetricCard
+          label="미포획 시장"
+          value="32,300"
+          sub="건/월 — 토토LP 미인지"
+          color={COLORS.muted}
+        />
+        <MetricCard
+          label="월 매출 잠재력"
+          value="+5,870만"
+          sub="전략 실행 시 추가"
+          color={COLORS.success}
+        />
+      </div>
+
+      {/* ═══ 1. 진단 요약 ═══ */}
+      <SectionPanel num={1} title="진단 요약 — 토토LP는 지금 어디에 있는가">
+        <div style={{ display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap" }}>
+          <div
+            style={{
+              flex: "1 1 200px",
+              background: "#fef2f2",
+              border: "1px solid #fecaca",
+              borderRadius: 8,
+              padding: 14,
+            }}
+          >
+            <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.danger, marginBottom: 4 }}>
+              인식-현실 갭
+            </div>
+            <div style={{ fontSize: 13, lineHeight: 1.6 }}>
+              소비자: "14.8만원 = 최고가"
+              <br />
+              현실: 1년 비용은 세이펜보다 7만원 저렴
+              <br />→ 91건 가격 불만, 65% 이탈
+            </div>
+          </div>
+          <div
+            style={{
+              flex: "1 1 200px",
+              background: "#fff7ed",
+              border: "1px solid #fed7aa",
+              borderRadius: 8,
+              padding: 14,
+            }}
+          >
+            <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.warn, marginBottom: 4 }}>
+              인지도-호감도 역전
+            </div>
+            <div style={{ fontSize: 13, lineHeight: 1.6 }}>
+              SOV 38% 1위이나 긍정률 47% 꼴찌
+              <br />
+              핑크퐁 72% · 세이펜 68%
+              <br />→ 광고 늘리면 부정 구전만 확대
+            </div>
+          </div>
+          <div
+            style={{
+              flex: "1 1 200px",
+              background: "#eff6ff",
+              border: "1px solid #bfdbfe",
+              borderRadius: 8,
+              padding: 14,
+            }}
+          >
+            <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.accent, marginBottom: 4 }}>
+              시장 사각지대
+            </div>
+            <div style={{ fontSize: 13, lineHeight: 1.6 }}>
+              잠재 고객 32,300건/월
+              <br />
+              토토LP 노출률 5~19%
+              <br />→ 존재 자체를 모르는 부모들
+            </div>
+          </div>
+        </div>
+        <div
+          style={{
+            background: "#f0fdf4",
+            border: "1px solid #bbf7d0",
+            borderRadius: 8,
+            padding: 14,
+            fontSize: 13,
+            lineHeight: 1.6,
+          }}
+        >
+          <strong>결론:</strong> 광고 투자 전에{" "}
+          <TagBadge text="가격 오해 해소" color={COLORS.danger} />
+          <TagBadge text="긍정 후기 확보" color={COLORS.warn} />
+          <TagBadge text="미인지 시장 진입" color={COLORS.accent} /> 순서로 선행해야 한다. 순서가
+          바뀌면 부정 구전만 늘어난다.
+        </div>
+      </SectionPanel>
+
+      {/* ═══ 2. 구매 퍼널 ═══ */}
+      <SectionPanel num={2} title="소비자 인식 지도 — 구매 퍼널">
         <div
           style={{
             display: "flex",
-            height: 24,
+            flexDirection: "column",
+            alignItems: "center",
+            padding: "10px 0",
+          }}
+        >
+          {funnelData.map((f) => (
+            <FunnelStep key={f.stage} {...f} />
+          ))}
+        </div>
+        <div style={{ display: "flex", gap: 12, marginTop: 12, flexWrap: "wrap" }}>
+          <div
+            style={{
+              flex: 1,
+              background: COLORS.bg,
+              borderRadius: 6,
+              padding: 10,
+              fontSize: 12,
+              lineHeight: 1.6,
+            }}
+          >
+            <strong>최대 병목:</strong> 비교 단계에서 후기 검색자의 62%가 '단점' 검색으로 이탈 (업계
+            평균 35~40%)
+          </div>
+          <div
+            style={{
+              flex: 1,
+              background: COLORS.bg,
+              borderRadius: 6,
+              padding: 10,
+              fontSize: 12,
+              lineHeight: 1.6,
+            }}
+          >
+            <strong>전환율:</strong> 0.54~0.62% → 업계 평균(1.2%) 대비 절반. 비교 이탈 방지가 매출
+            직결
+          </div>
+        </div>
+      </SectionPanel>
+
+      {/* ═══ 3. 감성 + SOV 매트릭스 ═══ */}
+      <SectionPanel num={3} title="경쟁 포지션 — SOV vs 긍정률 매트릭스">
+        {/* 감성 바 */}
+        <div
+          style={{
+            display: "flex",
+            height: 28,
             borderRadius: 6,
             overflow: "hidden",
-            marginBottom: 8,
+            marginBottom: 10,
           }}
         >
           <div
-            style={{ width: `${DEMO_SENTIMENT.positive * 100}%`, background: "var(--success)" }}
-          />
+            style={{
+              width: `${DEMO_SENTIMENT.positive * 100}%`,
+              background: COLORS.success,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#fff",
+              fontSize: 12,
+              fontWeight: 600,
+            }}
+          >
+            긍정 {(DEMO_SENTIMENT.positive * 100).toFixed(0)}%
+          </div>
           <div
-            style={{ width: `${DEMO_SENTIMENT.negative * 100}%`, background: "var(--danger)" }}
-          />
-          <div style={{ width: `${DEMO_SENTIMENT.neutral * 100}%`, background: "#d1d5db" }} />
+            style={{
+              width: `${DEMO_SENTIMENT.negative * 100}%`,
+              background: COLORS.danger,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#fff",
+              fontSize: 12,
+              fontWeight: 600,
+            }}
+          >
+            부정 {(DEMO_SENTIMENT.negative * 100).toFixed(0)}%
+          </div>
+          <div
+            style={{
+              width: `${DEMO_SENTIMENT.neutral * 100}%`,
+              background: "#d1d5db",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 12,
+            }}
+          >
+            중립 {(DEMO_SENTIMENT.neutral * 100).toFixed(0)}%
+          </div>
         </div>
-        <p style={{ margin: 0, fontSize: 13, color: "var(--text-muted)" }}>
-          긍정 {(DEMO_SENTIMENT.positive * 100).toFixed(0)}% / 부정{" "}
-          {(DEMO_SENTIMENT.negative * 100).toFixed(0)}% / 중립{" "}
-          {(DEMO_SENTIMENT.neutral * 100).toFixed(0)}%{" · "}총 언급{" "}
-          {DEMO_SOV.reduce((s, v) => s + v.mentions, 0)}건 · 10개 검색어 월간 111,700건
-        </p>
-      </section>
 
-      {/* SOV 차트 */}
-      <section className="panel" style={{ marginBottom: 16 }}>
-        <h3 style={{ margin: "0 0 12px", fontSize: 15 }}>경쟁 교구 SOV (Share of Voice)</h3>
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          {DEMO_SOV.map((s) => {
-            const total = DEMO_SOV.reduce((sum, v) => sum + v.mentions, 0);
+        {/* SOV-긍정률 시각화 */}
+        <div
+          style={{
+            position: "relative",
+            height: 220,
+            background: COLORS.bg,
+            borderRadius: 8,
+            marginTop: 16,
+            padding: "20px 20px 30px 50px",
+          }}
+        >
+          {/* 축 레이블 */}
+          <div
+            style={{
+              position: "absolute",
+              left: 4,
+              top: "50%",
+              transform: "rotate(-90deg) translateX(50%)",
+              fontSize: 11,
+              color: "var(--text-muted)",
+            }}
+          >
+            긍정률 →
+          </div>
+          <div
+            style={{
+              position: "absolute",
+              bottom: 4,
+              left: "50%",
+              transform: "translateX(-50%)",
+              fontSize: 11,
+              color: "var(--text-muted)",
+            }}
+          >
+            언급량 (SOV) →
+          </div>
+          {/* 사분면 라벨 */}
+          <div
+            style={{
+              position: "absolute",
+              right: 12,
+              top: 8,
+              fontSize: 10,
+              color: COLORS.success,
+              fontWeight: 600,
+            }}
+          >
+            High SOV + High 긍정 = 이상적
+          </div>
+          <div
+            style={{
+              position: "absolute",
+              right: 12,
+              bottom: 32,
+              fontSize: 10,
+              color: COLORS.danger,
+              fontWeight: 600,
+            }}
+          >
+            High SOV + Low 긍정 = 위험
+          </div>
+          {/* 버블들 */}
+          {sovMatrix.map((s) => {
+            const xPct = Math.min((s.x / 50) * 100, 90);
+            const yPct = Math.max(100 - (s.y / 80) * 100, 5);
             return (
               <div
                 key={s.brand}
-                style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}
+                style={{
+                  position: "absolute",
+                  left: `${xPct}%`,
+                  top: `${yPct}%`,
+                  width: s.size,
+                  height: s.size,
+                  borderRadius: "50%",
+                  background: s.ours ? COLORS.accent : COLORS.muted,
+                  opacity: 0.8,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  transform: "translate(-50%,-50%)",
+                }}
               >
                 <span
                   style={{
-                    width: 140,
-                    fontWeight: s.ours ? 700 : 400,
-                    color: s.ours ? "var(--accent)" : "var(--text)",
+                    fontSize: 9,
+                    color: "#fff",
+                    fontWeight: 700,
+                    textAlign: "center",
+                    lineHeight: 1.1,
                   }}
                 >
-                  {s.ours ? "★ " : ""}
-                  {s.brand}
-                </span>
-                <div
-                  style={{
-                    flex: 1,
-                    background: "var(--bg-subtle)",
-                    borderRadius: 4,
-                    height: 18,
-                    overflow: "hidden",
-                  }}
-                >
-                  <div
-                    style={{
-                      width: `${(s.mentions / total) * 100}%`,
-                      height: "100%",
-                      background: s.ours ? "var(--accent)" : "#94a3b8",
-                      borderRadius: 4,
-                    }}
-                  />
-                </div>
-                <span
-                  style={{
-                    width: 80,
-                    textAlign: "right",
-                    fontSize: 12,
-                    color: "var(--text-muted)",
-                  }}
-                >
-                  {s.mentions}건 ({s.rate}%)
+                  {s.brand.split(" ")[0]}
+                  <br />
+                  {s.rate}%
                 </span>
               </div>
             );
           })}
         </div>
-      </section>
+        <div
+          style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 8, textAlign: "center" }}
+        >
+          토토LP: SOV 1위(38%)이나 긍정률 47%로 최하위 → "논란의 중심" 포지션. 인지도 투자 전 긍정률
+          개선이 선행되어야 함
+        </div>
+      </SectionPanel>
 
-      {/* 전체 리포트 — 하나의 연속된 문서 */}
-      <section className="panel" style={{ marginBottom: 16 }}>
-        {DEMO_REPORT_SECTIONS.map((section, idx) => (
-          <div
-            key={section.id}
-            style={{ marginBottom: idx < DEMO_REPORT_SECTIONS.length - 1 ? 32 : 0 }}
-          >
-            <h3
-              style={{
-                margin: "0 0 12px",
-                fontSize: 16,
-                borderBottom: "1px solid var(--border)",
-                paddingBottom: 8,
-              }}
-            >
-              {idx + 1}. {section.title}
-            </h3>
+      {/* ═══ 4. 가격 인식 vs 현실 ═══ */}
+      <SectionPanel num={4} title="가격의 진실 — 초기 가격 vs 1년 총비용">
+        <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 16 }}>
+          <div style={{ flex: 1, minWidth: 250 }}>
+            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>초기 구매 가격</div>
+            {priceData.map((p) => (
+              <HBar
+                key={p.name + "i"}
+                value={p.initial}
+                max={15}
+                color={p.ours ? COLORS.danger : COLORS.muted}
+                label={p.name}
+                sub={p.initial > 0 ? `${p.initial}만원` : "0원"}
+              />
+            ))}
+            <div style={{ fontSize: 11, color: COLORS.danger, marginTop: 6, textAlign: "center" }}>
+              소비자 인식: "토토LP = 가장 비싸다"
+            </div>
+          </div>
+          <div style={{ flex: 1, minWidth: 250 }}>
+            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>
+              1년 총소유비용 (TCO)
+            </div>
+            {[...priceData]
+              .sort((a, b) => a.annual - b.annual)
+              .map((p) => (
+                <HBar
+                  key={p.name + "a"}
+                  value={p.annual}
+                  max={maxAnnual}
+                  color={p.ours ? COLORS.success : COLORS.muted}
+                  label={p.name}
+                  sub={`${p.annual}만원`}
+                />
+              ))}
+            <div style={{ fontSize: 11, color: COLORS.success, marginTop: 6, textAlign: "center" }}>
+              현실: 토토LP는 4위 — 세이펜보다 7만원 저렴
+            </div>
+          </div>
+        </div>
+        <div
+          style={{
+            background: "#fef3c7",
+            border: "1px solid #fde68a",
+            borderRadius: 8,
+            padding: 12,
+            fontSize: 13,
+            lineHeight: 1.6,
+          }}
+        >
+          이 오해로 인한 피해: 월 91건 가격 불만 · 장바구니 이탈률 65% · 월 추정 180세트 판매 손실
+          <br />
+          <strong>처방:</strong> 상세페이지 최상단에 '1년 총비용 비교 인포그래픽' 배치 + "하루
+          1,644원" 프레이밍
+        </div>
+      </SectionPanel>
+
+      {/* ═══ 5. 경쟁 SOV ═══ */}
+      <SectionPanel num={5} title="경쟁 지형 — SOV 점유율과 전장별 승패">
+        {DEMO_SOV.map((s) => (
+          <HBar
+            key={s.brand}
+            value={s.mentions}
+            max={totalMentions * 0.5}
+            color={s.ours ? COLORS.accent : COLORS.muted}
+            label={`${s.ours ? "★ " : ""}${s.brand}`}
+            sub={`${s.mentions}건 · 긍정 ${s.rate}%`}
+          />
+        ))}
+        <div style={{ display: "flex", gap: 8, marginTop: 16, flexWrap: "wrap" }}>
+          {[
+            { kw: "유아 오디오 교구", us: 38, them: 32, who: "세이펜", win: true },
+            { kw: "동화 카드 플레이어", us: 24, them: 41, who: "세이펜", win: false },
+            { kw: "말하는 카드 교구", us: 19, them: 28, who: "하티하티", win: false },
+          ].map((b) => (
             <div
+              key={b.kw}
               style={{
-                fontSize: 14,
-                color: "var(--text)",
-                lineHeight: 1.8,
-                whiteSpace: "pre-wrap",
+                flex: "1 1 180px",
+                border: `1px solid ${b.win ? "#bbf7d0" : "#fecaca"}`,
+                borderRadius: 8,
+                padding: 10,
+                background: b.win ? "#f0fdf4" : "#fef2f2",
               }}
             >
-              {section.content}
+              <div style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: 4 }}>
+                {b.kw}
+              </div>
+              <div style={{ fontSize: 13, fontWeight: 600 }}>
+                토토LP {b.us}% vs {b.who} {b.them}%
+              </div>
+              <div
+                style={{
+                  fontSize: 11,
+                  color: b.win ? COLORS.success : COLORS.danger,
+                  fontWeight: 600,
+                }}
+              >
+                {b.win ? "우세 — 유지 필요" : "열세 — 즉시 공략"}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{ marginTop: 16 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>
+            토토LP의 해자 (경쟁사 모방 불가)
+          </div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <TagBadge text="촉각학습 논문 (어휘 +28%)" color={COLORS.accent} />
+            <TagBadge text="교육청 인증 · 유치원 50곳" color={COLORS.success} />
+            <TagBadge text="LP카드 물리적 학습 경험" color="#7c3aed" />
+          </div>
+        </div>
+      </SectionPanel>
+
+      {/* ═══ 6. 전환 병목 ═══ */}
+      <SectionPanel num={6} title="구매 전환 병목 — 3곳의 누수">
+        {[
+          {
+            title: "브랜드→제품 전환 단절",
+            loss: "15,800건/월",
+            desc: "'한국삐아제' 검색자 중 '키즈LP토토' 전환 43%. 브랜드 페이지→제품 페이지 랜딩 최적화 필요",
+            color: COLORS.warn,
+          },
+          {
+            title: "후기→부정 이탈",
+            loss: "2,600건/월",
+            desc: "후기→단점 전환 62% (업계 35~40%). 긍정 영상 후기 12% vs 핑크퐁 35%. 부정 콘텐츠가 SEO 1위",
+            color: COLORS.danger,
+          },
+          {
+            title: "카테고리→제품 미연결",
+            loss: "32,300건/월",
+            desc: "6개 카테고리 키워드 중 SOV 1위는 '유아 오디오 교구' 1곳뿐. 나머지 5곳에서 5~24% 열세",
+            color: COLORS.muted,
+          },
+        ].map((b) => (
+          <div
+            key={b.title}
+            style={{
+              display: "flex",
+              gap: 12,
+              alignItems: "flex-start",
+              marginBottom: 12,
+              padding: 12,
+              background: COLORS.bg,
+              borderRadius: 8,
+              borderLeft: `4px solid ${b.color}`,
+            }}
+          >
+            <div style={{ minWidth: 80, textAlign: "center" }}>
+              <div style={{ fontSize: 18, fontWeight: 700, color: b.color }}>{b.loss}</div>
+              <div style={{ fontSize: 10, color: "var(--text-muted)" }}>유입 손실</div>
+            </div>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>{b.title}</div>
+              <div style={{ fontSize: 13, lineHeight: 1.6, color: "var(--text)" }}>{b.desc}</div>
             </div>
           </div>
         ))}
-      </section>
+        <div
+          style={{
+            textAlign: "center",
+            padding: "10px 0",
+            fontSize: 14,
+            fontWeight: 700,
+            color: COLORS.danger,
+          }}
+        >
+          3개 병목 합산 판매 손실: 월 추정 370세트 (약 5,480만원)
+        </div>
+      </SectionPanel>
 
-      {/* 하단 안내 */}
+      {/* ═══ 7. 방치 vs 실행 시나리오 ═══ */}
+      <SectionPanel num={7} title="방치 vs 실행 — 6개월 후 예측">
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+          <div
+            style={{
+              flex: 1,
+              minWidth: 250,
+              border: "1px solid #fecaca",
+              borderRadius: 8,
+              padding: 14,
+              background: "#fef2f2",
+            }}
+          >
+            <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.danger, marginBottom: 10 }}>
+              시나리오 A: 방치
+            </div>
+            {[
+              { period: "1개월", metric: "부정 게시물 검색 상위 고착" },
+              { period: "3개월", metric: "SOV 38%→30%, 교육청 모멘텀 소멸" },
+              { period: "6개월", metric: "월 판매 350→220건, 연 매출 -2.3억" },
+            ].map((r) => (
+              <div
+                key={r.period}
+                style={{ display: "flex", gap: 8, marginBottom: 6, fontSize: 13 }}
+              >
+                <span style={{ fontWeight: 600, color: COLORS.danger, minWidth: 50 }}>
+                  {r.period}
+                </span>
+                <span>{r.metric}</span>
+              </div>
+            ))}
+          </div>
+          <div
+            style={{
+              flex: 1,
+              minWidth: 250,
+              border: "1px solid #bbf7d0",
+              borderRadius: 8,
+              padding: 14,
+              background: "#f0fdf4",
+            }}
+          >
+            <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.success, marginBottom: 10 }}>
+              시나리오 B: 전략 실행
+            </div>
+            {[
+              { period: "1개월", metric: "가격 불만 40%↓, 영상 후기 12→20%" },
+              { period: "3개월", metric: "SEO 3→7개, 긍정률 47→55%" },
+              { period: "6개월", metric: "월 판매 350→600건, 연 매출 +4.4억" },
+            ].map((r) => (
+              <div
+                key={r.period}
+                style={{ display: "flex", gap: 8, marginBottom: 6, fontSize: 13 }}
+              >
+                <span style={{ fontWeight: 600, color: COLORS.success, minWidth: 50 }}>
+                  {r.period}
+                </span>
+                <span>{r.metric}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div
+          style={{
+            textAlign: "center",
+            marginTop: 12,
+            padding: 12,
+            background: COLORS.bg,
+            borderRadius: 8,
+            fontSize: 14,
+          }}
+        >
+          <strong>6개월 격차:</strong> 연{" "}
+          <span style={{ color: COLORS.success, fontWeight: 700 }}>6.7억원</span> · 투자 월
+          1,200만원 · <span style={{ fontWeight: 700 }}>ROI 9.3x</span>
+        </div>
+      </SectionPanel>
+
+      {/* ═══ 8. 3단계 로드맵 ═══ */}
+      <SectionPanel num={8} title="통합 전략 — 3단계 로드맵">
+        {[
+          {
+            phase: "1단계: 방어",
+            period: "1~2주",
+            color: COLORS.danger,
+            bg: "#fef2f2",
+            items: [
+              "상세페이지 '1년 총비용 비교표' 최상단",
+              "2년 무상 보증 + 48시간 교환 발표",
+              "맘카페 부정 게시물 팩트 답변",
+              "3개월 무이자 (하루 1,644원)",
+            ],
+            target: "가격 불만 40%↓, 이탈률 65→45%",
+          },
+          {
+            phase: "2단계: 전환",
+            period: "3~4주",
+            color: COLORS.warn,
+            bg: "#fffbeb",
+            items: [
+              "아이 반응 숏폼 월 8회",
+              "VS 세이펜 비교 블로그 (네이버 SEO)",
+              "네이버 쇼핑 광고 3키워드 (월 300만원)",
+              "만족 구매자 후기 캠페인",
+            ],
+            target: "긍정률 +8%p, 월 +120세트",
+          },
+          {
+            phase: "3단계: 확장",
+            period: "5~8주",
+            color: COLORS.success,
+            bg: "#f0fdf4",
+            items: [
+              "'두돌 교구 추천' 연령별 가이드",
+              "'말하는 카드 교구 TOP4' 콘텐츠",
+              "교사 활용 가이드 PDF + 체험존 확대",
+              "LP카드 번들팩·정기구독 상품",
+            ],
+            target: "잠재 시장 노출 5→25%, 월 +150세트",
+          },
+        ].map((p) => (
+          <div
+            key={p.phase}
+            style={{
+              marginBottom: 12,
+              border: `1px solid ${p.color}30`,
+              borderRadius: 8,
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                background: p.bg,
+                padding: "10px 14px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <span style={{ fontWeight: 700, color: p.color, fontSize: 14 }}>{p.phase}</span>
+              <span style={{ fontSize: 12, color: "var(--text-muted)" }}>{p.period}</span>
+            </div>
+            <div style={{ padding: "10px 14px" }}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 8 }}>
+                {p.items.map((item) => (
+                  <span
+                    key={item}
+                    style={{
+                      fontSize: 12,
+                      padding: "4px 10px",
+                      background: COLORS.bg,
+                      borderRadius: 4,
+                    }}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+              <div style={{ fontSize: 12, color: p.color, fontWeight: 600 }}>목표: {p.target}</div>
+            </div>
+          </div>
+        ))}
+        <div
+          style={{ fontSize: 12, color: "var(--text-muted)", padding: "8px 0", lineHeight: 1.6 }}
+        >
+          <strong>순서의 이유:</strong> 방어(1단계) 없이 콘텐츠(2단계)를 만들면 "비싸다" 댓글이
+          달리고, 신규 시장(3단계)에 가도 불만 선입견이 따라온다.
+        </div>
+      </SectionPanel>
+
+      {/* ═══ 9. 투자와 ROI ═══ */}
+      <SectionPanel num={9} title="투자 계획과 기대 수익">
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+          <thead>
+            <tr style={{ borderBottom: "2px solid var(--border)" }}>
+              <th style={{ textAlign: "left", padding: "8px 6px" }}>채널</th>
+              <th style={{ textAlign: "center", padding: "8px 6px" }}>우선순위</th>
+              <th style={{ textAlign: "right", padding: "8px 6px" }}>월 투자</th>
+              <th style={{ textAlign: "right", padding: "8px 6px" }}>ROI</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[
+              { ch: "네이버 블로그 SEO", pri: 10, inv: "200만", roi: "5.8x" },
+              { ch: "네이버 쇼핑 광고", pri: 9, inv: "300만", roi: "4.2x" },
+              { ch: "인스타 릴스", pri: 8, inv: "150만", roi: "3.5x" },
+              { ch: "유튜브", pri: 7, inv: "100만", roi: "2.8x" },
+              { ch: "맘카페 대응", pri: 6, inv: "50만", roi: "방어" },
+              { ch: "오프라인 체험존", pri: 5, inv: "400만", roi: "2.1x" },
+            ].map((r) => (
+              <tr key={r.ch} style={{ borderBottom: "1px solid var(--border)" }}>
+                <td style={{ padding: "8px 6px" }}>{r.ch}</td>
+                <td style={{ textAlign: "center", padding: "8px 6px" }}>
+                  <div style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
+                    <div
+                      style={{
+                        width: `${r.pri * 8}px`,
+                        height: 8,
+                        background: COLORS.accent,
+                        borderRadius: 4,
+                      }}
+                    />
+                    <span style={{ fontSize: 11 }}>{r.pri}/10</span>
+                  </div>
+                </td>
+                <td style={{ textAlign: "right", padding: "8px 6px", fontWeight: 600 }}>{r.inv}</td>
+                <td
+                  style={{
+                    textAlign: "right",
+                    padding: "8px 6px",
+                    color: COLORS.success,
+                    fontWeight: 600,
+                  }}
+                >
+                  {r.roi}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr style={{ borderTop: "2px solid var(--border)", fontWeight: 700 }}>
+              <td style={{ padding: "10px 6px" }}>합계</td>
+              <td></td>
+              <td style={{ textAlign: "right", padding: "10px 6px" }}>1,200만원</td>
+              <td style={{ textAlign: "right", padding: "10px 6px", color: COLORS.success }}>
+                4.9x
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+        <div
+          style={{ textAlign: "center", marginTop: 10, fontSize: 13, color: "var(--text-muted)" }}
+        >
+          예상 추가 매출: <strong>월 5,870만원</strong> · 손익분기점: 82세트/월
+        </div>
+      </SectionPanel>
+
+      {/* ═══ 10. 30일 액션 플랜 ═══ */}
+      <SectionPanel num={10} title="30일 액션 플랜">
+        {[
+          {
+            week: "1주차",
+            label: "방어 기반",
+            color: COLORS.danger,
+            actions: [
+              "네이버 쇼핑 검색광고 3키워드 세팅 (월 300만원)",
+              "상세페이지 리뉴얼: 1년 비교표 + 연구 데이터 + 인증 뱃지 + 보증",
+              "맘카페 부정 게시물 공식 팩트 답변",
+            ],
+          },
+          {
+            week: "2주차",
+            label: "콘텐츠 시작",
+            color: COLORS.warn,
+            actions: [
+              "VS 세이펜 비교 블로그 발행 (네이버 SEO)",
+              "아이 반응 숏폼 시리즈 런칭 (월 8회)",
+              "3개월 무이자 + LP카드 5장 증정 이벤트",
+            ],
+          },
+          {
+            week: "3주차",
+            label: "시장 확장",
+            color: COLORS.accent,
+            actions: [
+              "'두돌 세돌 교구 추천' SEO 블로그 시리즈",
+              "체험 후 구매 프로그램 런칭 (2주 대여→전액 차감)",
+            ],
+          },
+          {
+            week: "4주차",
+            label: "확장 콘텐츠",
+            color: COLORS.success,
+            actions: [
+              "교사 활용 가이드 PDF 제작·배포",
+              "'말하는 카드 교구 TOP4 비교' 콘텐츠",
+              "LP카드 번들팩 + 정기구독 상품 기획",
+            ],
+          },
+        ].map((w) => (
+          <div
+            key={w.week}
+            style={{ marginBottom: 10, display: "flex", gap: 12, alignItems: "flex-start" }}
+          >
+            <div style={{ minWidth: 70, textAlign: "center", padding: "6px 0" }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: w.color }}>{w.week}</div>
+              <div style={{ fontSize: 10, color: "var(--text-muted)" }}>{w.label}</div>
+            </div>
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
+              {w.actions.map((a) => (
+                <div
+                  key={a}
+                  style={{
+                    fontSize: 13,
+                    padding: "6px 10px",
+                    background: COLORS.bg,
+                    borderRadius: 4,
+                    borderLeft: `3px solid ${w.color}`,
+                  }}
+                >
+                  {a}
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+        <div style={{ marginTop: 16, padding: 14, background: COLORS.bg, borderRadius: 8 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>30일 목표 KPI</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {[
+              { label: "SEO 상위 10위", from: "3개", to: "7개" },
+              { label: "추가 판매", from: "0", to: "+250~400세트" },
+              { label: "긍정률", from: "47%", to: "52%" },
+              { label: "이탈률", from: "65%", to: "50%" },
+              { label: "부정/긍정 비율", from: "2:1", to: "1:1" },
+            ].map((k) => (
+              <div
+                key={k.label}
+                style={{
+                  flex: "1 1 140px",
+                  border: "1px solid var(--border)",
+                  borderRadius: 6,
+                  padding: "8px 12px",
+                  textAlign: "center",
+                }}
+              >
+                <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{k.label}</div>
+                <div style={{ fontSize: 13, marginTop: 4 }}>
+                  <span style={{ color: COLORS.danger }}>{k.from}</span>
+                  <span style={{ margin: "0 4px" }}>→</span>
+                  <span style={{ color: COLORS.success, fontWeight: 700 }}>{k.to}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </SectionPanel>
+
+      {/* 하단 */}
       <div
         style={{ textAlign: "center", padding: "20px 0", fontSize: 12, color: "var(--text-muted)" }}
       >
