@@ -100,7 +100,7 @@ const DEMO_PRODUCTS: DemoProduct[] = [
     keywords: [
       {
         id: "kw-1a",
-        keyword: "토토LP 교육",
+        keyword: "키즈 LP 토토",
         searchVolume: 9400,
         sentimentScore: 0.52,
         postCount30d: 187,
@@ -112,50 +112,98 @@ const DEMO_PRODUCTS: DemoProduct[] = [
       },
       {
         id: "kw-1b",
-        keyword: "유아 영어 교구 추천",
-        searchVolume: 18500,
-        sentimentScore: 0.48,
-        postCount30d: 420,
+        keyword: "한국삐아제",
+        searchVolume: 22000,
+        sentimentScore: 0.61,
+        postCount30d: 520,
         trendDirection: "up",
-        competitorDensity: "high",
+        competitorDensity: "low",
         recommendation: "invest",
         lastAnalyzed: "2026-04-13T10:00:00Z",
         reportId: null,
       },
       {
         id: "kw-1c",
-        keyword: "유아 파닉스 교재",
-        searchVolume: 11200,
-        sentimentScore: 0.55,
-        postCount30d: 245,
+        keyword: "토토LP 후기",
+        searchVolume: 6800,
+        sentimentScore: 0.48,
+        postCount30d: 210,
         trendDirection: "up",
-        competitorDensity: "medium",
+        competitorDensity: "low",
         recommendation: "invest",
-        lastAnalyzed: "2026-04-12T14:00:00Z",
+        lastAnalyzed: "2026-04-13T08:00:00Z",
         reportId: null,
       },
       {
         id: "kw-1d",
-        keyword: "영어 교구 가성비",
-        searchVolume: 8700,
-        sentimentScore: 0.35,
-        postCount30d: 195,
-        trendDirection: "flat",
-        competitorDensity: "high",
+        keyword: "토토LP 단점",
+        searchVolume: 4200,
+        sentimentScore: 0.22,
+        postCount30d: 145,
+        trendDirection: "up",
+        competitorDensity: "low",
         recommendation: "maintain",
-        lastAnalyzed: "2026-04-10T09:00:00Z",
+        lastAnalyzed: "2026-04-12T14:00:00Z",
         reportId: null,
       },
       {
         id: "kw-1e",
-        keyword: "3세 영어 시작",
-        searchVolume: 15400,
-        sentimentScore: 0.58,
+        keyword: "유아 오디오 교구",
+        searchVolume: 15600,
+        sentimentScore: 0.55,
         postCount30d: 380,
+        trendDirection: "up",
+        competitorDensity: "high",
+        recommendation: "invest",
+        lastAnalyzed: "2026-04-12T10:00:00Z",
+        reportId: null,
+      },
+      {
+        id: "kw-1f",
+        keyword: "동화 카드 플레이어",
+        searchVolume: 8900,
+        sentimentScore: 0.58,
+        postCount30d: 195,
+        trendDirection: "flat",
+        competitorDensity: "high",
+        recommendation: "maintain",
+        lastAnalyzed: "2026-04-11T09:00:00Z",
+        reportId: null,
+      },
+      {
+        id: "kw-1g",
+        keyword: "유아 음악 교구 추천",
+        searchVolume: 12400,
+        sentimentScore: 0.62,
+        postCount30d: 310,
+        trendDirection: "up",
+        competitorDensity: "high",
+        recommendation: "invest",
+        lastAnalyzed: "2026-04-10T14:00:00Z",
+        reportId: null,
+      },
+      {
+        id: "kw-1h",
+        keyword: "두돌 세돌 교구 추천",
+        searchVolume: 19800,
+        sentimentScore: 0.65,
+        postCount30d: 440,
         trendDirection: "up",
         competitorDensity: "medium",
         recommendation: "invest",
-        lastAnalyzed: "2026-04-08T11:00:00Z",
+        lastAnalyzed: "2026-04-09T11:00:00Z",
+        reportId: null,
+      },
+      {
+        id: "kw-1i",
+        keyword: "누리과정 교구",
+        searchVolume: 7200,
+        sentimentScore: 0.58,
+        postCount30d: 165,
+        trendDirection: "flat",
+        competitorDensity: "medium",
+        recommendation: "maintain",
+        lastAnalyzed: "2026-04-08T09:00:00Z",
         reportId: null,
       },
     ],
@@ -1171,37 +1219,43 @@ function LandingContent({ onOpenLogin }: { onOpenLogin: (register?: boolean) => 
           <div className="sample-stat">
             <div className="sample-stat-value">38%</div>
             <div className="sample-stat-label">SOV 점유율</div>
-            <div className="sample-stat-sub">경쟁 교구 대비 1위</div>
+            <div className="sample-stat-sub">5개 경쟁 교구 대비 1위</div>
           </div>
           <div className="sample-stat">
-            <div className="sample-stat-value">52%</div>
-            <div className="sample-stat-label">긍정 감성</div>
-            <div className="sample-stat-sub">부정 26% / 중립 22%</div>
+            <div className="sample-stat-value">10개</div>
+            <div className="sample-stat-label">연관 키워드</div>
+            <div className="sample-stat-sub">제품·경쟁·잠재고객</div>
           </div>
           <div className="sample-stat">
-            <div className="sample-stat-value">1.2만</div>
-            <div className="sample-stat-label">6개월 판매 세트</div>
-            <div className="sample-stat-sub">유아 교구 급성장</div>
+            <div className="sample-stat-value">91건</div>
+            <div className="sample-stat-label">가격 불만 언급</div>
+            <div className="sample-stat-sub">전주 대비 1.8배</div>
           </div>
           <div className="sample-stat sample-stat-alert">
-            <div className="sample-stat-value">1.8x</div>
-            <div className="sample-stat-label">가격 저항 급증</div>
-            <div className="sample-stat-sub">14.8만원 장벽</div>
+            <div className="sample-stat-value">47%</div>
+            <div className="sample-stat-label">긍정률 최하위</div>
+            <div className="sample-stat-sub">SOV 1위인데 긍정률 꼴찌</div>
           </div>
         </div>
         <div className="sample-insights">
           <div className="insight-card insight-risk">
             <div className="insight-tag">리스크 자동 감지</div>
-            <p>맘카페 &apos;비싸다/핑크퐁이 반값&apos; 언급 23건 급증 (전주 대비 1.8배)</p>
+            <p>
+              &apos;세이펜은 5만원인데&apos; 가격 비교 불만 91건, &apos;토토LP 단점&apos; 검색 월
+              4,200건 급증
+            </p>
             <div className="insight-action">
-              AI 즉시 권고: 3개월 무이자 할부 + 체험 후 구매 프로그램 도입
+              AI 즉시 권고: 3개월 무이자 할부 + 체험 후 구매 프로그램 + 윤선생 연 59만원 비교 메시지
             </div>
           </div>
           <div className="insight-card insight-gap">
-            <div className="insight-tag">경쟁사 갭 발견</div>
-            <p>핑크퐁 유튜브 언박싱 리뷰 월 12회, 평균 8만 조회 (구매 링크 포함)</p>
+            <div className="insight-tag">콘텐츠 갭 발견</div>
+            <p>
+              &apos;토토LP vs 세이펜&apos; 비교 질문 44건/주이나 공식 비교 콘텐츠 0건, SEO 미진입
+            </p>
             <div className="insight-action">
-              AI 즉시 권고: LP 언박싱 + 아이 반응 숏폼 시리즈 선제 런칭
+              AI 즉시 권고: 연구 데이터 기반 비교 콘텐츠 발행 + &apos;두돌 교구 추천&apos; 19,800건
+              키워드 선점
             </div>
           </div>
         </div>
@@ -2229,104 +2283,104 @@ function KeywordTimelineView({
 const DEMO_REPORT_SECTIONS = [
   {
     id: "section-1",
-    title: "핵심 요약 (Executive Summary)",
+    title: "판매사 브리핑 — 핵심 요약",
     sourceModule: "#08",
     content:
-      "토토LP 교육, 촉각 학습의 검증된 효과와 가격·품질 장벽 사이에서 판매 전환 극대화가 핵심 과제\n\n시장 기회: 유아 영어 교구 시장 연 15% 성장, 아날로그+디지털 융합 교구는 토토LP가 유일 — 카테고리 선점 기회\n고객 니즈: 학부모는 '스크린 걱정 없는 영어 교육'에 높은 관심 → 촉각 학습 메시지가 구매 결정의 핵심 트리거\n경쟁 상황: SOV 1위(38%) 확보했으나 핑크퐁(25%)의 가성비 포지셔닝에 밀리는 구간 존재 → 프리미엄 가치 입증 필수\n구매 장벽: 가격 14.8만원 저항(23건 불만), 턴테이블 품질 불만(19건) → 체험·할부·보증 3종 대응 시급\n프로모션 기회: 교보문고 팝업 전환율 데이터 확보 후 전국 오프라인 체험 확대 + 형제 할인으로 객단가 유지하며 볼륨 확대",
+      "키즈LP토토(한국삐아제), 유아 오디오 교구 시장 SOV 1위 — 그러나 가격·품질 장벽이 구매 전환을 저해\n\n[시장 기회] '두돌 세돌 교구 추천' 검색 월 19,800건, '유아 오디오 교구' 15,600건 → 구매 의향 높은 부모 대거 유입 중이나 '키즈LP토토' 직접 검색은 9,400건에 불과\n[브랜드 자산] '한국삐아제' 검색 월 22,000건 — 브랜드 신뢰 기반은 견고하나, 제품명 인지도는 브랜드 대비 43% 수준\n[구매 저해 요인] '토토LP 단점' 검색 월 4,200건 급증. 핵심 불만 3가지: ① 세트 가격 14.8만원 ② LP카드 추가 구매 비용 ③ 플레이어 내구성·AS 불만\n[경쟁 위협] '동화 카드 플레이어' 시장에 세이펜·핑크퐁·윤선생이 5~8만원대로 포진 → 가격 2배 차이를 정당화할 교육 효과 근거 필수\n[즉시 실행] ① '유아 오디오 교구' 네이버 쇼핑 검색광고 ② 토토LP 후기 숏폼 월 8회 ③ 누리과정 연계 교사 추천 ④ 체험 후 구매 프로그램 도입",
   },
   {
     id: "section-2",
-    title: "시장 여론 동향 (Macro View)",
+    title: "검색 키워드 분석 — 고객 유입 경로",
     sourceModule: "#01",
     content:
-      "토토LP 교육은 실물 LP레코드와 AI 발음 분석 앱을 결합한 유아 영어 교구로, 출시 6개월 만에 1만 2천 세트를 판매하며 시장의 주목을 받고 있다. 서울시교육청 혁신 사례 선정, 촉각 학습 효과 논문 발표, 프리A 15억 투자 유치 등 핵심 성장 지표가 긍정적이다. 그러나 세트 가격 14만 8천원에 대한 가격 저항, 턴테이블 품질 이슈, 경쟁 교구 대비 가성비 비판이 구매 전환의 주요 장벽으로 작용하고 있다.",
+      "● 제품 직접 검색 (인지도 지표)\n  '키즈 LP 토토' 9,400건/월 — 제품명 직접 검색, 후기·비교·구매 의도 혼재\n  '한국삐아제' 22,000건/월 — 브랜드 전체 검색, 토토LP 외 다른 제품 포함\n  '토토LP 후기' 6,800건/월 — 구매 직전 단계, 긍정 48%로 개선 여지 큼\n  '토토LP 단점' 4,200건/월 — 부정 감성 집중, 가격·내구성이 주요 이슈\n\n● 카테고리 검색 (시장 규모 지표)\n  '유아 오디오 교구' 15,600건/월 — 카테고리 대표 키워드, 토토LP 언급률 38%\n  '동화 카드 플레이어' 8,900건/월 — 직접 경쟁군, 세이펜·핑크퐁이 상위 노출\n  '유아 음악 교구 추천' 12,400건/월 — 구매 비교 단계, 토토LP 노출 부족\n\n● 잠재 고객 검색 (확장 기회)\n  '두돌 세돌 교구 추천' 19,800건/월 — 타깃 연령 부모, 토토LP 인지도 낮음\n  '누리과정 교구' 7,200건/월 — B2B(유치원) 확장 가능, 교육과정 연계 필수",
   },
   {
     id: "section-3",
-    title: "감성 분석 (Sentiment Analysis)",
+    title: "감성 분석 — 고객 목소리",
     sourceModule: "#03",
     content:
-      "긍정 52% · 부정 26% · 중립 22%\n\n상위 키워드: LP레코드(61), 파닉스(44), 촉각학습(36), 가격(33), 턴테이블(29), 발음분석(27), 유치원(24)\n\n프레임 경쟁:\n• 아날로그+디지털 융합 혁신: 32%\n• 촉각 학습 효과·몰입 체험: 25%\n• 가격·가성비 이슈: 22%\n• 하드웨어 품질·AS 불만: 13%\n• 글로벌 확장·투자 소식: 8%",
+      "종합 감성: 긍정 47% · 부정 31% · 중립 22%\n\n[긍정 요인 — 판매 셀링포인트]\n• '아이가 스스로 LP카드 꺼내서 틀어요' — 자발적 학습 습관 (언급 84건)\n• '영어 노래 따라 부르기 시작' — 파닉스 학습 효과 체감 (언급 67건)\n• '스크린 안 보여줘도 돼서 좋아요' — 비디지털 교구 차별점 (언급 52건)\n• '누리과정 연계돼서 유치원에서도 써요' — B2B 확장 근거 (언급 38건)\n\n[부정 요인 — 판매 저해 요소]\n• '14만원 너무 비싸요. 세이펜은 5만원대' — 가격 저항 (언급 91건, 전주 대비 1.8배)\n• 'LP카드 추가 구매가 장당 3천원' — 숨은 비용 불만 (언급 45건)\n• '3개월 만에 플레이어 고장' — 내구성·AS 불만 (언급 38건)\n• '노래만 나오고 대화 연습은 안 됨' — 기능 한계 인식 (언급 29건)\n\n[중립 — 전환 가능 영역]\n• '세이펜이랑 뭐가 다른 거예요?' — 비교 문의 (언급 44건) → 차별점 콘텐츠 기회\n• '체험해보고 싶은데 어디서 해요?' — 체험 수요 (언급 31건) → 오프라인 체험존 확대",
   },
   {
     id: "section-4",
-    title: "주요 변곡점 (Inflection Points)",
+    title: "시장 변곡점 — 판매 영향 이벤트",
     sourceModule: "#01",
     content:
-      "[2026-04-11] 서울시교육청 유아 영어 혁신 사례 선정 (50개 유치원 채택) (영향도: high)\n[2026-04-09] 촉각 학습 효과 연구 논문 발표 (어휘 유지율 28% 향상) (영향도: high)\n[2026-04-08] 프리A 15억원 투자 유치 발표 (영향도: high)\n[2026-04-04] 교보문고 팝업 체험존 사전예약 500건 돌파 (1일 만) (영향도: medium)\n[2026-04-06] 소비자원 상담 건수 전월 대비 40% 증가 (품질·가격 불만) (영향도: low)",
+      "[2026-04-11] 서울시교육청 누리과정 연계 교구 선정 — 유치원 50곳 채택 → B2B 레퍼런스 확보, 학부모 신뢰도 급상승\n[2026-04-09] 유아교육연구소 '오디오 교구 어휘 유지율 28% 향상' 논문 발표 → 프리미엄 가격 정당화 핵심 근거\n[2026-04-08] 한국삐아제 프리A 15억 투자 유치 발표 → 브랜드 신뢰도 상승, 언론 보도 증가\n[2026-04-06] 소비자원 상담 건수 전월 대비 40% 증가 (플레이어 품질·AS) → 부정 구전 확산 주의\n[2026-04-04] 교보문고 키즈 체험존 사전예약 1일 500건 돌파 → 오프라인 체험 수요 검증\n[2026-04-02] 맘카페 '토토LP 가성비 논란' 게시물 조회수 8만 돌파 → 가격 저항 여론 확산",
   },
   {
     id: "section-5",
-    title: "SOV 점유율 분석 (Share of Voice)",
+    title: "SOV 점유율 — 경쟁 교구 비교",
     sourceModule: "#06",
     content:
-      "★ 토토LP 교육: 42건 (긍정률 62%)\n핑크퐁 스마트펜: 28건 (긍정률 71%)\n윤선생 스마트랜드: 18건 (긍정률 55%)\n리틀팍스: 14건 (긍정률 48%)\n디즈니 잉글리시: 10건 (긍정률 65%)",
+      "'유아 오디오 교구' 카테고리 내 브랜드별 온라인 언급 점유율:\n\n★ 토토LP (한국삐아제): 42건 (38%) — 긍정률 47%, 1위이나 긍정률은 최하위\n  세이펜 (크레비스): 31건 (28%) — 긍정률 68%, 가성비·호환성 강점\n  핑크퐁 워크북+펜: 19건 (17%) — 긍정률 72%, 캐릭터 친숙도\n  윤선생 스마트올: 12건 (11%) — 긍정률 55%, 체계적 커리큘럼\n  하티하티 플레이어: 8건 (7%) — 긍정률 61%, 신규 진입 교구\n\n핵심 시사점: 언급량 1위지만 긍정률 최하위 → '많이 알려졌지만 불만도 많다'는 위험 신호. 가격·품질 불만 해소 없이 인지도만 높이면 부정 구전 확대 우려.",
   },
   {
     id: "section-6",
-    title: "콘텐츠 갭 분석",
+    title: "콘텐츠 갭 — 판매 직결 기회",
     sourceModule: "#06",
     content:
-      "■ 학부모 구매 후기 영상 (언박싱 + 아이 반응) [weak] → 영향: high\n  경쟁사: 핑크퐁이 유튜브에서 학부모 언박싱 리뷰 시리즈 운영 (월 12회, 평균 8만 조회, 구매 링크 포함)\n  제안: 아이가 LP판 올리는 순간 반응 숏폼 영상 + 구매 페이지 CTA 직결 시리즈 런칭\n\n■ 타 교구 비교 분석 콘텐츠 [absent] → 영향: high\n  경쟁사: 윤선생이 네이버 블로그에서 '교구 비교 가이드' 시리즈 (주 2회, SEO 상위 3위 점유)\n  제안: 촉각 학습 연구 데이터 기반 '왜 LP 교구가 다른가' 비교 콘텐츠 발행 + 체험 신청 CTA\n\n■ 유치원 교사 추천 콘텐츠 [absent] → 영향: medium\n  경쟁사: 리틀팍스가 교사 대상 무료 수업 자료 배포 (월 4회, 교사 커뮤니티 팔로워 1.2만)\n  제안: 시범 유치원 50곳 교사 인터뷰 콘텐츠 + 교사 전용 할인 프로그램\n\n■ 학습 성과 추적 콘텐츠 [absent] → 영향: medium\n  경쟁사: 디즈니 잉글리시가 인스타에서 '우리 아이 영어 성장 기록' 카드뉴스 (일 1회, 팔로워 3.8만)\n  제안: 앱 발음 분석 데이터 기반 '우리 아이 파닉스 성장 리포트' 공유 기능 + SNS 챌린지",
+      "■ '토토LP vs 세이펜' 비교 콘텐츠 [absent] → 영향: critical\n  현실: '세이펜이랑 뭐가 달라요?' 질문 44건이나 공식 비교 콘텐츠 0건\n  경쟁사: 세이펜이 네이버 블로그에서 '교구 비교' 시리즈 주 3회 발행, SEO 상위 독점\n  제안: 가격은 2배이지만 '오디오 몰입 학습 효과는 3배' — 연구 데이터 기반 비교 콘텐츠\n\n■ 실구매자 아이 반응 영상 [weak] → 영향: high\n  현실: '토토LP 후기' 6,800건 검색 중 영상 콘텐츠 비율 12% (텍스트 후기 위주)\n  경쟁사: 핑크퐁이 유튜브 언박싱+아이 반응 릴스 월 12회, 평균 8만 조회\n  제안: '우리 아이가 LP카드 스스로 꺼내는 순간' 숏폼 시리즈 + 구매 링크 직결\n\n■ 누리과정 교사 추천 콘텐츠 [absent] → 영향: high\n  현실: '누리과정 교구' 검색 7,200건이나 토토LP 관련 교사 콘텐츠 0건\n  제안: 유치원 50곳 채택 사례 + 교사 인터뷰 → B2B + B2C 동시 공략\n\n■ '두돌 세돌 교구 추천' 카테고리 진입 [absent] → 영향: high\n  현실: 월 19,800건 검색되는 황금 키워드이나 토토LP 노출 0건\n  제안: '두돌 아이 첫 영어, LP카드로 시작하세요' — 연령별 가이드 콘텐츠",
   },
   {
     id: "section-7",
-    title: "리스크 시그널",
+    title: "리스크 시그널 — 판매 저해 요인",
     sourceModule: "#06",
     content:
-      "[WARNING] 세트 가격 14만 8천원에 대한 가격 저항 — 구매 전환 최대 장벽\n  근거: 맘카페에서 '비싸다' '핑크퐁이 반값' '할인 언제' 관련 언급 23건, 전주 대비 1.8배 증가. 장바구니 이탈률 추정 65%.\n  대응: 3개월 무이자 할부 + 형제 2세트 20% 할인 + 체험 후 구매 프로그램 도입.\n\n[WARNING] 턴테이블 품질 이슈 — 구매 망설임 및 부정 구전 확산\n  근거: 소비자원 상담 40% 증가, '모터 소리' 'AS 느림' 언급 19건. 구매 후기에서 별점 하락 추세 (4.2→3.6).\n  대응: 턴테이블 2년 무상 보증 발표 + 24시간 내 교환 보장 정책 시행.\n\n[WATCH] 핑크퐁 스마트펜 신제품 출시 예고 — 가격대 동일 구간 경쟁 심화\n  근거: 핑크퐁 SNS에서 '새로운 영어 교구 곧 출시' 티저 + 네이버 검색량 전주 대비 2.1배 증가.\n  대응: 차별점(촉각 학습 논문 + 교육청 인증) 강조 캠페인 선제 집행.",
+      "[CRITICAL] 가격 저항 — 구매 전환 최대 장벽\n  데이터: '토토LP 단점' 검색 4,200건/월, 맘카페 가격 불만 91건 (전주 대비 1.8배)\n  핵심 이슈: 세이펜 5만원, 핑크퐁 7만원 대비 14.8만원은 '교구치고 너무 비싸다'는 인식\n  판매 대응: 3개월 무이자 할부 + 첫 구매 LP카드 5장 추가 증정 + 체험 후 구매 프로그램\n\n[WARNING] 플레이어 내구성·AS 불만 — 부정 구전 확산\n  데이터: 소비자원 상담 40% 증가, '고장' '모터소리' 'AS 느림' 언급 38건\n  핵심 이슈: 별점 4.2→3.6 하락, '비싼데 고장까지' 복합 불만\n  판매 대응: 2년 무상 보증 + 48시간 내 교환 보장 → 구매 시 안심 메시지 강조\n\n[WARNING] LP카드 추가 비용 불만 — 숨은 비용 인식\n  데이터: '카드 추가 비싸다' 언급 45건, '본체만 사면 할 게 없다' 불만\n  판매 대응: 연령별 LP카드 번들팩(6장 묶음 20% 할인) + 정기구독 할인 도입\n\n[WATCH] 세이펜 신제품 출시 예고\n  데이터: 크레비스 SNS 신제품 티저 + '세이펜 신형' 검색량 2.1배 증가\n  판매 대응: '세이펜은 책을 읽어주고, 토토LP는 음악으로 가르친다' 차별화 메시지",
   },
   {
     id: "section-7b",
-    title: "경쟁사 갭 분석",
+    title: "경쟁 교구 갭 분석 — 판매 차별점",
     sourceModule: "#06",
     content:
-      "■ 핑크퐁 스마트펜\n  갭: 캐릭터 의존도 높음, 학습 심도 부족. 가격 7만원대로 가성비 우위이나 교육 연구 근거 없음.\n  우리 강점: 촉각 학습 논문으로 교육 효과 입증 — 판매 포인트: '연구로 증명된 28% 높은 어휘 유지율'\n\n■ 윤선생 스마트랜드\n  갭: 방문 학습 필수, 교구 단독 사용 불가. 월 구독 5만원으로 연간 비용 60만원 이상.\n  우리 강점: 1회 구매로 무한 반복 학습 — 판매 포인트: '60만원 vs 15만원, 같은 효과'\n\n■ 리틀팍스\n  갭: 스크린 의존형, 유아 시력 우려. 실물 교구 없이 앱 전용.\n  우리 강점: LP레코드 실물 조작 → 스크린 타임 최소화. 판매 포인트: '눈 걱정 없는 영어 교육'\n\n■ 디즈니 잉글리시\n  갭: IP 라이선싱 비용으로 가격 높음(20만원대). 한국어 학습 최적화 부족.\n  우리 강점: 한국 유아 발음 특화 AI 분석 (정확도 87%). 판매 포인트: '한국 아이 발음에 맞춘 유일한 교구'",
+      "■ 세이펜 (크레비스) — 가격: 4.9만원\n  약점: 책 위주, 음악·오디오 학습 부재. 펜 분실·파손 빈번. 호환 도서 구매 필수.\n  토토LP 셀링포인트: '펜으로 글자 찍기 vs LP카드로 음악 몰입 — 어휘 유지율 28% 차이'\n\n■ 핑크퐁 워크북+펜 — 가격: 6.9만원\n  약점: 캐릭터 의존, 학습 깊이 부족. 유아기 지나면 흥미 급감.\n  토토LP 셀링포인트: '캐릭터 없이도 아이가 스스로 꺼내는 교구 — 자기주도 학습 습관'\n\n■ 윤선생 스마트올 — 가격: 월 4.9만원 (연 59만원)\n  약점: 월 구독 부담, 교구 반납 필수. 약정 해지 시 위약금.\n  토토LP 셀링포인트: '59만원 구독 vs 14.8만원 1회 구매, 2년 쓰면 4배 절약'\n\n■ 하티하티 카드 플레이어 — 가격: 7.9만원\n  약점: 콘텐츠 양 부족(80장), 영어 전용 아님(한국어 동화 위주).\n  토토LP 셀링포인트: '영어 파닉스 전문 + 누리과정 연계 — 교육부 인증 교구'",
   },
   {
     id: "section-8",
-    title: "메시지 전략 (Message Strategy)",
+    title: "메시지 전략 — 판매 화법",
     sourceModule: "#07",
     content:
-      '핵심 메시지: "LP 한 장이면, 우리 아이 영어가 시작됩니다"\n\n보조 메시지:\n• 연구로 증명: LP 촉각 학습이 어휘 기억력 28% 높인다 (유아교육연구소 논문)\n• 서울시교육청이 선정한 유아 영어 혁신 교구 — 전국 50개 유치원 정규 채택\n• 1만 2천 가정이 선택한 우리 아이 첫 영어 친구\n• 스크린 걱정 없이, LP레코드로 자연스럽게 파닉스 완성\n• 지금 체험하면 LP 2장 추가 증정 — 한정 수량\n\n톤앤매너: 따뜻하고 신뢰감 있는 — 연구 데이터와 학부모 공감을 균형있게',
+      '핵심 메시지: "LP카드 한 장이면, 우리 아이 영어가 시작됩니다"\n\n[가격 저항 대응 화법]\n• "세이펜 5만원 vs 토토LP 14.8만원 — 그런데 연구 결과 어휘 유지율이 28% 높습니다"\n• "윤선생 월 5만원 × 12개월 = 60만원. 토토LP는 1번 구매로 끝 — 2년 쓰면 4배 절약"\n• "지금 3개월 무이자 할부 + LP카드 5장 추가 증정 중입니다"\n\n[품질 불안 대응 화법]\n• "2년 무상 보증 + 48시간 내 교환 — 안심하고 써보세요"\n• "교보문고 체험존에서 직접 만져보시고 결정하세요"\n\n[경쟁 교구 비교 화법]\n• "세이펜은 책을 읽어주고, 토토LP는 음악으로 가르칩니다. 아이가 더 좋아하는 건?"\n• "핑크퐁은 캐릭터에 의존하지만, 토토LP는 아이가 스스로 꺼내서 듣는 교구예요"\n\n톤앤매너: 따뜻하고 신뢰감 있는, 데이터로 뒷받침하되 공감 우선',
   },
   {
     id: "section-9",
-    title: "콘텐츠 전략 (Content Calendar)",
+    title: "주간 콘텐츠 전략 — 판매 전환 중심",
     sourceModule: "#07",
     content:
-      "월요일 오전 10시 | instagram | 구매 후기 릴스 30초 + 구매 링크 CTA\n  → LP 언박싱: 아이가 처음 턴테이블에 LP를 올리는 순간\n\n화요일 오후 2시 | naver_blog | 비교 분석 블로그 (촉각 vs 스크린) + 체험 신청 CTA\n  → 촉각 학습이 뭔가요? — 연구 논문 쉽게 풀어보기\n\n수요일 오후 6시 | youtube | 교사 인터뷰 숏폼 3분 + 교사 할인 정보\n  → 유치원 선생님이 말하는 토토LP 수업 효과\n\n목요일 오전 9시 | email | 개인화 뉴스레터 + 추가 LP판 구매 CTA\n  → 이번 주 우리 아이 파닉스 성장 리포트\n\n금요일 오후 1시 | naver_blog | 객관적 비교 카드뉴스 + 체험 프로그램 안내\n  → 토토LP vs 스마트펜: 우리 아이에게 맞는 교구는?\n\n토요일 오전 11시 | instagram | 스토리 하이라이트 + 체험 예약 CTA\n  → 교보문고 체험존 현장: 아이들 반응 라이브",
+      "월 | 네이버 블로그 | '토토LP vs 세이펜 비교 — 우리 아이에게 맞는 교구는?'\n  → '유아 오디오 교구' SEO 선점, 비교 검색 유입 포획, 체험 예약 CTA\n\n화 | 인스타그램 릴스 | '32개월 아이가 LP카드 스스로 꺼내서 틀어요'\n  → 실사용 영상으로 구매 망설임 해소, 구매 링크 CTA\n\n수 | 유튜브 숏폼 | '유치원 선생님이 말하는 토토LP 누리과정 활용법'\n  → 교사 추천으로 신뢰도 강화, B2B + B2C 동시 공략\n\n목 | 네이버 블로그 | '두돌 아이 첫 영어, LP카드로 시작하는 3가지 이유'\n  → '두돌 세돌 교구 추천' 19,800건 검색 유입 포획\n\n금 | 인스타그램 카드뉴스 | '토토LP 6개월 사용 후기 — 달라진 점 5가지'\n  → '토토LP 후기' 검색 전환, 구매 결정 촉진\n\n토 | 맘카페 콘텐츠 | '교보문고 체험존 현장 아이들 반응 하이라이트'\n  → 체험 수요 전환, 오프라인 → 온라인 구매 유도",
   },
   {
     id: "section-10",
-    title: "채널 우선순위",
+    title: "채널 우선순위 — 판매 전환 기여도",
     sourceModule: "#07",
     content:
-      "10/10 — 네이버 블로그\n  학부모 교구 검색의 70%가 네이버 — '유아 영어 교구 추천' SEO 선점 필수.\n\n9/10 — 인스타그램\n  아이 반응 영상의 바이럴 잠재력 극대. 구매 링크 연결 용이.\n\n8/10 — 네이버 쇼핑 검색광고\n  구매 의향 높은 검색 트래픽 직접 포획.\n\n7/10 — 유튜브\n  교사·전문가 추천 콘텐츠로 신뢰도 강화.\n\n6/10 — 이메일 뉴스레터\n  기존 구매자 리텐션 + 추가 LP판 크로스셀.",
+      "10/10 — 네이버 블로그\n  학부모 교구 검색의 70%가 네이버. '유아 오디오 교구 추천' SEO 상위 3위 미진입 → 즉시 공략\n\n9/10 — 네이버 쇼핑 검색광고\n  '유아 오디오 교구' '동화 카드 플레이어' 구매 의향 키워드 직접 포획. 현재 광고 미집행 상태.\n\n9/10 — 인스타그램\n  '토토LP 후기' 검색자의 60%가 인스타에서 추가 탐색. 아이 반응 영상 바이럴 잠재력 극대.\n\n7/10 — 유튜브\n  '토토LP vs 세이펜' 비교 영상 수요 높으나 공식 콘텐츠 0건. 교사 추천 + 비교 리뷰 발행 필요.\n\n6/10 — 맘카페 (네이버 카페)\n  가격 논란의 발원지이자 전환 채널. 부정 여론 모니터링 + 공식 답변 대응 필수.\n\n5/10 — 오프라인 체험존\n  교보문고 사전예약 500건/일 검증. 체험 → 구매 전환율 데이터 확보 후 전국 확대.",
   },
   {
     id: "section-11",
-    title: "리스크 완화 방안",
+    title: "리스크 완화 — 실행 방안",
     sourceModule: "#07",
     content:
-      "가격 저항(14만 8천원)으로 장바구니 이탈률 높음\n  → 3개월 무이자 할부 + 체험 후 구매 프로그램(2주 대여 후 구매 시 대여비 차감) + 형제 세트 20% 할인\n\n턴테이블 품질 불만으로 구매 망설임 및 부정 구전 확산\n  → 2년 무상 보증 + 24시간 내 교환 정책 공식 발표.\n\n핑크퐁 신제품 출시로 가격대 직접 경쟁 심화\n  → 촉각 학습 논문 + 교육청 인증 강조 차별화 캠페인 선제 집행.",
+      "가격 저항(14.8만원) → 장바구니 이탈률 추정 65%\n  → 3개월 무이자 할부 즉시 도입 + 첫 구매 LP카드 5장 추가 증정\n  → 체험 후 구매 프로그램: 2주 대여(2만원) → 구매 시 대여비 전액 차감\n  → '윤선생 연 59만원 vs 토토LP 14.8만원' 비교 메시지 전면 배치\n\n플레이어 내구성·AS 불만 → 별점 4.2→3.6 하락\n  → 2년 무상 보증 + 48시간 내 교환 정책 공식 발표\n  → 기존 구매자 대상 '플레이어 무상 점검 이벤트' 시행 → 부정 구전 차단\n\nLP카드 추가 비용 불만 → '본체만 사면 할 게 없다'\n  → 연령별 LP카드 번들팩(6장 묶음 20% 할인) 출시\n  → LP카드 정기구독(월 2장 배송, 15% 할인) 도입\n\n세이펜 신제품 경쟁 심화\n  → '세이펜은 책, 토토LP는 음악' 포지셔닝 차별화\n  → 누리과정 교육부 인증 + 연구 논문 레퍼런스 선제 홍보",
   },
   {
     id: "section-12",
-    title: "즉시 실행 과제 (Critical Actions)",
+    title: "즉시 실행 과제 (판매팀 액션)",
     sourceModule: "#08",
     content:
-      "[HIGH] 네이버 쇼핑 검색광고 세팅 — '유아 영어 교구 추천' 키워드 구매 전환 직결\n[HIGH] 학부모 체험 후기 언박싱 숏폼 시리즈 런칭 — 월 8회, 구매 링크 CTA 필수 포함\n[HIGH] 체험 후 구매 프로그램 설계 — 2주 대여 → 구매 시 대여비 차감, 전환율 목표 40%\n[HIGH] 턴테이블 2년 무상 보증 + 24시간 교환 정책 공식 발표 — 구매 망설임 해소\n[MEDIUM] 촉각 학습 연구 데이터 기반 교구 비교 콘텐츠 발행 — 프리미엄 가격 정당화",
+      "[HIGH] 네이버 쇼핑 검색광고 세팅 — '유아 오디오 교구' '동화 카드 플레이어' 키워드 구매 전환 직결\n[HIGH] '토토LP vs 세이펜' 비교 콘텐츠 발행 — 비교 검색 44건/주 유입 포획 (네이버 블로그 SEO)\n[HIGH] 체험 후 구매 프로그램 설계 — 2주 대여 → 구매 시 대여비 차감, 전환율 목표 40%\n[HIGH] 플레이어 2년 무상 보증 + 48시간 교환 정책 공식 발표 — 품질 불안 해소\n[HIGH] 실구매자 아이 반응 숏폼 시리즈 런칭 — 월 8회, 구매 링크 CTA 필수 포함\n[MEDIUM] '두돌 세돌 교구 추천' 네이버 블로그 SEO 콘텐츠 — 월 19,800건 검색 유입\n[MEDIUM] 누리과정 연계 교사 추천 프로그램 — 유치원 50곳 사례 기반 B2B 확장\n[MEDIUM] LP카드 번들팩 + 정기구독 상품 기획 — 추가 비용 불만 해소 + 객단가 유지",
   },
 ];
 
-const DEMO_SENTIMENT = { positive: 0.52, negative: 0.26, neutral: 0.22 };
+const DEMO_SENTIMENT = { positive: 0.47, negative: 0.31, neutral: 0.22 };
 const DEMO_SOV = [
-  { brand: "토토LP 교육", mentions: 42, rate: 62, ours: true },
-  { brand: "핑크퐁 스마트펜", mentions: 28, rate: 71, ours: false },
-  { brand: "윤선생 스마트랜드", mentions: 18, rate: 55, ours: false },
-  { brand: "리틀팍스", mentions: 14, rate: 48, ours: false },
-  { brand: "디즈니 잉글리시", mentions: 10, rate: 65, ours: false },
+  { brand: "토토LP (한국삐아제)", mentions: 42, rate: 47, ours: true },
+  { brand: "세이펜 (크레비스)", mentions: 31, rate: 68, ours: false },
+  { brand: "핑크퐁 워크북+펜", mentions: 19, rate: 72, ours: false },
+  { brand: "윤선생 스마트올", mentions: 12, rate: 55, ours: false },
+  { brand: "하티하티 플레이어", mentions: 8, rate: 61, ours: false },
 ];
 
 function DemoReportView({ keyword }: { keyword: DemoKeyword }) {
