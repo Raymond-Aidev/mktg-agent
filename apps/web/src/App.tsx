@@ -611,6 +611,7 @@ export function App() {
             }}
             style={{ cursor: "pointer" }}
           >
+            <img src="/favicon.svg" alt="" className="nav-logo-icon" />
             GoldenCheck
           </span>
         </div>
