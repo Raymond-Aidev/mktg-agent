@@ -2488,11 +2488,11 @@ function KeywordTimelineView({
 const BAR_H = 22;
 const COLORS = {
   accent: "#4F46E5",
-  success: "#16a34a",
-  danger: "#dc2626",
-  warn: "#f59e0b",
-  muted: "#94a3b8",
-  bg: "#f1f5f9",
+  success: "var(--success, #16a34a)",
+  danger: "var(--danger, #dc2626)",
+  warn: "var(--warning, #f59e0b)",
+  muted: "var(--text-muted, #94a3b8)",
+  bg: "var(--bg-subtle, #f1f5f9)",
 };
 
 function HBar({
@@ -2717,7 +2717,7 @@ function ProductReportView({ productName }: { productName: string }) {
           <div
             style={{
               flex: "1 1 200px",
-              background: "#fef2f2",
+              background: "var(--card-red)",
               border: "1px solid #fecaca",
               borderRadius: 8,
               padding: 14,
@@ -2736,7 +2736,7 @@ function ProductReportView({ productName }: { productName: string }) {
           <div
             style={{
               flex: "1 1 200px",
-              background: "#fff7ed",
+              background: "var(--card-orange)",
               border: "1px solid #fed7aa",
               borderRadius: 8,
               padding: 14,
@@ -2755,7 +2755,7 @@ function ProductReportView({ productName }: { productName: string }) {
           <div
             style={{
               flex: "1 1 200px",
-              background: "#eff6ff",
+              background: "var(--card-blue)",
               border: "1px solid #bfdbfe",
               borderRadius: 8,
               padding: 14,
@@ -2774,7 +2774,7 @@ function ProductReportView({ productName }: { productName: string }) {
         </div>
         <div
           style={{
-            background: "#f0fdf4",
+            background: "var(--card-green)",
             border: "1px solid #bbf7d0",
             borderRadius: 8,
             padding: 14,
@@ -2855,7 +2855,7 @@ function ProductReportView({ productName }: { productName: string }) {
             style={{
               flex: 1,
               minWidth: 200,
-              background: "#fef2f2",
+              background: "var(--card-red)",
               border: "1px solid #fecaca",
               borderRadius: 6,
               padding: 10,
@@ -2870,7 +2870,7 @@ function ProductReportView({ productName }: { productName: string }) {
             style={{
               flex: 1,
               minWidth: 200,
-              background: "#eff6ff",
+              background: "var(--card-blue)",
               border: "1px solid #bfdbfe",
               borderRadius: 6,
               padding: 10,
@@ -3114,7 +3114,7 @@ function ProductReportView({ productName }: { productName: string }) {
         </div>
         <div
           style={{
-            background: "#fef3c7",
+            background: "var(--card-yellow)",
             border: "1px solid #fde68a",
             borderRadius: 8,
             padding: 12,
@@ -3151,7 +3151,7 @@ function ProductReportView({ productName }: { productName: string }) {
               key={b.kw}
               style={{
                 flex: "1 1 180px",
-                border: `1px solid ${b.win ? "#bbf7d0" : "#fecaca"}`,
+                border: `1px solid ${b.win ? "var(--card-green-border)" : "var(--card-red-border)"}`,
                 borderRadius: 8,
                 padding: 10,
                 background: b.win ? "#f0fdf4" : "#fef2f2",
@@ -3255,7 +3255,7 @@ function ProductReportView({ productName }: { productName: string }) {
               border: "1px solid #fecaca",
               borderRadius: 8,
               padding: 14,
-              background: "#fef2f2",
+              background: "var(--card-red)",
             }}
           >
             <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.danger, marginBottom: 10 }}>
@@ -3284,7 +3284,7 @@ function ProductReportView({ productName }: { productName: string }) {
               border: "1px solid #bbf7d0",
               borderRadius: 8,
               padding: 14,
-              background: "#f0fdf4",
+              background: "var(--card-green)",
             }}
           >
             <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.success, marginBottom: 10 }}>
@@ -3330,7 +3330,7 @@ function ProductReportView({ productName }: { productName: string }) {
             phase: "1단계: 방어",
             period: "1~2주",
             color: COLORS.danger,
-            bg: "#fef2f2",
+            bg: "var(--card-red)",
             items: [
               "상세페이지 '1년 총비용 비교표' 최상단",
               "2년 무상 보증 + 48시간 교환 발표",
@@ -3343,7 +3343,7 @@ function ProductReportView({ productName }: { productName: string }) {
             phase: "2단계: 전환",
             period: "3~4주",
             color: COLORS.warn,
-            bg: "#fffbeb",
+            bg: "var(--card-yellow)",
             items: [
               "아이 반응 숏폼 월 8회",
               "VS 세이펜 비교 블로그 (네이버 SEO)",
@@ -3356,7 +3356,7 @@ function ProductReportView({ productName }: { productName: string }) {
             phase: "3단계: 확장",
             period: "5~8주",
             color: COLORS.success,
-            bg: "#f0fdf4",
+            bg: "var(--card-green)",
             items: [
               "'두돌 교구 추천' 연령별 가이드",
               "'말하는 카드 교구 TOP4' 콘텐츠",

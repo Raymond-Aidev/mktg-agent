@@ -15,10 +15,51 @@
   --warning-light: #fffbeb;
   --danger: #dc2626;
   --danger-light: #fef2f2;
+  --card-red: #fef2f2;
+  --card-red-border: #fecaca;
+  --card-orange: #fff7ed;
+  --card-orange-border: #fed7aa;
+  --card-blue: #eff6ff;
+  --card-blue-border: #bfdbfe;
+  --card-green: #f0fdf4;
+  --card-green-border: #bbf7d0;
+  --card-yellow: #fef3c7;
+  --card-yellow-border: #fde68a;
   --radius: 16px;
   --radius-sm: 12px;
   --radius-xs: 8px;
   font-family: "Pretendard", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f172a;
+    --bg-subtle: #1e293b;
+    --bg-card: #1e293b;
+    --border: #334155;
+    --text: #f1f5f9;
+    --text-muted: #94a3b8;
+    --accent: #ef4444;
+    --accent-light: #1c1917;
+    --accent-hover: #f87171;
+    --success: #34d399;
+    --success-light: #064e3b;
+    --warning: #fbbf24;
+    --warning-light: #422006;
+    --danger: #f87171;
+    --danger-light: #450a0a;
+    --card-red: #2d1214;
+    --card-red-border: #5c2020;
+    --card-orange: #2d1f0e;
+    --card-orange-border: #5c3d1a;
+    --card-blue: #0f1a2e;
+    --card-blue-border: #1e3a5f;
+    --card-green: #0d2818;
+    --card-green-border: #1a4d2e;
+    --card-yellow: #2d2510;
+    --card-yellow-border: #5c4a1a;
+    --nav-bg: rgba(15, 23, 42, 0.95);
+  }
 }
 
 * { box-sizing: border-box; }
@@ -32,7 +73,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .global-nav {
   display: flex; align-items: center; justify-content: space-between; gap: 16px;
   padding: 16px 40px; border-bottom: 1px solid var(--border);
-  background: rgba(255,255,255,0.95); backdrop-filter: blur(12px);
+  background: var(--nav-bg, rgba(255,255,255,0.95)); backdrop-filter: blur(12px);
   position: sticky; top: 0; z-index: 100;
 }
 .global-nav > * { flex-shrink: 0; }
@@ -558,7 +599,7 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .insight-card {
   padding: 24px; border-radius: var(--radius); position: relative; overflow: hidden;
 }
-.insight-risk { background: #fff7ed; border: 1px solid #fed7aa; }
+.insight-risk { background: var(--card-orange); border: 1px solid var(--card-orange-border); }
 .insight-gap { background: #eff6ff; border: 1px solid #bfdbfe; }
 .insight-tag {
   display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase;
