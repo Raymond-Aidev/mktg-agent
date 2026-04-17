@@ -7,6 +7,7 @@ import { rightsDealsHandler } from "../batch/handlers/rights-deals.ts";
 import { bestsellersHandler } from "../batch/handlers/bestsellers.ts";
 import { marketTrendsHandler } from "../batch/handlers/market-trends.ts";
 import { competitorsHandler } from "../batch/handlers/competitors.ts";
+import { isTerminalFailure, moveToDlq } from "../batch/dlq.ts";
 
 /**
  * queue:batch worker — Category A (persistent dataset) scheduled crawlers.
@@ -60,6 +61,11 @@ export function startBatchWorker(): Worker<BatchJobData> {
   });
   worker.on("failed", (job, err) => {
     console.error(`[worker:batch] fail ${job?.name} id=${job?.id}: ${err.message}`);
+    if (isTerminalFailure(job)) {
+      void moveToDlq(QUEUE_BATCH, job!, err).catch((e) => {
+        console.error(`[worker:batch] DLQ move failed: ${(e as Error).message}`);
+      });
+    }
   });
   worker.on("error", (err) => {
     console.error(`[worker:batch] error ${err.message}`);

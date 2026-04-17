@@ -3,6 +3,7 @@ import basicAuth from "express-basic-auth";
 import { env } from "../infra/env.ts";
 import { getPool } from "../infra/db.ts";
 import { listQueues } from "../infra/queues.ts";
+import { snapshot as circuitBreakerSnapshot } from "../batch/circuit-breaker.ts";
 
 /**
  * Operator overview endpoint — single round-trip for the admin dashboard.
@@ -171,6 +172,14 @@ operatorRouter.get("/overview", async (_req: Request, res: Response) => {
     const signalcraftJobs: Record<string, number> = {};
     for (const r of jobStats.rows) signalcraftJobs[r.status] = Number(r.c);
 
+    // Circuit breakers (best-effort — table may be empty on first deploy).
+    let circuitBreakers: Awaited<ReturnType<typeof circuitBreakerSnapshot>> = [];
+    try {
+      circuitBreakers = await circuitBreakerSnapshot();
+    } catch (err) {
+      console.error("[operator] circuit breakers failed:", (err as Error).message);
+    }
+
     return res.json({
       health: {
         postgres: { ok: pgOk, latencyMs: pgLatencyMs },
@@ -185,6 +194,7 @@ operatorRouter.get("/overview", async (_req: Request, res: Response) => {
         failedAt: r.failed_at.toISOString(),
       })),
       queues: queueCounts,
+      circuitBreakers,
       llmCost: llmCost.rows.map((r) => ({
         modelName: r.model_name,
         totalCalls: Number(r.total_calls),

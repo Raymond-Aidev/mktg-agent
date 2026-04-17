@@ -57,6 +57,29 @@ export const queueFailedGauge = new Gauge({
   registers: [registry],
 });
 
+export const dlqSizeGauge = new Gauge({
+  name: "eduright_dlq_size",
+  help: "Pending jobs sitting in a DLQ awaiting operator action",
+  labelNames: ["queue"],
+  registers: [registry],
+});
+
+export const dlqMovedTotal = new Counter({
+  name: "eduright_dlq_moved_total",
+  help: "Jobs moved into the DLQ after exhausting BullMQ retries",
+  labelNames: ["queue"],
+  registers: [registry],
+});
+
+export const circuitBreakerStateGauge = new Gauge({
+  name: "eduright_circuit_breaker_state",
+  help: "Circuit breaker per source: 0=closed, 1=half_open, 2=open",
+  labelNames: ["source"],
+  registers: [registry],
+});
+
+const DLQ_NAMES = new Set(["batch-dlq", "signalcraft-dlq"]);
+
 /**
  * Refresh queue gauges by querying BullMQ. Called on each /metrics scrape
  * so the values reflect the latest state without a polling loop.
@@ -72,8 +95,26 @@ export async function refreshQueueGauges(): Promise<void> {
       queueWaitingGauge.set({ queue: q.name }, Number(c.waiting ?? 0));
       queueActiveGauge.set({ queue: q.name }, Number(c.active ?? 0));
       queueFailedGauge.set({ queue: q.name }, Number(c.failed ?? 0));
+      if (DLQ_NAMES.has(q.name)) {
+        // DLQ "size" = waiting + delayed (jobs not yet hand-retried).
+        const size = Number(c.waiting ?? 0) + Number(c.delayed ?? 0);
+        dlqSizeGauge.set({ queue: q.name }, size);
+      }
     }
   } catch {
     // best-effort — leave previous values in place
   }
+}
+
+const STATE_NUM: Record<"closed" | "half_open" | "open", number> = {
+  closed: 0,
+  half_open: 1,
+  open: 2,
+};
+
+export function setCircuitBreakerGauge(
+  source: string,
+  state: "closed" | "half_open" | "open",
+): void {
+  circuitBreakerStateGauge.set({ source }, STATE_NUM[state]);
 }

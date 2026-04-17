@@ -2,6 +2,7 @@ import { Worker, type Job } from "bullmq";
 import { createBullConnection } from "../infra/redis.ts";
 import { QUEUE_SIGNALCRAFT } from "../infra/queues.ts";
 import { runPipeline } from "../signalcraft/pipeline.ts";
+import { isTerminalFailure, moveToDlq } from "../batch/dlq.ts";
 
 /**
  * queue:signalcraft worker — Category B (on-demand keyword dataset).
@@ -52,6 +53,11 @@ export function startSignalcraftWorker(): Worker<SignalcraftJobData> {
   });
   worker.on("failed", (job, err) => {
     console.error(`[worker:signalcraft] fail id=${job?.id}: ${err.message}`);
+    if (isTerminalFailure(job)) {
+      void moveToDlq(QUEUE_SIGNALCRAFT, job!, err).catch((e) => {
+        console.error(`[worker:signalcraft] DLQ move failed: ${(e as Error).message}`);
+      });
+    }
   });
   worker.on("error", (err) => {
     console.error(`[worker:signalcraft] error ${err.message}`);
