@@ -48,6 +48,19 @@ const EnvSchema = z.object({
   SMTP_USER: z.string().email().optional(),
   SMTP_PASS: z.string().optional(),
 
+  // Object storage — Phase 5 (Cloudflare R2, S3-compatible)
+  R2_ACCOUNT_ID: z.string().optional(),
+  R2_ACCESS_KEY_ID: z.string().optional(),
+  R2_SECRET_ACCESS_KEY: z.string().optional(),
+  R2_BUCKET: z.string().optional(),
+  // Public base URL for R2 bucket (e.g. https://assets.goldencheck.kr).
+  // If unset, the API returns presigned URLs instead.
+  R2_PUBLIC_URL_BASE: z.string().url().optional(),
+  // Internal URL used to reach the API from the PDF renderer (same-origin
+  // loopback). Defaults to http://localhost:$PORT so Puppeteer can hit
+  // /api/v1/reports/:id?format=html without leaving the container.
+  INTERNAL_API_URL: z.string().url().optional(),
+
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
 });
 
