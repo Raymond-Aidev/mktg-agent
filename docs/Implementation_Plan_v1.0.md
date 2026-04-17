@@ -1,19 +1,20 @@
 GoldenCheck  ·  Implementation Plan  |  v1.0 → v2.0
 
-> **v2.1 업데이트 (2026-04-15)**: 통합분석 리포트 시각화, 다크모드, 프로필 드롭다운 반영.
+> **v2.2 업데이트 (2026-04-17)**: Phase 7 W22 (DLQ + Circuit Breaker, Grafana 대시보드·알림, 부하 테스트) 완료.
+> **v2.1 (2026-04-15)**: 통합분석 리포트 시각화, 다크모드, 프로필 드롭다운 반영.
 
-## Phase 진행 현황 (2026-04-15 기준)
+## Phase 진행 현황 (2026-04-17 기준)
 
 | Phase | 설계 기간 | 상태 | 달성도 | 비고 |
 |-------|----------|------|--------|------|
 | Phase 0. 프로젝트 셋업 | W01~W02 | 완료 | 90% | Railway로 변경 (AWS 아님), CI/CD는 Railway 자동 배포, buildCommand 설정 완료 |
-| Phase 1. 데이터 기반 | W03~W05 | 완료 | 95% | 12개 마이그레이션 (0001~0012), BullMQ 2큐, DB Role 강제 적용 |
-| Phase 2. Category A 파이프라인 | W06~W10 | 부분 완료 | 55% | 5/7 배치 구현, buyers:bologna/raw-posts:archive 미구현, DLQ 미구현 |
+| Phase 1. 데이터 기반 | W03~W05 | 완료 | 95% | 13개 마이그레이션 (0001~0012 + 0016 DLQ), BullMQ 4큐(batch/signalcraft + DLQ 2), DB Role 강제 적용 |
+| Phase 2. Category A 파이프라인 | W06~W10 | 부분 완료 | 55% | 5/7 배치 구현, buyers:bologna/raw-posts:archive 미구현 |
 | Phase 3. Category B 수집기 | W06~W09 | 부분 완료 | 30% | Naver+HN 구현, YouTube/DC/Clien/FM 미구현 |
 | Phase 4. LLM 14모듈 | W10~W15 | 부분 완료 | 50% | 6/14 모듈 구현, #13 프롬프트 전면 재설계 (상품 중심 11섹션), 에이전트 가이드 |
 | Phase 5. KPI/리포트/PDF | W16~W19 | 부분 완료 | 75% | 통합분석 리포트 시각화 10섹션 (퍼널/매트릭스/비교표/시나리오), PDF/R2 미구현 |
 | Phase 6. API/대시보드 통합 | W18~W22 | 대폭 확장 | 90% | 19개 API, 25개 React 컴포넌트, 프로필 드롭다운, 다크모드, 통합리포트 뷰 |
-| Phase 7. 관측성 | W22~W25 | 진행 중 | 25% | Prometheus /metrics + Sentry 기본. Grafana 대시보드/DLQ/부하테스트 미구현 |
+| Phase 7. 관측성 | W22~W25 | **W22 완료** | 70% | Prometheus /metrics · Sentry · **DLQ + Circuit Breaker (7.1)** · **Grafana 대시보드·알림 7종 (7.2)** · **부하 테스트 (7.3)** 완료. W23~W25는 후속 튜닝 · PDF · R2 등 다른 phase로 재분배 예정 |
 | Phase 8. MVP 릴리즈 | W25~W28 | 미시작 | 0% | |
 
 ### 설계 외 추가 구현 (Phase A~D + Admin + 샘플)
@@ -33,18 +34,25 @@ GoldenCheck  ·  Implementation Plan  |  v1.0 → v2.0
 | 리포트 에이전트 | integrated-report-writer 가이드 (.claude/agents/) + #13 프롬프트 재설계 | 완료 | 2026-04-15 |
 | 파비콘 | 인디고 배경 + 흰색 체크마크 SVG (primary) + PNG (fallback) | 완료 | 2026-04-15 |
 
+### Phase 7 W22 완료 증거 (2026-04-17)
+
+| 항목 | 커밋 / 문서 |
+|---|---|
+| DLQ + Circuit Breaker 구현 + Railway 마이그레이션 | `e7e4d70` · DB 0016 적용 검증 |
+| Grafana 대시보드(uid=eduright-data-pipeline) + 알림 7 + Slack contact | `dd11470` · `grafana/README.md` |
+| 부하 테스트 실행 보고서 (P95 2585ms, 워커층 정상) | `92d7aa4` · `docs/load-test-results-2026-04-17.md` |
+| DLQ 운영 플레이북 | `docs/dlq-playbook.md` |
+
 ### 잔여 작업 (MVP 전 필수)
 
 | 우선순위 | 항목 | Phase |
 |---------|------|-------|
-| HIGH | Category B 수집기 확장 (YouTube/DC/Clien/FM) | Phase 3 |
 | HIGH | LLM 모듈 8개 추가 (#02,#04,#05,#09,#10,#11,#12,#14) | Phase 4 |
-| HIGH | Grafana 대시보드 + 알림 규칙 7개 | Phase 7 |
-| HIGH | DLQ 플레이북 + Circuit Breaker | Phase 7 |
+| HIGH | Category B 수집기 확장 (YouTube/DC/Clien/FM) | Phase 3 |
 | MEDIUM | PDF 생성 (Puppeteer) + R2 업로드 | Phase 5 |
 | MEDIUM | PG 연동 결제 시스템 | Phase D 후속 |
-| MEDIUM | 부하 테스트 (10 동시 SignalCraft) | Phase 7 |
 | MEDIUM | buyers:bologna 크롤러 | Phase 2 |
+| MEDIUM | 워커 concurrency 1→3 + 부하 스크립트 keep-alive (부하 테스트 후속 튜닝) | Phase 7 후속 |
 | LOW | raw_posts S3 Parquet 아카이브 | Phase 2 |
 | LOW | i18n (한/영) | Phase 6 |
 | LOW | 이메일 인증 (회원가입 시) | Phase B 후속 |
