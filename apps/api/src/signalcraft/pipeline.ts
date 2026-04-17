@@ -8,14 +8,30 @@ import { strategyModuleConfig } from "../llm/modules/strategy.ts";
 import { macroViewModuleConfig } from "../llm/modules/macro-view.ts";
 import { summaryModuleConfig } from "../llm/modules/summary.ts";
 import { integratedModuleConfig, type IntegratedOutput } from "../llm/modules/integrated.ts";
+import { segmentationModuleConfig } from "../llm/modules/segmentation.ts";
+import { topicModuleConfig } from "../llm/modules/topic.ts";
+import { riskMapModuleConfig } from "../llm/modules/risk-map.ts";
+import { preferenceModuleConfig } from "../llm/modules/preference.ts";
+import { contentGapModuleConfig } from "../llm/modules/content-gap.ts";
+import { crisisModuleConfig } from "../llm/modules/crisis.ts";
+import { successSimModuleConfig } from "../llm/modules/success-sim.ts";
+import { qaModuleConfig } from "../llm/modules/qa.ts";
 
 const moduleLabels: Record<string, string> = {
   "#01": "시장 여론 동향",
+  "#02": "소비자 집단 분류",
   "#03": "감성 분석",
+  "#04": "주요 논점 추출",
+  "#05": "리스크 지도",
   "#06": "시장 인텔리전스",
   "#07": "실행 전략",
   "#08": "핵심 요약",
+  "#09": "편향 보정 선호도",
+  "#10": "콘텐츠 갭 기획",
+  "#11": "위기 대응 시나리오",
+  "#12": "성공 확률 시뮬레이션",
   "#13": "통합 리포트",
+  "#14": "환각 교차 검증",
 };
 import type {
   ModuleConfig,
@@ -263,20 +279,30 @@ async function runStage3(input: PipelineInput): Promise<Stage3Result> {
   const ran: string[] = [];
   const failed: string[] = [];
 
-  // v2.0 module execution order (PRD v2.0 §5, Tech Spec v2.0 §4.1):
-  //   #03 Sentiment  → "잘 되고 있나?" (감정 분포)
-  //   #06 Opportunity → "뭘 수정해야 하나?" (기회 발굴, reads #03)
-  //   #07 Strategy    → "더 좋은 방법은?" (실행 전략, reads #03 + #06)
-  //   #08 Summary     → BLUF + 액션 (reads all above)
-  //   #01 Macro View  → 여론 서사 (독립)
-  //   #13 Integrated  → 통합 리포트 (reads everything)
+  // v2.0 14-module execution order — 의존성 레이어로 정렬.
+  // 1차 (독립): #03 #02 #04 #09 #01
+  // 2차 (1차 참조): #06 (#03) → #05 (#03/#04) → #10 (#06/#02) → #11 (#05)
+  // 3차 (2차 참조): #07 (#03/#06) → #08 (#03/#06/#07)
+  // 4차 (전체 합성): #12 (#03~#11) → #14 (모두 QA) → #13 (최종 리포트, QA 반영)
   const modules: ModuleConfig<unknown>[] = [
+    // 1차 — 독립
     sentimentModuleConfig as ModuleConfig<unknown>, // #03
-    opportunityModuleConfig as ModuleConfig<unknown>, // #06
-    strategyModuleConfig as ModuleConfig<unknown>, // #07
-    summaryModuleConfig as ModuleConfig<unknown>, // #08
+    segmentationModuleConfig as ModuleConfig<unknown>, // #02
+    topicModuleConfig as ModuleConfig<unknown>, // #04
+    preferenceModuleConfig as ModuleConfig<unknown>, // #09
     macroViewModuleConfig as ModuleConfig<unknown>, // #01
-    integratedModuleConfig as ModuleConfig<unknown>, // #13
+    // 2차 — 1차 참조
+    opportunityModuleConfig as ModuleConfig<unknown>, // #06 (reads #03)
+    riskMapModuleConfig as ModuleConfig<unknown>, // #05 (reads #03/#04)
+    contentGapModuleConfig as ModuleConfig<unknown>, // #10 (reads #06/#02)
+    crisisModuleConfig as ModuleConfig<unknown>, // #11 (reads #05)
+    // 3차
+    strategyModuleConfig as ModuleConfig<unknown>, // #07 (reads #03/#06)
+    summaryModuleConfig as ModuleConfig<unknown>, // #08
+    // 4차 — 전체 합성
+    successSimModuleConfig as ModuleConfig<unknown>, // #12
+    qaModuleConfig as ModuleConfig<unknown>, // #14
+    integratedModuleConfig as ModuleConfig<unknown>, // #13 (QA 반영 최종)
   ];
 
   let integratedOutput: IntegratedOutput | null = null;
