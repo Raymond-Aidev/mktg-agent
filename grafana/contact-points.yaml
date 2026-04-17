@@ -1,0 +1,59 @@
+# Phase 7 W22 — Grafana Cloud Contact Points + Notification Policy
+#
+# Slack webhook URL은 Railway Variables / Grafana Cloud Vault에 저장하고
+# 여기에는 placeholder만 둔다. Provisioning import 시 Grafana UI에서 치환.
+#
+# 채널 매핑:
+#   - severity=critical, category=A    → #ops-alerts (운영자)
+#   - severity=critical, category=infra → #ops-alerts + PagerDuty (별도 룰)
+#   - severity=warning, category=cost  → #product-alerts
+#   - 그 외                              → #ops-alerts (default)
+
+apiVersion: 1
+
+contactPoints:
+  - orgId: 1
+    name: slack-ops-alerts
+    receivers:
+      - uid: slack_ops
+        type: slack
+        settings:
+          # Replace with secret reference: ${SLACK_OPS_WEBHOOK}
+          url: https://hooks.slack.com/services/REPLACE/WITH/OPS_WEBHOOK
+          recipient: "#ops-alerts"
+          username: GoldenCheck Alerts
+          title: "[{{ .Status | toUpper }}] {{ .CommonLabels.alertname }}"
+          text: |
+            *{{ .CommonAnnotations.summary }}*
+            {{ .CommonAnnotations.description }}
+            {{ if .CommonAnnotations.runbook_url }}Runbook: {{ .CommonAnnotations.runbook_url }}{{ end }}
+
+  - orgId: 1
+    name: slack-product-alerts
+    receivers:
+      - uid: slack_product
+        type: slack
+        settings:
+          url: https://hooks.slack.com/services/REPLACE/WITH/PRODUCT_WEBHOOK
+          recipient: "#product-alerts"
+          username: GoldenCheck Alerts
+          title: "[{{ .Status | toUpper }}] {{ .CommonLabels.alertname }}"
+          text: |
+            *{{ .CommonAnnotations.summary }}*
+            {{ .CommonAnnotations.description }}
+
+policies:
+  - orgId: 1
+    receiver: slack-ops-alerts
+    group_by: [alertname, category]
+    group_wait: 30s
+    group_interval: 5m
+    repeat_interval: 4h
+    routes:
+      - receiver: slack-product-alerts
+        matchers:
+          - category = cost
+        group_by: [alertname]
+        group_wait: 60s
+        group_interval: 10m
+        repeat_interval: 12h

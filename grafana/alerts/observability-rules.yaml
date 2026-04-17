@@ -1,0 +1,202 @@
+# Phase 7 W22 — Grafana Cloud Alert Rules (Provisioning v1)
+#
+# 7개 룰의 출처:
+#   - docs/Technical_Specification_v1.0.md §1.7 (운영 임계치)
+#   - docs/dlq-playbook.md §7 (자동화 대상)
+#
+# Provisioning 가이드:
+#   1) Grafana Cloud → Alerting → Alert rules → Provisioning → Import YAML
+#   2) 또는 grafana-cli로 푸시: grafana-cli alerts import grafana/alerts/*.yaml
+#
+# 모든 룰은 단일 Prometheus 데이터 소스 `grafanacloud-prom`에 의존한다.
+# `${SLACK_OPS_CONTACT}`, `${SLACK_PRODUCT_CONTACT}` 는 contact-points.yaml의
+# 채널 이름과 일치해야 한다.
+
+apiVersion: 1
+
+groups:
+  - orgId: 1
+    name: goldencheck-observability
+    folder: GoldenCheck
+    interval: 1m
+    rules:
+      # ────────────────────────────────────────────────────────────
+      # 1) DLQ high — queue:batch DLQ가 적체되면 운영자가 즉시 대응해야 함
+      #    Tech Spec §1.7: "queue:batch DLQ 적체 > 10건"
+      # ────────────────────────────────────────────────────────────
+      - uid: dlq_high_batch
+        title: dlq_high (batch)
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: grafanacloud-prom
+            model:
+              expr: 'eduright_dlq_size{queue="batch-dlq"} > 10'
+              instant: true
+              refId: A
+        for: 5m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: critical
+          category: A
+        annotations:
+          summary: "queue:batch DLQ has {{ $value }} pending jobs (>10)"
+          runbook_url: "https://github.com/Raymond-Aidev/mktg-agent/blob/main/docs/dlq-playbook.md"
+          description: "Operator action required. See dlq-playbook §2~5."
+
+      # ────────────────────────────────────────────────────────────
+      # 2) Source failures — 동일 source 1시간에 3건 이상 실패
+      #    Tech Spec §1.7: "크롤링 소스 연속 실패 3회 → 자동 circuit breaker"
+      #    Circuit breaker가 켜졌다는 것은 source 자체에 문제가 있다는 신호.
+      # ────────────────────────────────────────────────────────────
+      - uid: source_failures
+        title: source_failures (circuit breaker open)
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: grafanacloud-prom
+            model:
+              expr: "eduright_circuit_breaker_state == 2"
+              instant: true
+              refId: A
+        for: 1m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: warning
+          category: A
+        annotations:
+          summary: "Circuit breaker OPEN for source={{ $labels.source }}"
+          description: "3 consecutive failures triggered a 30-minute open window. See dlq-playbook §2."
+
+      # ────────────────────────────────────────────────────────────
+      # 3) Queue active starvation — waiting는 쌓이는데 active=0 (워커 다운)
+      #    dlq-playbook §7: "active==0 AND waiting>5 (10분)"
+      # ────────────────────────────────────────────────────────────
+      - uid: queue_active_starvation_batch
+        title: queue_active_starvation (batch)
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: grafanacloud-prom
+            model:
+              expr: 'eduright_queue_active_jobs{queue="batch"} == 0 and eduright_queue_waiting_jobs{queue="batch"} > 5'
+              instant: true
+              refId: A
+        for: 10m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: critical
+          category: A
+        annotations:
+          summary: "queue:batch worker appears down (waiting={{ $value }}, active=0)"
+          description: "Confirm Railway service health and worker logs. See dlq-playbook §3."
+
+      # ────────────────────────────────────────────────────────────
+      # 4) SignalCraft long run — 단일 잡이 3시간 초과
+      #    Tech Spec §1.7: "카테고리 B 평균 실행 시간 > 3시간"
+      #    프록시: queue:signalcraft active 잡이 3시간 동안 0보다 큰 상태로 유지.
+      # ────────────────────────────────────────────────────────────
+      - uid: signalcraft_long_run
+        title: signalcraft_long_run
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange: { from: 10800, to: 0 }
+            datasourceUid: grafanacloud-prom
+            model:
+              expr: 'min_over_time(eduright_queue_active_jobs{queue="signalcraft"}[3h]) > 0'
+              instant: true
+              refId: A
+        for: 5m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: warning
+          category: B
+        annotations:
+          summary: "SignalCraft job has been active for >3h"
+          description: "Pipeline likely stuck. Inspect /admin/operator/overview and signalcraft worker logs."
+
+      # ────────────────────────────────────────────────────────────
+      # 5) LLM cost spike — 1h 비용 rate가 24h 평균의 3배 초과 (프록시: 호출 수)
+      #    Tech Spec §1.7: "LLM 24h 비용이 7-day avg 3배 초과"
+      #    참고: cost_usd 메트릭이 별도로 없으므로 호출 수 기반 근사.
+      # ────────────────────────────────────────────────────────────
+      - uid: llm_cost_spike
+        title: llm_cost_spike (call-rate proxy)
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange: { from: 3600, to: 0 }
+            datasourceUid: grafanacloud-prom
+            model:
+              expr: "sum(rate(eduright_llm_calls_total[1h])) > 3 * sum(rate(eduright_llm_calls_total[24h]))"
+              instant: true
+              refId: A
+        for: 15m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: warning
+          category: cost
+        annotations:
+          summary: "LLM call rate {{ $value }} (>3× 24h avg)"
+          description: "Investigate suspicious traffic, runaway loop, or new high-volume tenant."
+
+      # ────────────────────────────────────────────────────────────
+      # 6) Postgres unhealthy — /health postgres.ok=false (프록시: scrape 실패)
+      #    Tech Spec §1.7: "pg_unhealthy → Slack #ops-alerts + PagerDuty"
+      #    /metrics 엔드포인트가 응답을 못 하면 up=0.
+      # ────────────────────────────────────────────────────────────
+      - uid: pg_unhealthy
+        title: pg_unhealthy (scrape proxy)
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: grafanacloud-prom
+            model:
+              expr: 'up{job="goldencheck-api"} == 0'
+              instant: true
+              refId: A
+        for: 2m
+        noDataState: Alerting
+        execErrState: Alerting
+        labels:
+          severity: critical
+          category: infra
+        annotations:
+          summary: "goldencheck-api scrape failing (likely Postgres or container down)"
+          runbook_url: "https://github.com/Raymond-Aidev/mktg-agent/blob/main/docs/dlq-playbook.md#3-인프라-인시던트"
+          description: "Check Railway service status; if container is up, hit /health for detail."
+
+      # ────────────────────────────────────────────────────────────
+      # 7) Redis unhealthy — event loop lag 폭증을 프록시로 사용
+      #    Redis 끊기면 BullMQ가 polling 실패하며 lag가 1s 이상으로 튐.
+      # ────────────────────────────────────────────────────────────
+      - uid: redis_unhealthy
+        title: redis_unhealthy (event-loop lag proxy)
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: grafanacloud-prom
+            model:
+              expr: "eduright_nodejs_eventloop_lag_p99_seconds > 1"
+              instant: true
+              refId: A
+        for: 5m
+        noDataState: OK
+        execErrState: Alerting
+        labels:
+          severity: critical
+          category: infra
+        annotations:
+          summary: "Event loop p99 lag {{ $value }}s (>1s) — Redis or worker stalled"
+          description: "Check Railway Redis plugin status, then inspect API logs for `[redis]` errors."

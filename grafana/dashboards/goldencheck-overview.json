@@ -1,0 +1,346 @@
+{
+  "uid": "eduright-data-pipeline",
+  "title": "GoldenCheck — Data Pipeline Overview",
+  "description": "Phase 7 W22 통합 대시보드. 카테고리 A(좌) / 카테고리 B(우) / 시스템(하)을 한 화면에 표시. 메트릭은 Railway 인스턴스의 /metrics 에서 30s 간격으로 수집된다고 가정. Tech Spec §1.7의 dashboard ID = eduright-data-pipeline.",
+  "tags": ["goldencheck", "phase7", "observability"],
+  "timezone": "Asia/Seoul",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": { "from": "now-6h", "to": "now" },
+  "templating": {
+    "list": [
+      {
+        "name": "datasource",
+        "type": "datasource",
+        "query": "prometheus",
+        "current": { "selected": false, "text": "grafanacloud-prom", "value": "grafanacloud-prom" },
+        "hide": 0
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "row",
+      "title": "Category A — 상시 배치 (queue:batch)",
+      "gridPos": { "x": 0, "y": 0, "w": 24, "h": 1 }
+    },
+    {
+      "id": 10,
+      "type": "stat",
+      "title": "queue:batch waiting",
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "gridPos": { "x": 0, "y": 1, "w": 4, "h": 4 },
+      "targets": [
+        {
+          "expr": "eduright_queue_waiting_jobs{queue=\"batch\"}",
+          "refId": "A",
+          "legendFormat": "waiting"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": null, "color": "green" },
+              { "value": 10, "color": "yellow" },
+              { "value": 50, "color": "red" }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 11,
+      "type": "stat",
+      "title": "queue:batch active",
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "gridPos": { "x": 4, "y": 1, "w": 4, "h": 4 },
+      "targets": [
+        {
+          "expr": "eduright_queue_active_jobs{queue=\"batch\"}",
+          "refId": "A",
+          "legendFormat": "active"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "type": "stat",
+      "title": "queue:batch failed",
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "gridPos": { "x": 8, "y": 1, "w": 4, "h": 4 },
+      "targets": [{ "expr": "eduright_queue_failed_jobs{queue=\"batch\"}", "refId": "A" }],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": null, "color": "green" },
+              { "value": 1, "color": "yellow" },
+              { "value": 10, "color": "red" }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 13,
+      "type": "stat",
+      "title": "DLQ depth (batch)",
+      "description": "Operator action이 필요한 영구 실패 잡. >10이면 알림 자동 발화 (룰: dlq_high).",
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "gridPos": { "x": 12, "y": 1, "w": 6, "h": 4 },
+      "targets": [{ "expr": "eduright_dlq_size{queue=\"batch-dlq\"}", "refId": "A" }],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": null, "color": "green" },
+              { "value": 1, "color": "yellow" },
+              { "value": 10, "color": "red" }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 14,
+      "type": "stat",
+      "title": "Open circuit breakers",
+      "description": "0=closed, 1=half_open, 2=open. 2 이상이면 source가 차단된 상태.",
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "gridPos": { "x": 18, "y": 1, "w": 6, "h": 4 },
+      "targets": [
+        {
+          "expr": "count(eduright_circuit_breaker_state == 2)",
+          "refId": "A",
+          "legendFormat": "open"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": null, "color": "green" },
+              { "value": 1, "color": "red" }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 15,
+      "type": "timeseries",
+      "title": "queue:batch — waiting / active / failed (1h)",
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "gridPos": { "x": 0, "y": 5, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "eduright_queue_waiting_jobs{queue=\"batch\"}",
+          "refId": "A",
+          "legendFormat": "waiting"
+        },
+        {
+          "expr": "eduright_queue_active_jobs{queue=\"batch\"}",
+          "refId": "B",
+          "legendFormat": "active"
+        },
+        {
+          "expr": "eduright_queue_failed_jobs{queue=\"batch\"}",
+          "refId": "C",
+          "legendFormat": "failed"
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "type": "timeseries",
+      "title": "DLQ moved (rate per 5m, by queue)",
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "gridPos": { "x": 12, "y": 5, "w": 12, "h": 8 },
+      "targets": [
+        { "expr": "rate(eduright_dlq_moved_total[5m])", "refId": "A", "legendFormat": "{{queue}}" }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "row",
+      "title": "Category B — 온디맨드 (queue:signalcraft)",
+      "gridPos": { "x": 0, "y": 13, "w": 24, "h": 1 }
+    },
+    {
+      "id": 20,
+      "type": "stat",
+      "title": "queue:signalcraft waiting",
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "gridPos": { "x": 0, "y": 14, "w": 4, "h": 4 },
+      "targets": [{ "expr": "eduright_queue_waiting_jobs{queue=\"signalcraft\"}", "refId": "A" }]
+    },
+    {
+      "id": 21,
+      "type": "stat",
+      "title": "queue:signalcraft active",
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "gridPos": { "x": 4, "y": 14, "w": 4, "h": 4 },
+      "targets": [{ "expr": "eduright_queue_active_jobs{queue=\"signalcraft\"}", "refId": "A" }]
+    },
+    {
+      "id": 22,
+      "type": "stat",
+      "title": "queue:signalcraft failed",
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "gridPos": { "x": 8, "y": 14, "w": 4, "h": 4 },
+      "targets": [{ "expr": "eduright_queue_failed_jobs{queue=\"signalcraft\"}", "refId": "A" }]
+    },
+    {
+      "id": 23,
+      "type": "timeseries",
+      "title": "SignalCraft jobs by terminal status (rate per 5m)",
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "gridPos": { "x": 12, "y": 14, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "rate(eduright_signalcraft_jobs_total[5m])",
+          "refId": "A",
+          "legendFormat": "{{status}}"
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "type": "timeseries",
+      "title": "queue:signalcraft — waiting / active / failed",
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "gridPos": { "x": 0, "y": 18, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "eduright_queue_waiting_jobs{queue=\"signalcraft\"}",
+          "refId": "A",
+          "legendFormat": "waiting"
+        },
+        {
+          "expr": "eduright_queue_active_jobs{queue=\"signalcraft\"}",
+          "refId": "B",
+          "legendFormat": "active"
+        },
+        {
+          "expr": "eduright_queue_failed_jobs{queue=\"signalcraft\"}",
+          "refId": "C",
+          "legendFormat": "failed"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "row",
+      "title": "LLM 사용량",
+      "gridPos": { "x": 0, "y": 26, "w": 24, "h": 1 }
+    },
+    {
+      "id": 30,
+      "type": "timeseries",
+      "title": "LLM calls (rate per 5m, by model+status)",
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "gridPos": { "x": 0, "y": 27, "w": 24, "h": 7 },
+      "targets": [
+        {
+          "expr": "rate(eduright_llm_calls_total[5m])",
+          "refId": "A",
+          "legendFormat": "{{model}}/{{status}}"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "row",
+      "title": "시스템 — HTTP / Node.js",
+      "gridPos": { "x": 0, "y": 34, "w": 24, "h": 1 }
+    },
+    {
+      "id": 40,
+      "type": "timeseries",
+      "title": "HTTP request duration — P50 / P95 / P99",
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "gridPos": { "x": 0, "y": 35, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum(rate(eduright_http_request_duration_seconds_bucket[5m])) by (le))",
+          "refId": "A",
+          "legendFormat": "p50"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(eduright_http_request_duration_seconds_bucket[5m])) by (le))",
+          "refId": "B",
+          "legendFormat": "p95"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum(rate(eduright_http_request_duration_seconds_bucket[5m])) by (le))",
+          "refId": "C",
+          "legendFormat": "p99"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" } }
+    },
+    {
+      "id": 41,
+      "type": "timeseries",
+      "title": "HTTP requests by status (rate per 5m)",
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "gridPos": { "x": 12, "y": 35, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "sum by (status) (rate(eduright_http_request_duration_seconds_count[5m]))",
+          "refId": "A",
+          "legendFormat": "{{status}}"
+        }
+      ]
+    },
+    {
+      "id": 42,
+      "type": "timeseries",
+      "title": "Node.js heap used / total",
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "gridPos": { "x": 0, "y": 43, "w": 8, "h": 7 },
+      "targets": [
+        { "expr": "eduright_nodejs_heap_size_used_bytes", "refId": "A", "legendFormat": "used" },
+        { "expr": "eduright_nodejs_heap_size_total_bytes", "refId": "B", "legendFormat": "total" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "bytes" } }
+    },
+    {
+      "id": 43,
+      "type": "timeseries",
+      "title": "Process CPU (rate per 1m)",
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "gridPos": { "x": 8, "y": 43, "w": 8, "h": 7 },
+      "targets": [
+        {
+          "expr": "rate(eduright_process_cpu_seconds_total[1m])",
+          "refId": "A",
+          "legendFormat": "cpu"
+        }
+      ]
+    },
+    {
+      "id": 44,
+      "type": "timeseries",
+      "title": "Event loop lag — p50 / p99",
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "gridPos": { "x": 16, "y": 43, "w": 8, "h": 7 },
+      "targets": [
+        {
+          "expr": "eduright_nodejs_eventloop_lag_p50_seconds",
+          "refId": "A",
+          "legendFormat": "p50"
+        },
+        { "expr": "eduright_nodejs_eventloop_lag_p99_seconds", "refId": "B", "legendFormat": "p99" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" } }
+    }
+  ]
+}
