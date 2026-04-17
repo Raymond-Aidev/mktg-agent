@@ -3056,7 +3056,8 @@ function ProductReportView({ productName }: { productName: string }) {
                     fontWeight: s.ours ? 700 : 500,
                     color: s.ours ? COLORS.accent : "var(--text)",
                     whiteSpace: "nowrap",
-                    background: "rgba(255,255,255,.85)",
+                    background: "var(--bg-card)",
+                    border: "1px solid var(--border)",
                     padding: "1px 4px",
                     borderRadius: 3,
                   }}
