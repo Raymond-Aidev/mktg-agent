@@ -584,10 +584,10 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 }
 .sample-stat {
   text-align: center; padding: 28px 16px; border-radius: var(--radius);
-  background: #fafafa; border: 1px solid var(--border); transition: all 0.2s;
+  background: var(--bg-subtle); border: 1px solid var(--border); transition: all 0.2s;
 }
 .sample-stat:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.06); }
-.sample-stat-alert { background: #fef2f2; border-color: #fecaca; }
+.sample-stat-alert { background: var(--card-red); border-color: var(--card-red-border); }
 .sample-stat-value {
   font-size: 36px; font-weight: 900; color: var(--accent); letter-spacing: -0.03em;
   margin-bottom: 6px;
@@ -600,7 +600,7 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
   padding: 24px; border-radius: var(--radius); position: relative; overflow: hidden;
 }
 .insight-risk { background: var(--card-orange); border: 1px solid var(--card-orange-border); }
-.insight-gap { background: #eff6ff; border: 1px solid #bfdbfe; }
+.insight-gap { background: var(--card-blue); border: 1px solid var(--card-blue-border); }
 .insight-tag {
   display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase;
   letter-spacing: 0.05em; padding: 4px 10px; border-radius: 6px; margin-bottom: 10px;
@@ -610,7 +610,7 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .insight-card p { margin: 0 0 12px; font-size: 14px; color: var(--text); line-height: 1.6; }
 .insight-action {
   font-size: 13px; font-weight: 600; color: var(--accent); line-height: 1.5;
-  padding-top: 10px; border-top: 1px dashed rgba(0,0,0,0.1);
+  padding-top: 10px; border-top: 1px dashed var(--border);
 }
 .sample-report-cta {
   display: flex; justify-content: center; margin-bottom: 24px;
