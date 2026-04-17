@@ -1453,22 +1453,25 @@ function LandingContent({ onOpenLogin }: { onOpenLogin: (register?: boolean) => 
           </div>
         </div>
         <div className="sample-report-cta">
-          <a
-            href={`/api/v1/reports/${SAMPLE_REPORT_ID}?format=html`}
-            target="_blank"
-            rel="noreferrer"
+          <button
+            type="button"
             className="btn-primary"
             style={{ width: "auto", padding: "14px 32px", fontSize: 15 }}
+            onClick={() =>
+              document
+                .getElementById("sample-full-report")
+                ?.scrollIntoView({ behavior: "smooth", block: "start" })
+            }
           >
             전체 분석 리포트 보기
-          </a>
+          </button>
         </div>
-        <iframe
-          title="샘플 분석 리포트"
-          className="sample-frame"
-          src={`/api/v1/reports/${SAMPLE_REPORT_ID}?format=html`}
-          style={{ maxWidth: 960, margin: "0 auto", display: "block" }}
-        />
+        <div
+          id="sample-full-report"
+          style={{ maxWidth: 1200, margin: "32px auto 0", padding: "0 16px" }}
+        >
+          <ProductReportView productName="토토LP 교육" />
+        </div>
       </section>
 
       {/* ── Analysis Modules ── */}
