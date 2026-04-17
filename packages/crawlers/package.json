@@ -14,11 +14,17 @@
     "./category-a/competitors": "./src/category-a/competitors.ts",
     "./category-b/types": "./src/category-b/types.ts",
     "./category-b/hackernews": "./src/category-b/hackernews.ts",
-    "./category-b/naver": "./src/category-b/naver.ts"
+    "./category-b/naver": "./src/category-b/naver.ts",
+    "./category-b/youtube": "./src/category-b/youtube.ts",
+    "./category-b/dcinside": "./src/category-b/dcinside.ts",
+    "./category-b/clien": "./src/category-b/clien.ts",
+    "./category-b/fmkorea": "./src/category-b/fmkorea.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"
   },
-  "dependencies": {},
+  "dependencies": {
+    "cheerio": "^1.0.0"
+  },
   "devDependencies": {}
 }
