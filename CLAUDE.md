@@ -26,8 +26,8 @@ MVP 목표: 2026년 10월 (볼로냐 북페어 시즌 대비).
 6. **환각 방지** — 모든 프롬프트는 "실제 수집된 데이터만 인용, 없는 사실 생성 금지" 문구 포함, Zod 스키마 검증 필수
 
 ## 현재 Phase
-Phase 4 — LLM 14모듈 완성 (8개 추가: #02,#04,#05,#09,#10,#11,#12,#14) — MVP 전 필수 HIGH 우선순위
-(Phase 7 W22 관측성 완료: DLQ+Circuit Breaker · Grafana · 부하 테스트, 2026-04-17)
+**운영 셋업 대기** — 코드 HIGH 전부 완료 (Phase 3/4/5 모두 100%, Phase 7 W22 완료).
+다음 작업 후보: (1) Railway 운영 키 등록(ANTHROPIC/YOUTUBE/R2) (2) Phase 8 MVP 릴리즈(PG 결제) (3) Hot Keyword 착수. 상세는 memory/project_current_state.md 참조.
 
 ## 구현 완료 현황 (2026-04-15 기준)
 
