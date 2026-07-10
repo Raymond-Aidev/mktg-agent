@@ -40,6 +40,7 @@ import { campaignsRouter } from "./routes/campaigns.ts";
 import { authRouter } from "./routes/auth.ts";
 import { productsRouter } from "./routes/products.ts";
 import { adminUsersRouter } from "./routes/admin-users.ts";
+import { piagetPortalRouter } from "./routes/piaget-portal.ts";
 import { authMiddleware } from "./infra/auth.ts";
 import { registerBatchSchedules } from "./batch/scheduler.ts";
 import { registerDevFixtureProviders } from "./llm/providers/dev-fixture.ts";
@@ -193,6 +194,10 @@ app.get("/health", async (_req, res) => {
   const coreOk = checks.postgres?.ok && checks.redis?.ok;
   res.status(coreOk ? 200 : 503).json({ status: coreOk ? "ok" : "degraded", checks });
 });
+
+// 한국삐아제 ERP 구축 협업 포털 (piaget.goldencheck.kr) — 자체 쿠키 인증이므로
+// JWT authMiddleware 이전에 마운트. 다른 호스트 요청은 next()로 통과.
+app.use(piagetPortalRouter);
 
 // JWT middleware — extracts user from Authorization header for all routes below
 app.use(authMiddleware);
