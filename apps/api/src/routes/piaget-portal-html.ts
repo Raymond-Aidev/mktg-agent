@@ -122,11 +122,11 @@ pre{background:#0c0e13;border:1px solid var(--border);border-radius:8px;padding:
 <div id="userbar" style="flex:none;font-size:12px;color:var(--muted);white-space:nowrap"></div></div>
 <div class="tabs">
 <button class="tab active" data-tab="road">🗺 구축 로드맵</button>
-<button class="tab" data-tab="q">💬 질문·응답</button>
+<button class="tab" data-tab="q">📝 업무 등록</button>
 <button class="tab" id="doctab" data-tab="doc" style="display:none">📄 문서(자동 조립)</button>
 <button class="addbtn" id="addtaskbtn">＋ 업무 추가</button></div>
 <div id="tab-road"><div class="panel"><div class="rmapintro" id="roadintro"></div><div class="tl" id="road"></div></div>
-<div class="panel"><div class="sub" style="margin:0">각 단계는 <b>완료 게이트(고객 승인)</b>를 통과해야 다음으로 넘어갑니다. 지금은 <b>P1 Discovery</b> 단계 — <b>질문·응답</b> 탭에서 현업 내용을 채워 주시면 현황분석이 완성됩니다.<br><span style="color:#8fb6ff">💡 각 단계의 활동 항목(ⓐ 표시)을 클릭하면 그 항목이 무엇인지 쉬운 설명이 열립니다.</span> <span style="color:#7f8a9e">· 참여주체: 고객사 중심 / 수행사 중심 / 공동</span></div></div></div>
+<div class="panel"><div class="sub" style="margin:0">각 단계는 <b>완료 게이트(고객 승인)</b>를 통과해야 다음으로 넘어갑니다. 지금은 <b>P1 Discovery</b> 단계 — <b>업무 등록</b> 탭에서 현업 내용을 채워 주시면 현황분석이 완성됩니다.<br><span style="color:#8fb6ff">💡 각 단계의 활동 항목(ⓐ 표시)을 클릭하면 그 항목이 무엇인지 쉬운 설명이 열립니다.</span> <span style="color:#7f8a9e">· 참여주체: 고객사 중심 / 수행사 중심 / 공동</span></div></div></div>
 <div id="tab-q" style="display:none"><div class="panel"><div class="dom" id="domains"></div><div id="tasklist"></div><div id="qlist"></div></div></div>
 <div id="tab-doc" style="display:none"><div class="panel"><div class="docbtns" id="docbtns"></div><pre id="docview">문서를 선택하세요.</pre></div></div>
 </div>
