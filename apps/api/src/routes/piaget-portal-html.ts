@@ -66,7 +66,13 @@ export const PORTAL_HTML = `<!doctype html>
 .tl .who{margin-left:auto;font-size:10.5px;font-weight:700;color:#c5a6ff;background:rgba(160,107,255,.14);border-radius:6px;padding:2px 9px}
 .tl .plain{font-size:12.5px;color:#cbd3e2;margin-bottom:10px}
 .tl .acts{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
-.tl .act{font-size:11px;color:#b8c0d0;background:#1a1f29;border:1px solid var(--border);border-radius:7px;padding:3px 9px}
+.tl .act{font-size:11px;color:#b8c0d0;background:#1a1f29;border:1px solid var(--border);border-radius:7px;padding:3px 9px 3px 22px;cursor:pointer;user-select:none;position:relative}
+.tl .act:before{content:"?";position:absolute;left:7px;top:50%;transform:translateY(-50%);width:12px;height:12px;line-height:12px;text-align:center;font-size:9px;font-weight:800;border-radius:50%;background:#2f3a4d;color:#8fb6ff}
+.tl .act:hover{border-color:var(--accent);color:#fff}
+.tl .act.on{background:rgba(79,140,255,.18);border-color:var(--accent);color:#fff}
+.tl .act.on:before{content:"−";background:var(--accent);color:#fff}
+.tl .actdetail{font-size:12px;line-height:1.6;color:#cdd5e4;background:#12161e;border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:10px 13px;margin:0 0 10px}
+.tl .actdetail b{color:#fff}
 .tl .foot{display:flex;flex-wrap:wrap;gap:7px 16px;align-items:center;font-size:11px;color:var(--muted);border-top:1px dashed var(--border);padding-top:9px}
 .tl .foot .lb{color:#7f8a9e;margin-right:3px}.tl .out{color:#c5a6ff}.tl .gate{color:#f0b95e}
 .tl .prog{display:flex;align-items:center;gap:8px;margin-left:auto;min-width:150px}
@@ -100,7 +106,7 @@ pre{background:#0c0e13;border:1px solid var(--border);border-radius:8px;padding:
 <button class="tab" data-tab="q">💬 질문·응답</button>
 <button class="tab" id="doctab" data-tab="doc" style="display:none">📄 문서(자동 조립)</button></div>
 <div id="tab-road"><div class="panel"><div class="rmapintro" id="roadintro"></div><div class="tl" id="road"></div></div>
-<div class="panel"><div class="sub" style="margin:0">각 단계는 <b>완료 게이트(고객 승인)</b>를 통과해야 다음으로 넘어갑니다. 지금은 <b>P1 Discovery</b> 단계 — <b>질문·응답</b> 탭에서 현업 내용을 채워 주시면 현황분석이 완성됩니다. <span style="color:#7f8a9e">참여주체: 고객사 중심 / 수행사 중심 / 공동</span></div></div></div>
+<div class="panel"><div class="sub" style="margin:0">각 단계는 <b>완료 게이트(고객 승인)</b>를 통과해야 다음으로 넘어갑니다. 지금은 <b>P1 Discovery</b> 단계 — <b>질문·응답</b> 탭에서 현업 내용을 채워 주시면 현황분석이 완성됩니다.<br><span style="color:#8fb6ff">💡 각 단계의 활동 항목(ⓐ 표시)을 클릭하면 그 항목이 무엇인지 쉬운 설명이 열립니다.</span> <span style="color:#7f8a9e">· 참여주체: 고객사 중심 / 수행사 중심 / 공동</span></div></div></div>
 <div id="tab-q" style="display:none"><div class="panel"><div class="dom" id="domains"></div><div id="qlist"></div></div></div>
 <div id="tab-doc" style="display:none"><div class="panel"><div class="docbtns" id="docbtns"></div><pre id="docview">문서를 선택하세요.</pre></div></div>
 </div>
@@ -118,12 +124,21 @@ function renderRoad(){const per={};STATE.questions.forEach(q=>{per[q.phase]=(per
  $('#roadintro').innerHTML='<span class="pill">전체 <b>7단계</b> · 약 <b>6~9개월</b></span><span class="pill">현재 <b>'+esc(cp.id+' '+cp.name)+'</b> 진행 중</span><span class="pill">Discovery 응답 <b>'+totA+'/'+totQ+'</b></span>';
  $('#road').innerHTML=STATE.phases.map((p,i)=>{const s=per[p.id]||{t:0,a:0};const pct=s.t?Math.round(s.a/s.t*100):0;
   const cls=i<cur?'done':(i===cur?'cur':'next');const stl=i<cur?'완료':(i===cur?'진행 중':'예정');const stc=i<cur?'sdone':(i===cur?'scur':'snext');
-  const acts=(p.activities||[]).map(a=>'<span class="act">'+esc(a)+'</span>').join('');
+  const acts=(p.activities||[]).map((a,ai)=>'<span class="act" data-p="'+esc(p.id)+'" data-i="'+ai+'">'+esc(a.t)+'</span>').join('');
   const prog=s.t?'<span class="prog"><span class="lb">응답</span><span class="bar"><i style="width:'+pct+'%"></i></span><span>'+s.a+'/'+s.t+'</span></span>':'';
   return '<div class="ph '+cls+'"><div class="num"><span class="p">'+esc(p.id)+'</span><span class="w">'+esc(p.weeks)+'</span></div>'
    +'<div class="body"><div class="htop"><span class="nm">'+esc(p.name)+'</span><span class="st '+stc+'">'+stl+'</span><span class="who">'+esc(p.who||'')+'</span></div>'
-   +'<div class="plain">'+esc(p.plain||'')+'</div><div class="acts">'+acts+'</div>'
-   +'<div class="foot"><span><span class="lb">산출물</span><span class="out">'+esc((p.outputs||[]).join(' · '))+'</span></span><span><span class="lb">완료 게이트</span><span class="gate">'+esc(p.gate||'')+'</span></span>'+prog+'</div></div></div>';}).join('');}
+   +'<div class="plain">'+esc(p.plain||'')+'</div><div class="acts">'+acts+'</div><div class="actdetail" id="ad-'+esc(p.id)+'" style="display:none"></div>'
+   +'<div class="foot"><span><span class="lb">산출물</span><span class="out">'+esc((p.outputs||[]).join(' · '))+'</span></span><span><span class="lb">완료 게이트</span><span class="gate">'+esc(p.gate||'')+'</span></span>'+prog+'</div></div></div>';}).join('');
+ bindActs();}
+function bindActs(){document.querySelectorAll('#road .act').forEach(function(ch){ch.onclick=function(){
+  var pid=ch.getAttribute('data-p'),idx=+ch.getAttribute('data-i');
+  var ph=STATE.phases.find(function(p){return p.id===pid;});var det=(ph&&ph.activities&&ph.activities[idx])||{};
+  var box=document.getElementById('ad-'+pid);var wasOn=ch.classList.contains('on');
+  ch.parentNode.querySelectorAll('.act').forEach(function(s){s.classList.remove('on');});
+  if(wasOn){box.style.display='none';box.innerHTML='';return;}
+  ch.classList.add('on');box.innerHTML='<b>'+esc(det.t||'')+'</b> — '+esc(det.d||'');box.style.display='';
+};});}
 function renderDomains(){const doms=['전체',...new Set(STATE.questions.map(q=>q.domain))];$('#domains').innerHTML=doms.map(d=>'<span class="chip '+(d===curDomain?'active':'')+'" data-d="'+d+'">'+d+'</span>').join('');document.querySelectorAll('#domains .chip').forEach(c=>c.onclick=()=>{curDomain=c.dataset.d;renderDomains();renderQ();});}
 function esc(s){return String(s).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));}
 function renderQ(){const qs=STATE.questions.filter(q=>curDomain==='전체'||q.domain===curDomain);
