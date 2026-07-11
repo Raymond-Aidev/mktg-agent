@@ -133,9 +133,20 @@ pre{background:#0c0e13;border:1px solid var(--border);border-radius:8px;padding:
 .fconn:after{content:"▸";position:absolute;right:1px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px}
 .fadd{position:relative;z-index:1;width:23px;height:23px;padding:0;border-radius:6px;background:#232833;border:1px solid var(--border);color:#5be59a;font-weight:800;font-size:15px;line-height:1}
 .fadd:hover{background:rgba(46,204,113,.2);border-color:var(--ok)}
-.rflow{display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-top:2px}
+.rflow{display:flex;align-items:stretch;flex-wrap:wrap;gap:6px;margin-top:4px}
 .rbox{font-size:11.5px;color:#cbd3e2;background:#0e1015;border:1px solid var(--border);border-radius:7px;padding:5px 9px}
-.rarrow{color:var(--muted);font-size:12px}
+.rarrow{color:var(--muted);font-size:12px;align-self:center}
+.rstep2{background:#0e1015;border:1px solid var(--border);border-radius:8px;padding:7px 9px;min-width:120px;max-width:220px}
+.rstep2 .rt{font-size:12px;font-weight:600;color:#e7ebf3;margin-bottom:4px}
+.rroles{display:flex;flex-direction:column;gap:2px}
+.rroles .rr{font-size:10.5px;color:#aeb6c6}.rroles .rr b{color:#7f8a9e;font-weight:700;margin-right:3px}
+.tcomment{font-size:12px;color:#cbd3e2;background:#12161e;border:1px solid var(--border);border-left:3px solid var(--warn);border-radius:8px;padding:7px 11px;margin-top:8px}
+/* 편집기 박스 내 역할 인원 필드 */
+.fbox{flex-direction:column;padding:8px;gap:0;min-height:0;flex:0 0 196px}
+.fbox > textarea{min-height:44px;padding:16px 4px 4px;margin-bottom:4px}
+.frole{display:flex;align-items:center;gap:5px;margin-top:3px}
+.frole label{font-size:9.5px;color:#7f8a9e;flex:0 0 52px;text-align:right}
+.frole input{flex:1;min-width:0;font-size:11px;padding:3px 6px}
 </style></head><body>
 <div class="wrap">
 <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
@@ -166,8 +177,9 @@ pre{background:#0c0e13;border:1px solid var(--border);border-radius:8px;padding:
 <label>업무명</label><input id="t-title" placeholder="예: 재고 실사 프로세스" />
 <label>담당자 이름</label><input id="t-resp" placeholder="이름" />
 <label style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">업무 프로세스 <span style="color:#7f8a9e;font-weight:400">— 박스마다 한 단계, 화살표의 <b style="color:#5be59a">+</b> 로 추가 / <b>×</b> 로 삭제</span><button type="button" id="t-fillsample" style="margin-left:auto;padding:4px 10px;font-size:11px;background:rgba(160,107,255,.16);border-color:rgba(160,107,255,.5);color:#c5a6ff">예시로 채우기</button></label>
-<div style="font-size:11px;color:#7f8a9e;margin:-4px 0 8px">회색 글씨는 이 영역의 <b>예시</b>입니다 — 실제 내용으로 입력하세요.</div>
+<div style="font-size:11px;color:#7f8a9e;margin:-4px 0 8px">회색 글씨는 이 영역의 <b>예시</b>입니다 — 실제 내용으로 입력하세요. 각 박스 하단에 <b>담당자·참조·공동작업자·최종 승인·수신자</b>의 이름을 넣을 수 있습니다.</div>
 <div class="flow" id="t-flow"></div>
+<label style="margin-top:14px">코멘트 (선택)</label><textarea id="t-comment" placeholder="이 업무에 대한 메모·특이사항을 남기세요…"></textarea>
 <div class="merr" id="t-err2"></div>
 <div class="mact"><button id="t-back">← 이전</button><button id="t-cancel2">취소</button><button class="primary" id="t-save">저장</button></div>
 </div>
@@ -202,10 +214,14 @@ function bindActs(){document.querySelectorAll('#road .act').forEach(function(ch)
   ch.classList.add('on');box.innerHTML='<b>'+esc(det.t||'')+'</b> — '+esc(det.d||'');box.style.display='';
 };});}
 function renderDomains(){const doms=['전체',...new Set(STATE.questions.map(q=>q.domain)),'기타'];$('#domains').innerHTML=doms.map(d=>'<span class="chip '+(d===curDomain?'active':'')+'" data-d="'+esc(d)+'">'+esc(d)+'</span>').join('');document.querySelectorAll('#domains .chip').forEach(c=>c.onclick=()=>{curDomain=c.dataset.d;renderDomains();renderTasks();renderQ();});}
-function taskFlow(t){var st=(t.steps&&t.steps.length)?t.steps:(t.process?[t.process]:[]);return '<div class="rflow">'+st.map((s,i)=>'<span class="rbox">'+esc(s)+'</span>'+(i<st.length-1?'<span class="rarrow">▸</span>':'')).join('')+'</div>';}
+function taskFlow(t){var st=(t.steps&&t.steps.length)?t.steps.map(normStep):(t.process?[normStep(t.process)]:[]);
+ return '<div class="rflow">'+st.map(function(s,i){
+   var roles=ROLE_FIELDS.map(function(r){return s[r[0]]?('<span class="rr"><b>'+r[1]+'</b>'+esc(s[r[0]])+'</span>'):'';}).join('');
+   return '<div class="rstep2"><div class="rt">'+esc(s.text)+'</div>'+(roles?'<div class="rroles">'+roles+'</div>':'')+'</div>'+(i<st.length-1?'<span class="rarrow">▸</span>':'');
+ }).join('')+'</div>';}
 function renderTasks(){var el=$('#tasklist');if(!el)return;var ts=(STATE.tasks||[]).filter(t=>curDomain==='전체'||t.domain===curDomain);
  if(!ts.length){el.innerHTML='<div style="color:var(--muted);font-size:13px;padding:10px 2px">아직 등록된 업무가 없습니다. 우측 상단 <b style="color:#5be59a">＋ 업무 추가</b>로 업무 프로세스를 등록하세요.</div>';return;}
- el.innerHTML='<div class="tasktitle">➕ 추가된 업무 '+ts.length+'건</div>'+ts.map(t=>'<div class="task"><div class="th"><span class="tg">'+esc(t.domain)+'</span>'+(t.title?'<span class="tt">'+esc(t.title)+'</span>':'')+'<span class="tacts"><button class="ed" data-edit="'+esc(t.id)+'">수정</button><button class="de" data-del="'+esc(t.id)+'">삭제</button></span></div>'+taskFlow(t)+'<div class="tm">— '+esc(t.respondent||'익명')+' · '+esc(t.ts)+'</div></div>').join('');
+ el.innerHTML='<div class="tasktitle">➕ 추가된 업무 '+ts.length+'건</div>'+ts.map(t=>'<div class="task"><div class="th"><span class="tg">'+esc(t.domain)+'</span>'+(t.title?'<span class="tt">'+esc(t.title)+'</span>':'')+'<span class="tacts"><button class="ed" data-edit="'+esc(t.id)+'">수정</button><button class="de" data-del="'+esc(t.id)+'">삭제</button></span></div>'+taskFlow(t)+(t.comment?'<div class="tcomment">💬 '+esc(t.comment)+'</div>':'')+'<div class="tm">— '+esc(t.respondent||'익명')+' · '+esc(t.ts)+'</div></div>').join('');
  el.querySelectorAll('[data-edit]').forEach(function(b){b.onclick=function(){openEditTask(b.getAttribute('data-edit'));};});
  el.querySelectorAll('[data-del]').forEach(function(b){b.onclick=function(){delTask(b.getAttribute('data-del'));};});}
 var SAMPLES={
@@ -221,23 +237,32 @@ var SAMPLES={
  '기타':['업무 시작(요청 접수)','처리·검토·확인','완료·결과 공유']
 };
 function allDomains(){return [...new Set(STATE.questions.map(q=>q.domain)),'기타'];}
-var flowSteps=['','',''];var curSample=[];var editingId=null;
-function syncFlow(){var el=$('#t-flow');if(!el)return;el.querySelectorAll('textarea[data-step]').forEach(function(t){flowSteps[+t.getAttribute('data-step')]=t.value;});}
-function renderFlow(){var el=$('#t-flow');var h='';flowSteps.forEach(function(s,i){var ph=curSample[i]||('업무 '+(i+1));h+='<div class="fbox"><span class="fnum">'+(i+1)+'</span>'+(flowSteps.length>1?'<button class="fdel" data-del="'+i+'" title="이 단계 삭제">×</button>':'')+'<textarea data-step="'+i+'" placeholder="'+esc(ph)+'">'+esc(s)+'</textarea></div>';h+='<div class="fconn"><button class="fadd" data-add="'+(i+1)+'" title="여기에 단계 추가">+</button></div>';});el.innerHTML=h;
- el.querySelectorAll('textarea[data-step]').forEach(function(t){t.oninput=function(){flowSteps[+t.getAttribute('data-step')]=t.value;};});
- el.querySelectorAll('[data-add]').forEach(function(b){b.onclick=function(){syncFlow();flowSteps.splice(+b.getAttribute('data-add'),0,'');renderFlow();};});
+function emptyStep(){return {text:'',owner:'',cc:'',collab:'',approver:'',receiver:''};}
+function normStep(s){return (typeof s==='string')?{text:s,owner:'',cc:'',collab:'',approver:'',receiver:''}:Object.assign(emptyStep(),s||{});}
+var ROLE_FIELDS=[['owner','담당자'],['cc','참조'],['collab','공동작업자'],['approver','최종 승인'],['receiver','수신자']];
+var flowSteps=[emptyStep(),emptyStep(),emptyStep()];var curSample=[];var editingId=null;
+function syncFlow(){var el=$('#t-flow');if(!el)return;el.querySelectorAll('[data-f]').forEach(function(inp){var i=+inp.getAttribute('data-step');if(!flowSteps[i])flowSteps[i]=emptyStep();flowSteps[i][inp.getAttribute('data-f')]=inp.value;});}
+function renderFlow(){var el=$('#t-flow');var h='';flowSteps.forEach(function(s,i){var ph=curSample[i]||('업무 '+(i+1));
+ h+='<div class="fbox"><span class="fnum">'+(i+1)+'</span>'+(flowSteps.length>1?'<button class="fdel" data-del="'+i+'" title="이 단계 삭제">×</button>':'')
+  +'<textarea data-step="'+i+'" data-f="text" placeholder="'+esc(ph)+'">'+esc(s.text||'')+'</textarea>'
+  +ROLE_FIELDS.map(function(r){return '<div class="frole"><label>'+r[1]+'</label><input data-step="'+i+'" data-f="'+r[0]+'" placeholder="이름" value="'+esc(s[r[0]]||'')+'"/></div>';}).join('')
+  +'</div><div class="fconn"><button class="fadd" data-add="'+(i+1)+'" title="여기에 단계 추가">+</button></div>';});el.innerHTML=h;
+ el.querySelectorAll('[data-f]').forEach(function(inp){inp.oninput=function(){var i=+inp.getAttribute('data-step');if(!flowSteps[i])flowSteps[i]=emptyStep();flowSteps[i][inp.getAttribute('data-f')]=inp.value;};});
+ el.querySelectorAll('[data-add]').forEach(function(b){b.onclick=function(){syncFlow();flowSteps.splice(+b.getAttribute('data-add'),0,emptyStep());renderFlow();};});
  el.querySelectorAll('[data-del]').forEach(function(b){b.onclick=function(){if(flowSteps.length<=1)return;syncFlow();flowSteps.splice(+b.getAttribute('data-del'),1);renderFlow();};});}
-function fillSample(){if(!curSample.length)return;flowSteps=curSample.slice();renderFlow();}
+function fillSample(){if(!curSample.length)return;syncFlow();flowSteps=curSample.map(function(txt){return Object.assign(emptyStep(),{text:txt});});renderFlow();}
 function fillDomainSelect(v){var sel=$('#t-domain');sel.innerHTML='<option value="">— 영역 선택 —</option>'+allDomains().map(d=>'<option value="'+esc(d)+'">'+esc(d)+'</option>').join('');if(v)sel.value=v;}
-function openAddTask(){editingId=null;$('#modal-title').textContent='＋ 업무 추가';fillDomainSelect((curDomain&&curDomain!=='전체')?curDomain:'');$('#t-err1').textContent='';$('#t-err2').textContent='';$('#t-title').value='';$('#t-resp').value='';$('#phaseB').style.display='none';$('#phaseA').style.display='';$('#addov').classList.add('on');}
-function openEditTask(id){var t=(STATE.tasks||[]).find(x=>String(x.id)===String(id));if(!t)return;editingId=id;$('#modal-title').textContent='✎ 업무 수정';selDomain=t.domain;curSample=SAMPLES[t.domain]||[];flowSteps=(t.steps&&t.steps.length)?t.steps.slice():['','',''];fillDomainSelect(t.domain);$('#t-domlabel').textContent=t.domain;$('#t-title').value=t.title||'';$('#t-resp').value=t.respondent||'';$('#t-err1').textContent='';$('#t-err2').textContent='';$('#phaseA').style.display='none';$('#phaseB').style.display='';renderFlow();$('#addov').classList.add('on');}
+function openAddTask(){editingId=null;$('#modal-title').textContent='＋ 업무 추가';fillDomainSelect((curDomain&&curDomain!=='전체')?curDomain:'');$('#t-err1').textContent='';$('#t-err2').textContent='';$('#t-title').value='';$('#t-resp').value='';$('#t-comment').value='';$('#phaseB').style.display='none';$('#phaseA').style.display='';$('#addov').classList.add('on');}
+function openEditTask(id){var t=(STATE.tasks||[]).find(x=>String(x.id)===String(id));if(!t)return;editingId=id;$('#modal-title').textContent='✎ 업무 수정';selDomain=t.domain;curSample=SAMPLES[t.domain]||[];flowSteps=(t.steps&&t.steps.length)?t.steps.map(normStep):[emptyStep(),emptyStep(),emptyStep()];fillDomainSelect(t.domain);$('#t-domlabel').textContent=t.domain;$('#t-title').value=t.title||'';$('#t-resp').value=t.respondent||'';$('#t-comment').value=t.comment||'';$('#t-err1').textContent='';$('#t-err2').textContent='';$('#phaseA').style.display='none';$('#phaseB').style.display='';renderFlow();$('#addov').classList.add('on');}
 async function delTask(id){if(!confirm('이 업무를 삭제할까요?'))return;var r=await fetch('/piaget/api/task/'+id+'/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}).then(r=>r.json());if(r.ok){await load();switchTab('q');}else alert('삭제 실패: '+(r.error||''));}
-function gotoPhaseB(){var d=$('#t-domain').value;if(!d){$('#t-err1').textContent='업무 영역을 선택하세요.';return;}selDomain=d;$('#t-domlabel').textContent=d;curSample=SAMPLES[d]||[];flowSteps=['','',''];$('#t-err2').textContent='';$('#phaseA').style.display='none';$('#phaseB').style.display='';renderFlow();}
-function backPhaseA(){$('#phaseB').style.display='none';$('#phaseA').style.display='';}
+function gotoPhaseB(){var d=$('#t-domain').value;if(!d){$('#t-err1').textContent='업무 영역을 선택하세요.';return;}selDomain=d;$('#t-domlabel').textContent=d;curSample=SAMPLES[d]||[];if(!editingId)flowSteps=[emptyStep(),emptyStep(),emptyStep()];$('#t-err2').textContent='';$('#phaseA').style.display='none';$('#phaseB').style.display='';renderFlow();}
+function backPhaseA(){syncFlow();$('#phaseB').style.display='none';$('#phaseA').style.display='';}
 function closeAddTask(){$('#addov').classList.remove('on');}
-async function submitTask(){syncFlow();var title=$('#t-title').value.trim(),resp=$('#t-resp').value.trim();var steps=flowSteps.map(s=>s.trim()).filter(Boolean);if(!title){$('#t-err2').textContent='업무명을 입력하세요.';return;}if(!resp){$('#t-err2').textContent='담당자 이름을 입력하세요.';return;}if(!steps.length){$('#t-err2').textContent='최소 한 단계 이상 프로세스를 입력하세요.';return;}
+async function submitTask(){syncFlow();var title=$('#t-title').value.trim(),resp=$('#t-resp').value.trim(),comment=$('#t-comment').value.trim();
+ var steps=flowSteps.map(function(s){return {text:(s.text||'').trim(),owner:(s.owner||'').trim(),cc:(s.cc||'').trim(),collab:(s.collab||'').trim(),approver:(s.approver||'').trim(),receiver:(s.receiver||'').trim()};}).filter(function(s){return s.text;});
+ if(!title){$('#t-err2').textContent='업무명을 입력하세요.';return;}if(!resp){$('#t-err2').textContent='담당자 이름을 입력하세요.';return;}if(!steps.length){$('#t-err2').textContent='최소 한 단계 이상 프로세스를 입력하세요.';return;}
  var url=editingId?('/piaget/api/task/'+editingId):'/piaget/api/task';
- var r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({domain:selDomain,title:title,respondent:resp,steps:steps})}).then(r=>r.json());
+ var r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({domain:selDomain,title:title,respondent:resp,comment:comment,steps:steps})}).then(r=>r.json());
  if(r.ok){editingId=null;closeAddTask();curDomain=selDomain;await load();switchTab('q');}else $('#t-err2').textContent='저장 실패: '+(r.error||'');}
 function esc(s){return String(s).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));}
 function renderQ(){var el=$('#qlist');if(el)el.innerHTML='';}
