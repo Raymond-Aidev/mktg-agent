@@ -264,6 +264,10 @@ piagetPortalRouter.post("/piaget/api/answer", async (req: Request, res: Response
 piagetPortalRouter.get("/piaget/api/doc/:type", async (req: Request, res: Response) => {
   const u = requireUser(req, res);
   if (!u) return;
+  if (USERS[u]?.role !== "admin") {
+    res.status(403).json({ ok: false, error: "admin 전용" });
+    return;
+  }
   try {
     res.json({ ok: true, type: req.params.type, md: await buildDoc(req.params.type) });
   } catch (err) {
