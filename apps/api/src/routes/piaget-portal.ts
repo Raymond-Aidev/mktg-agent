@@ -191,12 +191,14 @@ function ensureTable(): Promise<void> {
              title TEXT,
              process TEXT NOT NULL,
              steps JSONB,
+             comment TEXT,
              respondent TEXT, auth_user TEXT,
              created_at TIMESTAMPTZ NOT NULL DEFAULT now()
            )`,
         ),
       )
       .then(() => getPool().query(`ALTER TABLE piaget_portal_tasks ADD COLUMN IF NOT EXISTS steps JSONB`))
+      .then(() => getPool().query(`ALTER TABLE piaget_portal_tasks ADD COLUMN IF NOT EXISTS comment TEXT`))
       .then(() => undefined)
       .catch((err: Error) => {
         tableReady = null;
@@ -205,11 +207,11 @@ function ensureTable(): Promise<void> {
   }
   return tableReady;
 }
-interface TaskRow { id: string; domain: string; title: string | null; process: string; steps: string[] | null; respondent: string | null; created_at: Date; }
-async function listTasks(): Promise<Array<{ id: string; domain: string; title: string; process: string; steps: string[]; respondent: string; ts: string }>> {
+interface TaskRow { id: string; domain: string; title: string | null; process: string; steps: unknown[] | null; comment: string | null; respondent: string | null; created_at: Date; }
+async function listTasks(): Promise<Array<{ id: string; domain: string; title: string; process: string; steps: unknown[]; comment: string; respondent: string; ts: string }>> {
   await ensureTable();
   const r = await getPool().query<TaskRow>(
-    "SELECT id, domain, title, process, steps, respondent, created_at FROM piaget_portal_tasks ORDER BY id",
+    "SELECT id, domain, title, process, steps, comment, respondent, created_at FROM piaget_portal_tasks ORDER BY id",
   );
   return r.rows.map((row) => ({
     id: String(row.id),
@@ -217,9 +219,22 @@ async function listTasks(): Promise<Array<{ id: string; domain: string; title: s
     title: row.title ?? "",
     process: row.process,
     steps: Array.isArray(row.steps) ? row.steps : [],
+    comment: row.comment ?? "",
     respondent: row.respondent ?? "",
     ts: fmtTs(new Date(row.created_at)),
   }));
+}
+// steps 정규화 — 문자열(구버전)/객체(신버전) 모두 {text, owner, cc, collab, approver, receiver} 로 통일, text 없는 건 제거
+function sanitizeSteps(steps: unknown): Array<{ text: string; owner: string; cc: string; collab: string; approver: string; receiver: string }> {
+  if (!Array.isArray(steps)) return [];
+  const f = (v: unknown): string => (v == null ? "" : String(v)).trim().slice(0, 200);
+  return steps
+    .map((s) => {
+      if (typeof s === "string") return { text: f(s), owner: "", cc: "", collab: "", approver: "", receiver: "" };
+      const o = (s ?? {}) as Record<string, unknown>;
+      return { text: f(o.text), owner: f(o.owner), cc: f(o.cc), collab: f(o.collab), approver: f(o.approver), receiver: f(o.receiver) };
+    })
+    .filter((s) => s.text);
 }
 function fmtTs(d: Date): string {
   const p = (n: number): string => String(n).padStart(2, "0");
@@ -354,11 +369,11 @@ piagetPortalRouter.post("/piaget/api/answer", async (req: Request, res: Response
 piagetPortalRouter.post("/piaget/api/task", async (req: Request, res: Response) => {
   const u = requireUser(req, res);
   if (!u) return;
-  const { domain, title, steps, respondent } = (req.body ?? {}) as {
-    domain?: string; title?: string; steps?: unknown; respondent?: string;
+  const { domain, title, steps, comment, respondent } = (req.body ?? {}) as {
+    domain?: string; title?: string; steps?: unknown; comment?: string; respondent?: string;
   };
   const domains = [...new Set(QUESTIONS.map((x) => x.domain)), "기타"];
-  const cleanSteps = Array.isArray(steps) ? steps.map((s) => String(s).trim()).filter(Boolean) : [];
+  const cleanSteps = sanitizeSteps(steps);
   if (!domain || !domains.includes(domain) || !title || !title.trim() || !respondent || !respondent.trim() || cleanSteps.length === 0) {
     res.status(400).json({ ok: false, error: "영역·업무명·담당자·프로세스(1단계 이상)를 입력하세요." });
     return;
@@ -366,9 +381,9 @@ piagetPortalRouter.post("/piaget/api/task", async (req: Request, res: Response) 
   try {
     await ensureTable();
     await getPool().query(
-      `INSERT INTO piaget_portal_tasks (domain, title, process, steps, respondent, auth_user)
-       VALUES ($1,$2,$3,$4::jsonb,$5,$6)`,
-      [domain, title.trim(), cleanSteps.join(" → "), JSON.stringify(cleanSteps), respondent.trim(), u],
+      `INSERT INTO piaget_portal_tasks (domain, title, process, steps, comment, respondent, auth_user)
+       VALUES ($1,$2,$3,$4::jsonb,$5,$6,$7)`,
+      [domain, title.trim(), cleanSteps.map((s) => s.text).join(" → "), JSON.stringify(cleanSteps), (comment ?? "").trim(), respondent.trim(), u],
     );
     res.json({ ok: true });
   } catch (err) {
@@ -380,11 +395,11 @@ piagetPortalRouter.post("/piaget/api/task/:id", async (req: Request, res: Respon
   const u = requireUser(req, res);
   if (!u) return;
   const id = Number(req.params.id);
-  const { domain, title, steps, respondent } = (req.body ?? {}) as {
-    domain?: string; title?: string; steps?: unknown; respondent?: string;
+  const { domain, title, steps, comment, respondent } = (req.body ?? {}) as {
+    domain?: string; title?: string; steps?: unknown; comment?: string; respondent?: string;
   };
   const domains = [...new Set(QUESTIONS.map((x) => x.domain)), "기타"];
-  const cleanSteps = Array.isArray(steps) ? steps.map((s) => String(s).trim()).filter(Boolean) : [];
+  const cleanSteps = sanitizeSteps(steps);
   if (!Number.isFinite(id) || !domain || !domains.includes(domain) || !title || !title.trim() || !respondent || !respondent.trim() || cleanSteps.length === 0) {
     res.status(400).json({ ok: false, error: "영역·업무명·담당자·프로세스(1단계 이상)를 입력하세요." });
     return;
@@ -392,8 +407,8 @@ piagetPortalRouter.post("/piaget/api/task/:id", async (req: Request, res: Respon
   try {
     await ensureTable();
     const r = await getPool().query(
-      `UPDATE piaget_portal_tasks SET domain=$1, title=$2, process=$3, steps=$4::jsonb, respondent=$5 WHERE id=$6`,
-      [domain, title.trim(), cleanSteps.join(" → "), JSON.stringify(cleanSteps), respondent.trim(), id],
+      `UPDATE piaget_portal_tasks SET domain=$1, title=$2, process=$3, steps=$4::jsonb, comment=$5, respondent=$6 WHERE id=$7`,
+      [domain, title.trim(), cleanSteps.map((s) => s.text).join(" → "), JSON.stringify(cleanSteps), (comment ?? "").trim(), respondent.trim(), id],
     );
     if (r.rowCount === 0) {
       res.status(404).json({ ok: false, error: "대상 업무를 찾을 수 없습니다." });
