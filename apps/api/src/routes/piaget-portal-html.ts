@@ -45,13 +45,34 @@ export const PORTAL_HTML = `<!doctype html>
 .tab{font-size:13px;font-weight:700;padding:8px 16px;border-radius:9px;border:1px solid var(--border);background:#222836;color:var(--muted);cursor:pointer}
 .tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
 .panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px}
-.road{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
-.rstep{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:11px;text-align:center}
-.rstep .id{font-weight:800;color:var(--hub);font-size:12px}.rstep .nm{font-size:12.5px;font-weight:700;margin:3px 0}
-.rstep .gl{font-size:10.5px;color:var(--muted)}.rstep .wk{font-size:10px;color:#6b7488;margin-top:4px}
-.rstep .pg{margin-top:7px;height:6px;background:#0e1320;border-radius:4px;overflow:hidden}.rstep .pg i{display:block;height:100%;background:linear-gradient(90deg,#4f8cff,#a06bff)}
-.rstep .pct{font-size:10px;color:var(--muted);margin-top:3px}
-@media(max-width:820px){.road{grid-template-columns:repeat(2,1fr)}}
+.rmapintro{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:16px}
+.rmapintro .pill{font-size:12px;color:var(--muted);background:#222836;border:1px solid var(--border);border-radius:20px;padding:5px 13px}
+.rmapintro .pill b{color:var(--text)}
+.tl{position:relative}
+.tl .ph{position:relative;display:grid;grid-template-columns:66px 1fr;gap:14px;padding-bottom:16px}
+.tl .ph:before{content:"";position:absolute;left:32px;top:40px;bottom:-4px;width:2px;background:var(--border);z-index:0}
+.tl .ph:last-child:before{display:none}
+.tl .ph.done:before{background:var(--ok)}
+.tl .num{width:66px;height:66px;border-radius:15px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid var(--border);background:var(--panel2);z-index:1}
+.tl .num .p{font-size:16px;font-weight:800}.tl .num .w{font-size:9.5px;color:var(--muted);font-weight:700;margin-top:2px}
+.tl .ph.done .num{border-color:var(--ok);color:var(--ok)}
+.tl .ph.cur .num{border-color:var(--accent);background:linear-gradient(135deg,rgba(79,140,255,.28),rgba(160,107,255,.28));color:#fff;box-shadow:0 0 0 4px rgba(79,140,255,.13)}
+.tl .body{background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:13px 15px}
+.tl .ph.cur .body{border-color:var(--accent);box-shadow:0 0 0 1px rgba(79,140,255,.25)}
+.tl .htop{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:7px}
+.tl .nm{font-size:15px;font-weight:800}
+.tl .st{font-size:10.5px;font-weight:800;border-radius:20px;padding:2px 10px}
+.st.sdone{background:rgba(46,204,113,.16);color:#5be59a}.st.scur{background:rgba(79,140,255,.2);color:#8fb6ff}.st.snext{background:#262c38;color:var(--muted)}
+.tl .who{margin-left:auto;font-size:10.5px;font-weight:700;color:#c5a6ff;background:rgba(160,107,255,.14);border-radius:6px;padding:2px 9px}
+.tl .plain{font-size:12.5px;color:#cbd3e2;margin-bottom:10px}
+.tl .acts{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.tl .act{font-size:11px;color:#b8c0d0;background:#1a1f29;border:1px solid var(--border);border-radius:7px;padding:3px 9px}
+.tl .foot{display:flex;flex-wrap:wrap;gap:7px 16px;align-items:center;font-size:11px;color:var(--muted);border-top:1px dashed var(--border);padding-top:9px}
+.tl .foot .lb{color:#7f8a9e;margin-right:3px}.tl .out{color:#c5a6ff}.tl .gate{color:#f0b95e}
+.tl .prog{display:flex;align-items:center;gap:8px;margin-left:auto;min-width:150px}
+.tl .prog .bar{flex:1;height:6px;background:#0e1320;border-radius:4px;overflow:hidden}
+.tl .prog .bar i{display:block;height:100%;background:linear-gradient(90deg,#4f8cff,#a06bff)}
+@media(max-width:640px){.tl .ph{grid-template-columns:52px 1fr;gap:10px}.tl .ph:before{left:25px}.tl .num{width:52px;height:52px}.tl .who{margin-left:0}}
 .dom{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
 .chip{font-size:12px;padding:4px 11px;border-radius:20px;border:1px solid var(--border);background:#222836;color:#cfd6e4;cursor:pointer}
 .chip.active{background:var(--hub);border-color:var(--hub);color:#fff}
@@ -78,8 +99,8 @@ pre{background:#0c0e13;border:1px solid var(--border);border-radius:8px;padding:
 <button class="tab active" data-tab="road">🗺 구축 로드맵</button>
 <button class="tab" data-tab="q">💬 질문·응답</button>
 <button class="tab" id="doctab" data-tab="doc" style="display:none">📄 문서(자동 조립)</button></div>
-<div id="tab-road"><div class="panel"><div class="road" id="road"></div></div>
-<div class="panel"><div class="sub" style="margin:0">각 단계는 완료 게이트(고객 승인) 통과 후 다음으로 진행됩니다. 지금은 <b>P1 Discovery(질문·응답)</b>에 집중해 주세요.</div></div></div>
+<div id="tab-road"><div class="panel"><div class="rmapintro" id="roadintro"></div><div class="tl" id="road"></div></div>
+<div class="panel"><div class="sub" style="margin:0">각 단계는 <b>완료 게이트(고객 승인)</b>를 통과해야 다음으로 넘어갑니다. 지금은 <b>P1 Discovery</b> 단계 — <b>질문·응답</b> 탭에서 현업 내용을 채워 주시면 현황분석이 완성됩니다. <span style="color:#7f8a9e">참여주체: 고객사 중심 / 수행사 중심 / 공동</span></div></div></div>
 <div id="tab-q" style="display:none"><div class="panel"><div class="dom" id="domains"></div><div id="qlist"></div></div></div>
 <div id="tab-doc" style="display:none"><div class="panel"><div class="docbtns" id="docbtns"></div><pre id="docview">문서를 선택하세요.</pre></div></div>
 </div>
@@ -90,7 +111,19 @@ async function logout(){await fetch('/piaget/api/logout',{method:'POST'});locati
 function answersFor(qid){return STATE.answers.filter(a=>a.questionId===qid);}
 function renderUser(){const ub=$('#userbar');if(ub&&STATE.user){ub.innerHTML='👤 <b style="color:#cfd6e4">'+STATE.user+'</b>'+(STATE.role?' <span style="opacity:.7">('+STATE.role+')</span>':'')+' · <a href="#" id="logout" style="color:#4f8cff;text-decoration:none">로그아웃</a>';const lo=$('#logout');if(lo)lo.onclick=(e)=>{e.preventDefault();logout();};}}
 function renderRoad(){const per={};STATE.questions.forEach(q=>{per[q.phase]=(per[q.phase]||{t:0,a:0});per[q.phase].t++;if(answersFor(q.id).length)per[q.phase].a++;});
- $('#road').innerHTML=STATE.phases.map(p=>{const s=per[p.id]||{t:0,a:0};const pct=s.t?Math.round(s.a/s.t*100):0;return '<div class="rstep"><div class="id">'+p.id+'</div><div class="nm">'+p.name+'</div><div class="gl">'+p.goal+'</div><div class="wk">'+p.weeks+'</div><div class="pg"><i style="width:'+pct+'%"></i></div><div class="pct">'+(s.t?'응답 '+s.a+'/'+s.t:'—')+'</div></div>';}).join('');}
+ let cur=STATE.phases.findIndex(p=>{const s=per[p.id];return s&&s.t>0&&s.a<s.t;});
+ if(cur<0){cur=STATE.phases.findIndex(p=>!(per[p.id]&&per[p.id].t));if(cur<0)cur=STATE.phases.length-1;}
+ let totQ=0,totA=0;STATE.phases.forEach(p=>{const s=per[p.id];if(s){totQ+=s.t;totA+=s.a;}});
+ const cp=STATE.phases[cur]||{};
+ $('#roadintro').innerHTML='<span class="pill">전체 <b>7단계</b> · 약 <b>6~9개월</b></span><span class="pill">현재 <b>'+esc(cp.id+' '+cp.name)+'</b> 진행 중</span><span class="pill">Discovery 응답 <b>'+totA+'/'+totQ+'</b></span>';
+ $('#road').innerHTML=STATE.phases.map((p,i)=>{const s=per[p.id]||{t:0,a:0};const pct=s.t?Math.round(s.a/s.t*100):0;
+  const cls=i<cur?'done':(i===cur?'cur':'next');const stl=i<cur?'완료':(i===cur?'진행 중':'예정');const stc=i<cur?'sdone':(i===cur?'scur':'snext');
+  const acts=(p.activities||[]).map(a=>'<span class="act">'+esc(a)+'</span>').join('');
+  const prog=s.t?'<span class="prog"><span class="lb">응답</span><span class="bar"><i style="width:'+pct+'%"></i></span><span>'+s.a+'/'+s.t+'</span></span>':'';
+  return '<div class="ph '+cls+'"><div class="num"><span class="p">'+esc(p.id)+'</span><span class="w">'+esc(p.weeks)+'</span></div>'
+   +'<div class="body"><div class="htop"><span class="nm">'+esc(p.name)+'</span><span class="st '+stc+'">'+stl+'</span><span class="who">'+esc(p.who||'')+'</span></div>'
+   +'<div class="plain">'+esc(p.plain||'')+'</div><div class="acts">'+acts+'</div>'
+   +'<div class="foot"><span><span class="lb">산출물</span><span class="out">'+esc((p.outputs||[]).join(' · '))+'</span></span><span><span class="lb">완료 게이트</span><span class="gate">'+esc(p.gate||'')+'</span></span>'+prog+'</div></div></div>';}).join('');}
 function renderDomains(){const doms=['전체',...new Set(STATE.questions.map(q=>q.domain))];$('#domains').innerHTML=doms.map(d=>'<span class="chip '+(d===curDomain?'active':'')+'" data-d="'+d+'">'+d+'</span>').join('');document.querySelectorAll('#domains .chip').forEach(c=>c.onclick=()=>{curDomain=c.dataset.d;renderDomains();renderQ();});}
 function esc(s){return String(s).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));}
 function renderQ(){const qs=STATE.questions.filter(q=>curDomain==='전체'||q.domain===curDomain);
