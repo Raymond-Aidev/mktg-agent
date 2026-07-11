@@ -375,6 +375,52 @@ piagetPortalRouter.post("/piaget/api/task", async (req: Request, res: Response) 
     res.status(500).json({ ok: false, error: (err as Error).message });
   }
 });
+// 업무 수정
+piagetPortalRouter.post("/piaget/api/task/:id", async (req: Request, res: Response) => {
+  const u = requireUser(req, res);
+  if (!u) return;
+  const id = Number(req.params.id);
+  const { domain, title, steps, respondent } = (req.body ?? {}) as {
+    domain?: string; title?: string; steps?: unknown; respondent?: string;
+  };
+  const domains = [...new Set(QUESTIONS.map((x) => x.domain)), "기타"];
+  const cleanSteps = Array.isArray(steps) ? steps.map((s) => String(s).trim()).filter(Boolean) : [];
+  if (!Number.isFinite(id) || !domain || !domains.includes(domain) || !title || !title.trim() || !respondent || !respondent.trim() || cleanSteps.length === 0) {
+    res.status(400).json({ ok: false, error: "영역·업무명·담당자·프로세스(1단계 이상)를 입력하세요." });
+    return;
+  }
+  try {
+    await ensureTable();
+    const r = await getPool().query(
+      `UPDATE piaget_portal_tasks SET domain=$1, title=$2, process=$3, steps=$4::jsonb, respondent=$5 WHERE id=$6`,
+      [domain, title.trim(), cleanSteps.join(" → "), JSON.stringify(cleanSteps), respondent.trim(), id],
+    );
+    if (r.rowCount === 0) {
+      res.status(404).json({ ok: false, error: "대상 업무를 찾을 수 없습니다." });
+      return;
+    }
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: (err as Error).message });
+  }
+});
+// 업무 삭제
+piagetPortalRouter.post("/piaget/api/task/:id/delete", async (req: Request, res: Response) => {
+  const u = requireUser(req, res);
+  if (!u) return;
+  const id = Number(req.params.id);
+  if (!Number.isFinite(id)) {
+    res.status(400).json({ ok: false, error: "잘못된 요청" });
+    return;
+  }
+  try {
+    await ensureTable();
+    await getPool().query(`DELETE FROM piaget_portal_tasks WHERE id=$1`, [id]);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: (err as Error).message });
+  }
+});
 piagetPortalRouter.get("/piaget/api/doc/:type", async (req: Request, res: Response) => {
   const u = requireUser(req, res);
   if (!u) return;

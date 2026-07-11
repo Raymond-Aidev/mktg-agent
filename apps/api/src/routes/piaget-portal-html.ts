@@ -102,6 +102,10 @@ pre{background:#0c0e13;border:1px solid var(--border);border-radius:8px;padding:
 .task .th{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
 .task .tg{font-size:10px;font-weight:800;color:#5be59a;background:rgba(46,204,113,.16);border-radius:20px;padding:2px 9px}
 .task .tt{font-size:13px;font-weight:700}
+.task .tacts{margin-left:auto;display:flex;gap:6px}
+.task .tacts button{padding:3px 10px;font-size:11px;font-weight:700}
+.task .tacts .ed{color:#8fb6ff;border-color:rgba(79,140,255,.45);background:rgba(79,140,255,.12)}
+.task .tacts .de{color:#ff9a9a;border-color:rgba(192,57,43,.45);background:rgba(192,57,43,.12)}
 .task .tp{font-size:12.5px;color:#cbd3e2;white-space:pre-wrap}
 .task .tm{font-size:11px;color:var(--muted);margin-top:7px}
 .ov{position:fixed;inset:0;background:rgba(6,8,12,.66);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
@@ -149,7 +153,7 @@ pre{background:#0c0e13;border:1px solid var(--border);border-radius:8px;padding:
 <div id="tab-doc" style="display:none"><div class="panel"><div class="docbtns" id="docbtns"></div><pre id="docview">문서를 선택하세요.</pre></div></div>
 </div>
 <div class="ov" id="addov"><div class="modal wide">
-<h3>＋ 업무 추가</h3>
+<h3 id="modal-title">＋ 업무 추가</h3>
 <div id="phaseA">
 <div class="ms">등록할 <b>업무 영역</b>을 선택하고 <b>확인</b>을 누르세요. (총 10개 영역, 없으면 <b>기타</b> 선택)</div>
 <label>업무 영역</label>
@@ -201,7 +205,9 @@ function renderDomains(){const doms=['전체',...new Set(STATE.questions.map(q=>
 function taskFlow(t){var st=(t.steps&&t.steps.length)?t.steps:(t.process?[t.process]:[]);return '<div class="rflow">'+st.map((s,i)=>'<span class="rbox">'+esc(s)+'</span>'+(i<st.length-1?'<span class="rarrow">▸</span>':'')).join('')+'</div>';}
 function renderTasks(){var el=$('#tasklist');if(!el)return;var ts=(STATE.tasks||[]).filter(t=>curDomain==='전체'||t.domain===curDomain);
  if(!ts.length){el.innerHTML='<div style="color:var(--muted);font-size:13px;padding:10px 2px">아직 등록된 업무가 없습니다. 우측 상단 <b style="color:#5be59a">＋ 업무 추가</b>로 업무 프로세스를 등록하세요.</div>';return;}
- el.innerHTML='<div class="tasktitle">➕ 추가된 업무 '+ts.length+'건</div>'+ts.map(t=>'<div class="task"><div class="th"><span class="tg">'+esc(t.domain)+'</span>'+(t.title?'<span class="tt">'+esc(t.title)+'</span>':'')+'</div>'+taskFlow(t)+'<div class="tm">— '+esc(t.respondent||'익명')+' · '+esc(t.ts)+'</div></div>').join('');}
+ el.innerHTML='<div class="tasktitle">➕ 추가된 업무 '+ts.length+'건</div>'+ts.map(t=>'<div class="task"><div class="th"><span class="tg">'+esc(t.domain)+'</span>'+(t.title?'<span class="tt">'+esc(t.title)+'</span>':'')+'<span class="tacts"><button class="ed" data-edit="'+esc(t.id)+'">수정</button><button class="de" data-del="'+esc(t.id)+'">삭제</button></span></div>'+taskFlow(t)+'<div class="tm">— '+esc(t.respondent||'익명')+' · '+esc(t.ts)+'</div></div>').join('');
+ el.querySelectorAll('[data-edit]').forEach(function(b){b.onclick=function(){openEditTask(b.getAttribute('data-edit'));};});
+ el.querySelectorAll('[data-del]').forEach(function(b){b.onclick=function(){delTask(b.getAttribute('data-del'));};});}
 var SAMPLES={
  '회계':['은행/가상계좌 입금 내역 확인','주문 건과 금액 대사·매칭','이카운트 전표 입력·마감'],
  '발주·영업':['지사/기관 발주 접수','재고·공급가 확인','출고 지시·발주 확정'],
@@ -215,20 +221,24 @@ var SAMPLES={
  '기타':['업무 시작(요청 접수)','처리·검토·확인','완료·결과 공유']
 };
 function allDomains(){return [...new Set(STATE.questions.map(q=>q.domain)),'기타'];}
-var flowSteps=['','',''];var curSample=[];
+var flowSteps=['','',''];var curSample=[];var editingId=null;
 function syncFlow(){var el=$('#t-flow');if(!el)return;el.querySelectorAll('textarea[data-step]').forEach(function(t){flowSteps[+t.getAttribute('data-step')]=t.value;});}
 function renderFlow(){var el=$('#t-flow');var h='';flowSteps.forEach(function(s,i){var ph=curSample[i]||('업무 '+(i+1));h+='<div class="fbox"><span class="fnum">'+(i+1)+'</span>'+(flowSteps.length>1?'<button class="fdel" data-del="'+i+'" title="이 단계 삭제">×</button>':'')+'<textarea data-step="'+i+'" placeholder="'+esc(ph)+'">'+esc(s)+'</textarea></div>';h+='<div class="fconn"><button class="fadd" data-add="'+(i+1)+'" title="여기에 단계 추가">+</button></div>';});el.innerHTML=h;
  el.querySelectorAll('textarea[data-step]').forEach(function(t){t.oninput=function(){flowSteps[+t.getAttribute('data-step')]=t.value;};});
  el.querySelectorAll('[data-add]').forEach(function(b){b.onclick=function(){syncFlow();flowSteps.splice(+b.getAttribute('data-add'),0,'');renderFlow();};});
  el.querySelectorAll('[data-del]').forEach(function(b){b.onclick=function(){if(flowSteps.length<=1)return;syncFlow();flowSteps.splice(+b.getAttribute('data-del'),1);renderFlow();};});}
 function fillSample(){if(!curSample.length)return;flowSteps=curSample.slice();renderFlow();}
-function openAddTask(){var sel=$('#t-domain');sel.innerHTML='<option value="">— 영역 선택 —</option>'+allDomains().map(d=>'<option value="'+esc(d)+'">'+esc(d)+'</option>').join('');if(curDomain&&curDomain!=='전체')sel.value=curDomain;$('#t-err1').textContent='';$('#t-err2').textContent='';$('#t-title').value='';$('#t-resp').value='';$('#phaseB').style.display='none';$('#phaseA').style.display='';$('#addov').classList.add('on');}
+function fillDomainSelect(v){var sel=$('#t-domain');sel.innerHTML='<option value="">— 영역 선택 —</option>'+allDomains().map(d=>'<option value="'+esc(d)+'">'+esc(d)+'</option>').join('');if(v)sel.value=v;}
+function openAddTask(){editingId=null;$('#modal-title').textContent='＋ 업무 추가';fillDomainSelect((curDomain&&curDomain!=='전체')?curDomain:'');$('#t-err1').textContent='';$('#t-err2').textContent='';$('#t-title').value='';$('#t-resp').value='';$('#phaseB').style.display='none';$('#phaseA').style.display='';$('#addov').classList.add('on');}
+function openEditTask(id){var t=(STATE.tasks||[]).find(x=>String(x.id)===String(id));if(!t)return;editingId=id;$('#modal-title').textContent='✎ 업무 수정';selDomain=t.domain;curSample=SAMPLES[t.domain]||[];flowSteps=(t.steps&&t.steps.length)?t.steps.slice():['','',''];fillDomainSelect(t.domain);$('#t-domlabel').textContent=t.domain;$('#t-title').value=t.title||'';$('#t-resp').value=t.respondent||'';$('#t-err1').textContent='';$('#t-err2').textContent='';$('#phaseA').style.display='none';$('#phaseB').style.display='';renderFlow();$('#addov').classList.add('on');}
+async function delTask(id){if(!confirm('이 업무를 삭제할까요?'))return;var r=await fetch('/piaget/api/task/'+id+'/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}).then(r=>r.json());if(r.ok){await load();switchTab('q');}else alert('삭제 실패: '+(r.error||''));}
 function gotoPhaseB(){var d=$('#t-domain').value;if(!d){$('#t-err1').textContent='업무 영역을 선택하세요.';return;}selDomain=d;$('#t-domlabel').textContent=d;curSample=SAMPLES[d]||[];flowSteps=['','',''];$('#t-err2').textContent='';$('#phaseA').style.display='none';$('#phaseB').style.display='';renderFlow();}
 function backPhaseA(){$('#phaseB').style.display='none';$('#phaseA').style.display='';}
 function closeAddTask(){$('#addov').classList.remove('on');}
 async function submitTask(){syncFlow();var title=$('#t-title').value.trim(),resp=$('#t-resp').value.trim();var steps=flowSteps.map(s=>s.trim()).filter(Boolean);if(!title){$('#t-err2').textContent='업무명을 입력하세요.';return;}if(!resp){$('#t-err2').textContent='담당자 이름을 입력하세요.';return;}if(!steps.length){$('#t-err2').textContent='최소 한 단계 이상 프로세스를 입력하세요.';return;}
- var r=await fetch('/piaget/api/task',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({domain:selDomain,title:title,respondent:resp,steps:steps})}).then(r=>r.json());
- if(r.ok){closeAddTask();curDomain=selDomain;await load();switchTab('q');}else $('#t-err2').textContent='저장 실패: '+(r.error||'');}
+ var url=editingId?('/piaget/api/task/'+editingId):'/piaget/api/task';
+ var r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({domain:selDomain,title:title,respondent:resp,steps:steps})}).then(r=>r.json());
+ if(r.ok){editingId=null;closeAddTask();curDomain=selDomain;await load();switchTab('q');}else $('#t-err2').textContent='저장 실패: '+(r.error||'');}
 function esc(s){return String(s).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));}
 function renderQ(){var el=$('#qlist');if(el)el.innerHTML='';}
 async function submit(qid){const answer=$('#ta-'+qid).value.trim();if(!answer){alert('답변을 입력하세요');return;}const respondent=$('#nm-'+qid).value.trim(),role=$('#rl-'+qid).value.trim();const r=await fetch('/piaget/api/answer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({questionId:qid,answer,respondent,role})}).then(r=>r.json());if(r.ok){await load();switchTab('q');}else alert('저장 실패: '+(r.error||''));}
