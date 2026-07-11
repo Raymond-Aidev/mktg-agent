@@ -273,6 +273,8 @@ async function buildDoc(type: string): Promise<string> {
 export const piagetPortalRouter = Router();
 
 function serveApp(req: Request, res: Response): void {
+  // 화면 셸(로그인/포털 HTML)은 절대 캐시하지 않음 — 옛 버전이 남아 로그인 루프에 빠지는 것 방지
+  res.set("Cache-Control", "no-store, must-revalidate");
   res.type("html").send(currentUser(req) ? PORTAL_HTML : LOGIN_HTML);
 }
 
