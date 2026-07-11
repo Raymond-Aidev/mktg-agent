@@ -134,9 +134,9 @@ pre{background:#0c0e13;border:1px solid var(--border);border-radius:8px;padding:
 <h3>＋ 업무 추가</h3>
 <div class="ms">현재 <b>9개 업무 영역</b> 중 하나를 고르고, 실제 업무 프로세스를 적어 주세요. 저장하면 서버에 기록되어 담당자와 공유됩니다.</div>
 <label>① 업무 영역 선택</label><div class="mdoms" id="mdoms"></div>
-<label>② 업무명 (선택)</label><input id="t-title" placeholder="예: 재고 실사 프로세스" />
+<label>② 업무명</label><input id="t-title" placeholder="예: 재고 실사 프로세스" />
 <label>③ 프로세스 내용</label><textarea id="t-proc" placeholder="이 업무가 지금 어떻게 진행되는지 순서대로 적어 주세요…"></textarea>
-<label>④ 담당자 이름 (선택)</label><input id="t-resp" placeholder="이름" />
+<label>④ 담당자 이름</label><input id="t-resp" placeholder="이름" />
 <div class="merr" id="t-err"></div>
 <div class="mact"><button id="t-cancel">취소</button><button class="primary" id="t-save">저장</button></div>
 </div></div>
@@ -177,8 +177,8 @@ function taskDomains(){return [...new Set(STATE.questions.map(q=>q.domain))];}
 function renderMDoms(){$('#mdoms').innerHTML=taskDomains().map(d=>'<span class="chip '+(d===selDomain?'active':'')+'" data-md="'+esc(d)+'">'+esc(d)+'</span>').join('');document.querySelectorAll('#mdoms .chip').forEach(c=>c.onclick=()=>{selDomain=c.getAttribute('data-md');renderMDoms();});}
 function openAddTask(){selDomain=(curDomain&&curDomain!=='전체')?curDomain:'';$('#t-err').textContent='';$('#t-title').value='';$('#t-proc').value='';$('#t-resp').value='';renderMDoms();$('#addov').classList.add('on');}
 function closeAddTask(){$('#addov').classList.remove('on');}
-async function submitTask(){var proc=$('#t-proc').value.trim();if(!selDomain){$('#t-err').textContent='업무 영역을 선택하세요.';return;}if(!proc){$('#t-err').textContent='프로세스 내용을 입력하세요.';return;}
- var r=await fetch('/piaget/api/task',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({domain:selDomain,title:$('#t-title').value.trim(),process:proc,respondent:$('#t-resp').value.trim()})}).then(r=>r.json());
+async function submitTask(){var title=$('#t-title').value.trim(),proc=$('#t-proc').value.trim(),resp=$('#t-resp').value.trim();if(!selDomain){$('#t-err').textContent='업무 영역을 선택하세요.';return;}if(!title){$('#t-err').textContent='업무명을 입력하세요.';return;}if(!proc){$('#t-err').textContent='프로세스 내용을 입력하세요.';return;}if(!resp){$('#t-err').textContent='담당자 이름을 입력하세요.';return;}
+ var r=await fetch('/piaget/api/task',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({domain:selDomain,title:title,process:proc,respondent:resp})}).then(r=>r.json());
  if(r.ok){closeAddTask();curDomain=selDomain;await load();switchTab('q');}else $('#t-err').textContent='저장 실패: '+(r.error||'');}
 function esc(s){return String(s).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));}
 function renderQ(){const qs=STATE.questions.filter(q=>curDomain==='전체'||q.domain===curDomain);

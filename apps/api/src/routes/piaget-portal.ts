@@ -353,8 +353,8 @@ piagetPortalRouter.post("/piaget/api/task", async (req: Request, res: Response) 
     domain?: string; title?: string; process?: string; respondent?: string;
   };
   const domains = [...new Set(QUESTIONS.map((x) => x.domain))];
-  if (!domain || !domains.includes(domain) || !process || !process.trim()) {
-    res.status(400).json({ ok: false, error: "도메인 선택과 프로세스 입력이 필요합니다." });
+  if (!domain || !domains.includes(domain) || !title || !title.trim() || !process || !process.trim() || !respondent || !respondent.trim()) {
+    res.status(400).json({ ok: false, error: "도메인·업무명·프로세스·담당자를 모두 입력하세요." });
     return;
   }
   try {
@@ -362,7 +362,7 @@ piagetPortalRouter.post("/piaget/api/task", async (req: Request, res: Response) 
     await getPool().query(
       `INSERT INTO piaget_portal_tasks (domain, title, process, respondent, auth_user)
        VALUES ($1,$2,$3,$4,$5)`,
-      [domain, (title ?? "").trim(), process.trim(), (respondent || u).trim(), u],
+      [domain, title.trim(), process.trim(), respondent.trim(), u],
     );
     res.json({ ok: true });
   } catch (err) {
