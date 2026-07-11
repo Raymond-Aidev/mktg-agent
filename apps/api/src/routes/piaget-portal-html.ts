@@ -45,13 +45,40 @@ export const PORTAL_HTML = `<!doctype html>
 .tab{font-size:13px;font-weight:700;padding:8px 16px;border-radius:9px;border:1px solid var(--border);background:#222836;color:var(--muted);cursor:pointer}
 .tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
 .panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px}
-.road{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
-.rstep{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:11px;text-align:center}
-.rstep .id{font-weight:800;color:var(--hub);font-size:12px}.rstep .nm{font-size:12.5px;font-weight:700;margin:3px 0}
-.rstep .gl{font-size:10.5px;color:var(--muted)}.rstep .wk{font-size:10px;color:#6b7488;margin-top:4px}
-.rstep .pg{margin-top:7px;height:6px;background:#0e1320;border-radius:4px;overflow:hidden}.rstep .pg i{display:block;height:100%;background:linear-gradient(90deg,#4f8cff,#a06bff)}
-.rstep .pct{font-size:10px;color:var(--muted);margin-top:3px}
-@media(max-width:820px){.road{grid-template-columns:repeat(2,1fr)}}
+.rmapintro{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:16px}
+.rmapintro .pill{font-size:12px;color:var(--muted);background:#222836;border:1px solid var(--border);border-radius:20px;padding:5px 13px}
+.rmapintro .pill b{color:var(--text)}
+.tl{position:relative}
+.tl .ph{position:relative;display:grid;grid-template-columns:66px 1fr;gap:14px;padding-bottom:16px}
+.tl .ph:before{content:"";position:absolute;left:32px;top:40px;bottom:-4px;width:2px;background:var(--border);z-index:0}
+.tl .ph:last-child:before{display:none}
+.tl .ph.done:before{background:var(--ok)}
+.tl .num{width:66px;height:66px;border-radius:15px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid var(--border);background:var(--panel2);z-index:1}
+.tl .num .p{font-size:16px;font-weight:800}.tl .num .w{font-size:9.5px;color:var(--muted);font-weight:700;margin-top:2px}
+.tl .ph.done .num{border-color:var(--ok);color:var(--ok)}
+.tl .ph.cur .num{border-color:var(--accent);background:linear-gradient(135deg,rgba(79,140,255,.28),rgba(160,107,255,.28));color:#fff;box-shadow:0 0 0 4px rgba(79,140,255,.13)}
+.tl .body{background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:13px 15px}
+.tl .ph.cur .body{border-color:var(--accent);box-shadow:0 0 0 1px rgba(79,140,255,.25)}
+.tl .htop{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:7px}
+.tl .nm{font-size:15px;font-weight:800}
+.tl .st{font-size:10.5px;font-weight:800;border-radius:20px;padding:2px 10px}
+.st.sdone{background:rgba(46,204,113,.16);color:#5be59a}.st.scur{background:rgba(79,140,255,.2);color:#8fb6ff}.st.snext{background:#262c38;color:var(--muted)}
+.tl .who{margin-left:auto;font-size:10.5px;font-weight:700;color:#c5a6ff;background:rgba(160,107,255,.14);border-radius:6px;padding:2px 9px}
+.tl .plain{font-size:12.5px;color:#cbd3e2;margin-bottom:10px}
+.tl .acts{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.tl .act{font-size:11px;color:#b8c0d0;background:#1a1f29;border:1px solid var(--border);border-radius:7px;padding:3px 9px 3px 22px;cursor:pointer;user-select:none;position:relative}
+.tl .act:before{content:"?";position:absolute;left:7px;top:50%;transform:translateY(-50%);width:12px;height:12px;line-height:12px;text-align:center;font-size:9px;font-weight:800;border-radius:50%;background:#2f3a4d;color:#8fb6ff}
+.tl .act:hover{border-color:var(--accent);color:#fff}
+.tl .act.on{background:rgba(79,140,255,.18);border-color:var(--accent);color:#fff}
+.tl .act.on:before{content:"−";background:var(--accent);color:#fff}
+.tl .actdetail{font-size:12px;line-height:1.6;color:#cdd5e4;background:#12161e;border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:10px 13px;margin:0 0 10px}
+.tl .actdetail b{color:#fff}
+.tl .foot{display:flex;flex-wrap:wrap;gap:7px 16px;align-items:center;font-size:11px;color:var(--muted);border-top:1px dashed var(--border);padding-top:9px}
+.tl .foot .lb{color:#7f8a9e;margin-right:3px}.tl .out{color:#c5a6ff}.tl .gate{color:#f0b95e}
+.tl .prog{display:flex;align-items:center;gap:8px;margin-left:auto;min-width:150px}
+.tl .prog .bar{flex:1;height:6px;background:#0e1320;border-radius:4px;overflow:hidden}
+.tl .prog .bar i{display:block;height:100%;background:linear-gradient(90deg,#4f8cff,#a06bff)}
+@media(max-width:640px){.tl .ph{grid-template-columns:52px 1fr;gap:10px}.tl .ph:before{left:25px}.tl .num{width:52px;height:52px}.tl .who{margin-left:0}}
 .dom{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
 .chip{font-size:12px;padding:4px 11px;border-radius:20px;border:1px solid var(--border);background:#222836;color:#cfd6e4;cursor:pointer}
 .chip.active{background:var(--hub);border-color:var(--hub);color:#fff}
@@ -68,6 +95,25 @@ button{font-family:inherit;cursor:pointer;border-radius:8px;border:1px solid var
 button.primary{background:var(--accent);border-color:var(--accent);color:#fff}.cnt{font-size:11px;color:var(--muted)}
 .docbtns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
 pre{background:#0c0e13;border:1px solid var(--border);border-radius:8px;padding:14px;overflow:auto;max-height:520px;font-family:var(--mono);font-size:12px;color:#d7dce6;white-space:pre-wrap}
+.addbtn{margin-left:auto;background:rgba(46,204,113,.14);border-color:rgba(46,204,113,.5);color:#5be59a}
+.addbtn:hover{background:rgba(46,204,113,.24)}
+.tasktitle{font-size:12px;font-weight:700;color:#5be59a;margin:2px 0 10px}
+.task{border:1px solid rgba(46,204,113,.35);border-left:3px solid var(--ok);border-radius:10px;padding:12px 13px;margin-bottom:11px;background:#131b17}
+.task .th{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
+.task .tg{font-size:10px;font-weight:800;color:#5be59a;background:rgba(46,204,113,.16);border-radius:20px;padding:2px 9px}
+.task .tt{font-size:13px;font-weight:700}
+.task .tp{font-size:12.5px;color:#cbd3e2;white-space:pre-wrap}
+.task .tm{font-size:11px;color:var(--muted);margin-top:7px}
+.ov{position:fixed;inset:0;background:rgba(6,8,12,.66);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.ov.on{display:flex}
+.modal{width:100%;max-width:460px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px;max-height:90vh;overflow:auto}
+.modal h3{margin:0 0 4px;font-size:16px}
+.modal .ms{font-size:12px;color:var(--muted);margin-bottom:6px;line-height:1.55}
+.modal label{display:block;font-size:12px;color:var(--muted);margin:13px 0 6px}
+.modal input{width:100%}
+.mdoms{display:flex;flex-wrap:wrap;gap:6px}
+.mact{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+.merr{color:#ff6b6b;font-size:12px;min-height:15px;margin-top:8px}
 </style></head><body>
 <div class="wrap">
 <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
@@ -76,22 +122,64 @@ pre{background:#0c0e13;border:1px solid var(--border);border-radius:8px;padding:
 <div id="userbar" style="flex:none;font-size:12px;color:var(--muted);white-space:nowrap"></div></div>
 <div class="tabs">
 <button class="tab active" data-tab="road">🗺 구축 로드맵</button>
-<button class="tab" data-tab="q">💬 질문·응답</button>
-<button class="tab" id="doctab" data-tab="doc" style="display:none">📄 문서(자동 조립)</button></div>
-<div id="tab-road"><div class="panel"><div class="road" id="road"></div></div>
-<div class="panel"><div class="sub" style="margin:0">각 단계는 완료 게이트(고객 승인) 통과 후 다음으로 진행됩니다. 지금은 <b>P1 Discovery(질문·응답)</b>에 집중해 주세요.</div></div></div>
-<div id="tab-q" style="display:none"><div class="panel"><div class="dom" id="domains"></div><div id="qlist"></div></div></div>
+<button class="tab" data-tab="q">📝 업무 등록</button>
+<button class="tab" id="doctab" data-tab="doc" style="display:none">📄 문서(자동 조립)</button>
+<button class="addbtn" id="addtaskbtn">＋ 업무 추가</button></div>
+<div id="tab-road"><div class="panel"><div class="rmapintro" id="roadintro"></div><div class="tl" id="road"></div></div>
+<div class="panel"><div class="sub" style="margin:0">각 단계는 <b>완료 게이트(고객 승인)</b>를 통과해야 다음으로 넘어갑니다. 지금은 <b>P1 Discovery</b> 단계 — <b>업무 등록</b> 탭에서 현업 내용을 채워 주시면 현황분석이 완성됩니다.<br><span style="color:#8fb6ff">💡 각 단계의 활동 항목(ⓐ 표시)을 클릭하면 그 항목이 무엇인지 쉬운 설명이 열립니다.</span> <span style="color:#7f8a9e">· 참여주체: 고객사 중심 / 수행사 중심 / 공동</span></div></div></div>
+<div id="tab-q" style="display:none"><div class="panel"><div class="dom" id="domains"></div><div id="tasklist"></div><div id="qlist"></div></div></div>
 <div id="tab-doc" style="display:none"><div class="panel"><div class="docbtns" id="docbtns"></div><pre id="docview">문서를 선택하세요.</pre></div></div>
 </div>
+<div class="ov" id="addov"><div class="modal">
+<h3>＋ 업무 추가</h3>
+<div class="ms">현재 <b>9개 업무 영역</b> 중 하나를 고르고, 실제 업무 프로세스를 적어 주세요. 저장하면 서버에 기록되어 담당자와 공유됩니다.</div>
+<label>① 업무 영역 선택</label><div class="mdoms" id="mdoms"></div>
+<label>② 업무명</label><input id="t-title" placeholder="예: 재고 실사 프로세스" />
+<label>③ 프로세스 내용</label><textarea id="t-proc" placeholder="이 업무가 지금 어떻게 진행되는지 순서대로 적어 주세요…"></textarea>
+<label>④ 담당자 이름</label><input id="t-resp" placeholder="이름" />
+<div class="merr" id="t-err"></div>
+<div class="mact"><button id="t-cancel">취소</button><button class="primary" id="t-save">저장</button></div>
+</div></div>
 <script>
-const $=(s)=>document.querySelector(s);let STATE={phases:[],questions:[],docs:[],answers:[]};let curDomain='전체';
+const $=(s)=>document.querySelector(s);let STATE={phases:[],questions:[],docs:[],answers:[],tasks:[]};let curDomain='전체';let selDomain='';
 async function load(){const res=await fetch('/piaget/api/state');if(res.status===401){location.reload();return;}STATE=await res.json();if(!STATE||!STATE.ok){location.reload();return;}render();}
 async function logout(){await fetch('/piaget/api/logout',{method:'POST'});location.reload();}
 function answersFor(qid){return STATE.answers.filter(a=>a.questionId===qid);}
 function renderUser(){const ub=$('#userbar');if(ub&&STATE.user){ub.innerHTML='👤 <b style="color:#cfd6e4">'+STATE.user+'</b>'+(STATE.role?' <span style="opacity:.7">('+STATE.role+')</span>':'')+' · <a href="#" id="logout" style="color:#4f8cff;text-decoration:none">로그아웃</a>';const lo=$('#logout');if(lo)lo.onclick=(e)=>{e.preventDefault();logout();};}}
 function renderRoad(){const per={};STATE.questions.forEach(q=>{per[q.phase]=(per[q.phase]||{t:0,a:0});per[q.phase].t++;if(answersFor(q.id).length)per[q.phase].a++;});
- $('#road').innerHTML=STATE.phases.map(p=>{const s=per[p.id]||{t:0,a:0};const pct=s.t?Math.round(s.a/s.t*100):0;return '<div class="rstep"><div class="id">'+p.id+'</div><div class="nm">'+p.name+'</div><div class="gl">'+p.goal+'</div><div class="wk">'+p.weeks+'</div><div class="pg"><i style="width:'+pct+'%"></i></div><div class="pct">'+(s.t?'응답 '+s.a+'/'+s.t:'—')+'</div></div>';}).join('');}
-function renderDomains(){const doms=['전체',...new Set(STATE.questions.map(q=>q.domain))];$('#domains').innerHTML=doms.map(d=>'<span class="chip '+(d===curDomain?'active':'')+'" data-d="'+d+'">'+d+'</span>').join('');document.querySelectorAll('#domains .chip').forEach(c=>c.onclick=()=>{curDomain=c.dataset.d;renderDomains();renderQ();});}
+ let cur=STATE.phases.findIndex(p=>{const s=per[p.id];return s&&s.t>0&&s.a<s.t;});
+ if(cur<0){cur=STATE.phases.findIndex(p=>!(per[p.id]&&per[p.id].t));if(cur<0)cur=STATE.phases.length-1;}
+ let totQ=0,totA=0;STATE.phases.forEach(p=>{const s=per[p.id];if(s){totQ+=s.t;totA+=s.a;}});
+ const cp=STATE.phases[cur]||{};
+ $('#roadintro').innerHTML='<span class="pill">전체 <b>7단계</b> · 약 <b>6~9개월</b></span><span class="pill">현재 <b>'+esc(cp.id+' '+cp.name)+'</b> 진행 중</span><span class="pill">Discovery 응답 <b>'+totA+'/'+totQ+'</b></span>';
+ $('#road').innerHTML=STATE.phases.map((p,i)=>{const s=per[p.id]||{t:0,a:0};const pct=s.t?Math.round(s.a/s.t*100):0;
+  const cls=i<cur?'done':(i===cur?'cur':'next');const stl=i<cur?'완료':(i===cur?'진행 중':'예정');const stc=i<cur?'sdone':(i===cur?'scur':'snext');
+  const acts=(p.activities||[]).map((a,ai)=>'<span class="act" data-p="'+esc(p.id)+'" data-i="'+ai+'">'+esc(a.t)+'</span>').join('');
+  const prog=s.t?'<span class="prog"><span class="lb">응답</span><span class="bar"><i style="width:'+pct+'%"></i></span><span>'+s.a+'/'+s.t+'</span></span>':'';
+  return '<div class="ph '+cls+'"><div class="num"><span class="p">'+esc(p.id)+'</span><span class="w">'+esc(p.weeks)+'</span></div>'
+   +'<div class="body"><div class="htop"><span class="nm">'+esc(p.name)+'</span><span class="st '+stc+'">'+stl+'</span><span class="who">'+esc(p.who||'')+'</span></div>'
+   +'<div class="plain">'+esc(p.plain||'')+'</div><div class="acts">'+acts+'</div><div class="actdetail" id="ad-'+esc(p.id)+'" style="display:none"></div>'
+   +'<div class="foot"><span><span class="lb">산출물</span><span class="out">'+esc((p.outputs||[]).join(' · '))+'</span></span><span><span class="lb">완료 게이트</span><span class="gate">'+esc(p.gate||'')+'</span></span>'+prog+'</div></div></div>';}).join('');
+ bindActs();}
+function bindActs(){document.querySelectorAll('#road .act').forEach(function(ch){ch.onclick=function(){
+  var pid=ch.getAttribute('data-p'),idx=+ch.getAttribute('data-i');
+  var ph=STATE.phases.find(function(p){return p.id===pid;});var det=(ph&&ph.activities&&ph.activities[idx])||{};
+  var box=document.getElementById('ad-'+pid);var wasOn=ch.classList.contains('on');
+  ch.parentNode.querySelectorAll('.act').forEach(function(s){s.classList.remove('on');});
+  if(wasOn){box.style.display='none';box.innerHTML='';return;}
+  ch.classList.add('on');box.innerHTML='<b>'+esc(det.t||'')+'</b> — '+esc(det.d||'');box.style.display='';
+};});}
+function renderDomains(){const doms=['전체',...new Set(STATE.questions.map(q=>q.domain))];$('#domains').innerHTML=doms.map(d=>'<span class="chip '+(d===curDomain?'active':'')+'" data-d="'+d+'">'+d+'</span>').join('');document.querySelectorAll('#domains .chip').forEach(c=>c.onclick=()=>{curDomain=c.dataset.d;renderDomains();renderTasks();renderQ();});}
+function renderTasks(){var el=$('#tasklist');if(!el)return;var ts=(STATE.tasks||[]).filter(t=>curDomain==='전체'||t.domain===curDomain);
+ if(!ts.length){el.innerHTML='';return;}
+ el.innerHTML='<div class="tasktitle">➕ 추가된 업무 '+ts.length+'건</div>'+ts.map(t=>'<div class="task"><div class="th"><span class="tg">'+esc(t.domain)+'</span>'+(t.title?'<span class="tt">'+esc(t.title)+'</span>':'')+'</div><div class="tp">'+esc(t.process)+'</div><div class="tm">— '+esc(t.respondent||'익명')+' · '+esc(t.ts)+'</div></div>').join('');}
+function taskDomains(){return [...new Set(STATE.questions.map(q=>q.domain))];}
+function renderMDoms(){$('#mdoms').innerHTML=taskDomains().map(d=>'<span class="chip '+(d===selDomain?'active':'')+'" data-md="'+esc(d)+'">'+esc(d)+'</span>').join('');document.querySelectorAll('#mdoms .chip').forEach(c=>c.onclick=()=>{selDomain=c.getAttribute('data-md');renderMDoms();});}
+function openAddTask(){selDomain=(curDomain&&curDomain!=='전체')?curDomain:'';$('#t-err').textContent='';$('#t-title').value='';$('#t-proc').value='';$('#t-resp').value='';renderMDoms();$('#addov').classList.add('on');}
+function closeAddTask(){$('#addov').classList.remove('on');}
+async function submitTask(){var title=$('#t-title').value.trim(),proc=$('#t-proc').value.trim(),resp=$('#t-resp').value.trim();if(!selDomain){$('#t-err').textContent='업무 영역을 선택하세요.';return;}if(!title){$('#t-err').textContent='업무명을 입력하세요.';return;}if(!proc){$('#t-err').textContent='프로세스 내용을 입력하세요.';return;}if(!resp){$('#t-err').textContent='담당자 이름을 입력하세요.';return;}
+ var r=await fetch('/piaget/api/task',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({domain:selDomain,title:title,process:proc,respondent:resp})}).then(r=>r.json());
+ if(r.ok){closeAddTask();curDomain=selDomain;await load();switchTab('q');}else $('#t-err').textContent='저장 실패: '+(r.error||'');}
 function esc(s){return String(s).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));}
 function renderQ(){const qs=STATE.questions.filter(q=>curDomain==='전체'||q.domain===curDomain);
  $('#qlist').innerHTML=qs.map(q=>{const prev=answersFor(q.id);return '<div class="q"><div class="meta">['+q.phase+'·'+q.domain+'] <span class="doc">→ '+q.doc+' · '+q.section+'</span></div><div class="qt">'+esc(q.q)+'</div><textarea id="ta-'+q.id+'" placeholder="여기에 답변을 입력하세요…"></textarea><div class="frow"><input class="sm" id="nm-'+q.id+'" placeholder="이름"/><input class="sm" id="rl-'+q.id+'" placeholder="역할(예: 회계)"/><button class="primary" data-q="'+q.id+'">저장</button><span class="cnt">응답 '+prev.length+'건</span></div>'+(prev.length?'<div class="prev">'+prev.map(a=>'<div class="a">'+esc(a.answer)+' <small>— '+esc(a.respondent||'익명')+(a.role?'·'+esc(a.role):'')+' · '+a.ts+'</small></div>').join('')+'</div>':'')+'</div>';}).join('');
@@ -99,7 +187,9 @@ function renderQ(){const qs=STATE.questions.filter(q=>curDomain==='전체'||q.do
 async function submit(qid){const answer=$('#ta-'+qid).value.trim();if(!answer){alert('답변을 입력하세요');return;}const respondent=$('#nm-'+qid).value.trim(),role=$('#rl-'+qid).value.trim();const r=await fetch('/piaget/api/answer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({questionId:qid,answer,respondent,role})}).then(r=>r.json());if(r.ok){await load();switchTab('q');}else alert('저장 실패: '+(r.error||''));}
 function renderDocs(){$('#docbtns').innerHTML=STATE.docs.map(d=>'<button data-doc="'+d+'">📄 '+d+'</button>').join('');document.querySelectorAll('#docbtns button').forEach(b=>b.onclick=async()=>{const r=await fetch('/piaget/api/doc/'+encodeURIComponent(b.dataset.doc)).then(r=>r.json());$('#docview').textContent=r.md;});}
 function applyRole(){var isAdmin=STATE.role==='admin';var dt=$('#doctab');if(dt)dt.style.display=isAdmin?'':'none';if(!isAdmin&&$('#tab-doc').style.display!=='none'){switchTab('road');}}
-function render(){renderUser();renderRoad();renderDomains();renderQ();renderDocs();applyRole();}
+function render(){renderUser();renderRoad();renderDomains();renderTasks();renderQ();renderDocs();applyRole();}
 function switchTab(t){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));$('#tab-road').style.display=t==='road'?'':'none';$('#tab-q').style.display=t==='q'?'':'none';$('#tab-doc').style.display=t==='doc'?'':'none';}
-document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));load();
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
+$('#addtaskbtn').onclick=openAddTask;$('#t-cancel').onclick=closeAddTask;$('#t-save').onclick=submitTask;$('#addov').onclick=(e)=>{if(e.target.id==='addov')closeAddTask();};
+load();
 </script></body></html>`;
