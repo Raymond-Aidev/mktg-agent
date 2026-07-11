@@ -177,7 +177,7 @@ pre{background:#0c0e13;border:1px solid var(--border);border-radius:8px;padding:
 <label>업무명</label><input id="t-title" placeholder="예: 재고 실사 프로세스" />
 <label>담당자 이름</label><input id="t-resp" placeholder="이름" />
 <label style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">업무 프로세스 <span style="color:#7f8a9e;font-weight:400">— 박스마다 한 단계, 화살표의 <b style="color:#5be59a">+</b> 로 추가 / <b>×</b> 로 삭제</span><button type="button" id="t-fillsample" style="margin-left:auto;padding:4px 10px;font-size:11px;background:rgba(160,107,255,.16);border-color:rgba(160,107,255,.5);color:#c5a6ff">예시로 채우기</button></label>
-<div style="font-size:11px;color:#7f8a9e;margin:-4px 0 8px">회색 글씨는 이 영역의 <b>예시</b>입니다 — 실제 내용으로 입력하세요. 각 박스 하단에 <b>담당자·참조·공동작업자·최종 승인·수신자</b>의 이름을 넣을 수 있습니다.</div>
+<div style="font-size:11px;color:#7f8a9e;margin:-4px 0 8px">회색 글씨는 이 영역의 <b>예시</b>입니다 — 실제 내용으로 입력하세요. 각 박스 하단에서 <b>담당자(＊)는 필수</b>, 참조·공동작업자·최종 승인·수신자는 선택입니다.</div>
 <div class="flow" id="t-flow"></div>
 <label style="margin-top:14px">코멘트 (선택)</label><textarea id="t-comment" placeholder="이 업무에 대한 메모·특이사항을 남기세요…"></textarea>
 <div class="merr" id="t-err2"></div>
@@ -245,7 +245,7 @@ function syncFlow(){var el=$('#t-flow');if(!el)return;el.querySelectorAll('[data
 function renderFlow(){var el=$('#t-flow');var h='';flowSteps.forEach(function(s,i){var ph=curSample[i]||('업무 '+(i+1));
  h+='<div class="fbox"><span class="fnum">'+(i+1)+'</span>'+(flowSteps.length>1?'<button class="fdel" data-del="'+i+'" title="이 단계 삭제">×</button>':'')
   +'<textarea data-step="'+i+'" data-f="text" placeholder="'+esc(ph)+'">'+esc(s.text||'')+'</textarea>'
-  +ROLE_FIELDS.map(function(r){return '<div class="frole"><label>'+r[1]+'</label><input data-step="'+i+'" data-f="'+r[0]+'" placeholder="이름" value="'+esc(s[r[0]]||'')+'"/></div>';}).join('')
+  +ROLE_FIELDS.map(function(r){var req=r[0]==='owner';return '<div class="frole"><label>'+r[1]+(req?' <span style="color:#ff8a8a">*</span>':'')+'</label><input data-step="'+i+'" data-f="'+r[0]+'" placeholder="이름'+(req?'(필수)':'(선택)')+'" value="'+esc(s[r[0]]||'')+'"/></div>';}).join('')
   +'</div><div class="fconn"><button class="fadd" data-add="'+(i+1)+'" title="여기에 단계 추가">+</button></div>';});el.innerHTML=h;
  el.querySelectorAll('[data-f]').forEach(function(inp){inp.oninput=function(){var i=+inp.getAttribute('data-step');if(!flowSteps[i])flowSteps[i]=emptyStep();flowSteps[i][inp.getAttribute('data-f')]=inp.value;};});
  el.querySelectorAll('[data-add]').forEach(function(b){b.onclick=function(){syncFlow();flowSteps.splice(+b.getAttribute('data-add'),0,emptyStep());renderFlow();};});
@@ -260,7 +260,7 @@ function backPhaseA(){syncFlow();$('#phaseB').style.display='none';$('#phaseA').
 function closeAddTask(){$('#addov').classList.remove('on');}
 async function submitTask(){syncFlow();var title=$('#t-title').value.trim(),resp=$('#t-resp').value.trim(),comment=$('#t-comment').value.trim();
  var steps=flowSteps.map(function(s){return {text:(s.text||'').trim(),owner:(s.owner||'').trim(),cc:(s.cc||'').trim(),collab:(s.collab||'').trim(),approver:(s.approver||'').trim(),receiver:(s.receiver||'').trim()};}).filter(function(s){return s.text;});
- if(!title){$('#t-err2').textContent='업무명을 입력하세요.';return;}if(!resp){$('#t-err2').textContent='담당자 이름을 입력하세요.';return;}if(!steps.length){$('#t-err2').textContent='최소 한 단계 이상 프로세스를 입력하세요.';return;}
+ if(!title){$('#t-err2').textContent='업무명을 입력하세요.';return;}if(!resp){$('#t-err2').textContent='담당자 이름을 입력하세요.';return;}if(!steps.length){$('#t-err2').textContent='최소 한 단계 이상 프로세스를 입력하세요.';return;}if(steps.some(function(s){return !s.owner;})){$('#t-err2').textContent='각 단계의 담당자(＊)를 입력하세요.';return;}
  var url=editingId?('/piaget/api/task/'+editingId):'/piaget/api/task';
  var r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({domain:selDomain,title:title,respondent:resp,comment:comment,steps:steps})}).then(r=>r.json());
  if(r.ok){editingId=null;closeAddTask();curDomain=selDomain;await load();switchTab('q');}else $('#t-err2').textContent='저장 실패: '+(r.error||'');}

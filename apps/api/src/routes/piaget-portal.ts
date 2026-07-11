@@ -378,6 +378,10 @@ piagetPortalRouter.post("/piaget/api/task", async (req: Request, res: Response) 
     res.status(400).json({ ok: false, error: "영역·업무명·담당자·프로세스(1단계 이상)를 입력하세요." });
     return;
   }
+  if (cleanSteps.some((s) => !s.owner)) {
+    res.status(400).json({ ok: false, error: "각 단계의 담당자는 필수입니다." });
+    return;
+  }
   try {
     await ensureTable();
     await getPool().query(
@@ -402,6 +406,10 @@ piagetPortalRouter.post("/piaget/api/task/:id", async (req: Request, res: Respon
   const cleanSteps = sanitizeSteps(steps);
   if (!Number.isFinite(id) || !domain || !domains.includes(domain) || !title || !title.trim() || !respondent || !respondent.trim() || cleanSteps.length === 0) {
     res.status(400).json({ ok: false, error: "영역·업무명·담당자·프로세스(1단계 이상)를 입력하세요." });
+    return;
+  }
+  if (cleanSteps.some((s) => !s.owner)) {
+    res.status(400).json({ ok: false, error: "각 단계의 담당자는 필수입니다." });
     return;
   }
   try {
