@@ -88,6 +88,9 @@ if (env.ALLOWED_ORIGINS) {
     if (trimmed) allowList.add(trimmed);
   }
 }
+// 한국삐아제 협업 포털은 별도 호스트로 서빙되므로 해당 오리진을 항상 허용
+// (piaget.goldencheck.kr 에서의 로그인 등 동일-오리진 POST 도 Origin 헤더 검사를 통과해야 함)
+allowList.add(`https://${process.env.PIAGET_HOST ?? "piaget.goldencheck.kr"}`);
 app.use(
   cors({
     origin: (origin, cb) => {
