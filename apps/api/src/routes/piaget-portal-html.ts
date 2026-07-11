@@ -77,7 +77,7 @@ pre{background:#0c0e13;border:1px solid var(--border);border-radius:8px;padding:
 <div class="tabs">
 <button class="tab active" data-tab="road">🗺 구축 로드맵</button>
 <button class="tab" data-tab="q">💬 질문·응답</button>
-<button class="tab" data-tab="doc">📄 문서(자동 조립)</button></div>
+<button class="tab" id="doctab" data-tab="doc" style="display:none">📄 문서(자동 조립)</button></div>
 <div id="tab-road"><div class="panel"><div class="road" id="road"></div></div>
 <div class="panel"><div class="sub" style="margin:0">각 단계는 완료 게이트(고객 승인) 통과 후 다음으로 진행됩니다. 지금은 <b>P1 Discovery(질문·응답)</b>에 집중해 주세요.</div></div></div>
 <div id="tab-q" style="display:none"><div class="panel"><div class="dom" id="domains"></div><div id="qlist"></div></div></div>
@@ -98,7 +98,8 @@ function renderQ(){const qs=STATE.questions.filter(q=>curDomain==='전체'||q.do
  document.querySelectorAll('#qlist button[data-q]').forEach(b=>b.onclick=()=>submit(b.dataset.q));}
 async function submit(qid){const answer=$('#ta-'+qid).value.trim();if(!answer){alert('답변을 입력하세요');return;}const respondent=$('#nm-'+qid).value.trim(),role=$('#rl-'+qid).value.trim();const r=await fetch('/piaget/api/answer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({questionId:qid,answer,respondent,role})}).then(r=>r.json());if(r.ok){await load();switchTab('q');}else alert('저장 실패: '+(r.error||''));}
 function renderDocs(){$('#docbtns').innerHTML=STATE.docs.map(d=>'<button data-doc="'+d+'">📄 '+d+'</button>').join('');document.querySelectorAll('#docbtns button').forEach(b=>b.onclick=async()=>{const r=await fetch('/piaget/api/doc/'+encodeURIComponent(b.dataset.doc)).then(r=>r.json());$('#docview').textContent=r.md;});}
-function render(){renderUser();renderRoad();renderDomains();renderQ();renderDocs();}
+function applyRole(){var isAdmin=STATE.role==='admin';var dt=$('#doctab');if(dt)dt.style.display=isAdmin?'':'none';if(!isAdmin&&$('#tab-doc').style.display!=='none'){switchTab('road');}}
+function render(){renderUser();renderRoad();renderDomains();renderQ();renderDocs();applyRole();}
 function switchTab(t){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));$('#tab-road').style.display=t==='road'?'':'none';$('#tab-q').style.display=t==='q'?'':'none';$('#tab-doc').style.display=t==='doc'?'':'none';}
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));load();
 </script></body></html>`;
