@@ -183,6 +183,18 @@ function ensureTable(): Promise<void> {
            created_at TIMESTAMPTZ NOT NULL DEFAULT now()
          )`,
       )
+      .then(() =>
+        getPool().query(
+          `CREATE TABLE IF NOT EXISTS piaget_portal_tasks (
+             id BIGSERIAL PRIMARY KEY,
+             domain TEXT NOT NULL,
+             title TEXT,
+             process TEXT NOT NULL,
+             respondent TEXT, auth_user TEXT,
+             created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+           )`,
+        ),
+      )
       .then(() => undefined)
       .catch((err: Error) => {
         tableReady = null;
@@ -190,6 +202,21 @@ function ensureTable(): Promise<void> {
       });
   }
   return tableReady;
+}
+interface TaskRow { id: string; domain: string; title: string | null; process: string; respondent: string | null; created_at: Date; }
+async function listTasks(): Promise<Array<{ id: string; domain: string; title: string; process: string; respondent: string; ts: string }>> {
+  await ensureTable();
+  const r = await getPool().query<TaskRow>(
+    "SELECT id, domain, title, process, respondent, created_at FROM piaget_portal_tasks ORDER BY id",
+  );
+  return r.rows.map((row) => ({
+    id: String(row.id),
+    domain: row.domain,
+    title: row.title ?? "",
+    process: row.process,
+    respondent: row.respondent ?? "",
+    ts: fmtTs(new Date(row.created_at)),
+  }));
 }
 function fmtTs(d: Date): string {
   const p = (n: number): string => String(n).padStart(2, "0");
@@ -288,8 +315,8 @@ piagetPortalRouter.get("/piaget/api/state", async (req: Request, res: Response) 
   const u = requireUser(req, res);
   if (!u) return;
   try {
-    const answers = await listAnswers();
-    res.json({ ok: true, user: u, role: USERS[u]!.role, phases: PHASES, questions: QUESTIONS, docs: DOCS, answers });
+    const [answers, tasks] = await Promise.all([listAnswers(), listTasks()]);
+    res.json({ ok: true, user: u, role: USERS[u]!.role, phases: PHASES, questions: QUESTIONS, docs: DOCS, answers, tasks });
   } catch (err) {
     res.status(500).json({ ok: false, error: (err as Error).message });
   }
@@ -312,6 +339,30 @@ piagetPortalRouter.post("/piaget/api/answer", async (req: Request, res: Response
          (question_id, phase, domain, question, answer, respondent, role, auth_user, doc, section)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
       [q.id, q.phase, q.domain, q.q, answer, respondent || u, role || "", u, q.doc, q.section],
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: (err as Error).message });
+  }
+});
+// 업무 추가 (도메인 선택 + 프로세스 입력)
+piagetPortalRouter.post("/piaget/api/task", async (req: Request, res: Response) => {
+  const u = requireUser(req, res);
+  if (!u) return;
+  const { domain, title, process, respondent } = (req.body ?? {}) as {
+    domain?: string; title?: string; process?: string; respondent?: string;
+  };
+  const domains = [...new Set(QUESTIONS.map((x) => x.domain))];
+  if (!domain || !domains.includes(domain) || !process || !process.trim()) {
+    res.status(400).json({ ok: false, error: "도메인 선택과 프로세스 입력이 필요합니다." });
+    return;
+  }
+  try {
+    await ensureTable();
+    await getPool().query(
+      `INSERT INTO piaget_portal_tasks (domain, title, process, respondent, auth_user)
+       VALUES ($1,$2,$3,$4,$5)`,
+      [domain, (title ?? "").trim(), process.trim(), (respondent || u).trim(), u],
     );
     res.json({ ok: true });
   } catch (err) {
