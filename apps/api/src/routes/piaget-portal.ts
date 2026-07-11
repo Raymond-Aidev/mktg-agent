@@ -190,11 +190,13 @@ function ensureTable(): Promise<void> {
              domain TEXT NOT NULL,
              title TEXT,
              process TEXT NOT NULL,
+             steps JSONB,
              respondent TEXT, auth_user TEXT,
              created_at TIMESTAMPTZ NOT NULL DEFAULT now()
            )`,
         ),
       )
+      .then(() => getPool().query(`ALTER TABLE piaget_portal_tasks ADD COLUMN IF NOT EXISTS steps JSONB`))
       .then(() => undefined)
       .catch((err: Error) => {
         tableReady = null;
@@ -203,17 +205,18 @@ function ensureTable(): Promise<void> {
   }
   return tableReady;
 }
-interface TaskRow { id: string; domain: string; title: string | null; process: string; respondent: string | null; created_at: Date; }
-async function listTasks(): Promise<Array<{ id: string; domain: string; title: string; process: string; respondent: string; ts: string }>> {
+interface TaskRow { id: string; domain: string; title: string | null; process: string; steps: string[] | null; respondent: string | null; created_at: Date; }
+async function listTasks(): Promise<Array<{ id: string; domain: string; title: string; process: string; steps: string[]; respondent: string; ts: string }>> {
   await ensureTable();
   const r = await getPool().query<TaskRow>(
-    "SELECT id, domain, title, process, respondent, created_at FROM piaget_portal_tasks ORDER BY id",
+    "SELECT id, domain, title, process, steps, respondent, created_at FROM piaget_portal_tasks ORDER BY id",
   );
   return r.rows.map((row) => ({
     id: String(row.id),
     domain: row.domain,
     title: row.title ?? "",
     process: row.process,
+    steps: Array.isArray(row.steps) ? row.steps : [],
     respondent: row.respondent ?? "",
     ts: fmtTs(new Date(row.created_at)),
   }));
@@ -349,20 +352,21 @@ piagetPortalRouter.post("/piaget/api/answer", async (req: Request, res: Response
 piagetPortalRouter.post("/piaget/api/task", async (req: Request, res: Response) => {
   const u = requireUser(req, res);
   if (!u) return;
-  const { domain, title, process, respondent } = (req.body ?? {}) as {
-    domain?: string; title?: string; process?: string; respondent?: string;
+  const { domain, title, steps, respondent } = (req.body ?? {}) as {
+    domain?: string; title?: string; steps?: unknown; respondent?: string;
   };
-  const domains = [...new Set(QUESTIONS.map((x) => x.domain))];
-  if (!domain || !domains.includes(domain) || !title || !title.trim() || !process || !process.trim() || !respondent || !respondent.trim()) {
-    res.status(400).json({ ok: false, error: "도메인·업무명·프로세스·담당자를 모두 입력하세요." });
+  const domains = [...new Set(QUESTIONS.map((x) => x.domain)), "기타"];
+  const cleanSteps = Array.isArray(steps) ? steps.map((s) => String(s).trim()).filter(Boolean) : [];
+  if (!domain || !domains.includes(domain) || !title || !title.trim() || !respondent || !respondent.trim() || cleanSteps.length === 0) {
+    res.status(400).json({ ok: false, error: "영역·업무명·담당자·프로세스(1단계 이상)를 입력하세요." });
     return;
   }
   try {
     await ensureTable();
     await getPool().query(
-      `INSERT INTO piaget_portal_tasks (domain, title, process, respondent, auth_user)
-       VALUES ($1,$2,$3,$4,$5)`,
-      [domain, title.trim(), process.trim(), respondent.trim(), u],
+      `INSERT INTO piaget_portal_tasks (domain, title, process, steps, respondent, auth_user)
+       VALUES ($1,$2,$3,$4::jsonb,$5,$6)`,
+      [domain, title.trim(), cleanSteps.join(" → "), JSON.stringify(cleanSteps), respondent.trim(), u],
     );
     res.json({ ok: true });
   } catch (err) {

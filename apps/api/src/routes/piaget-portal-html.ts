@@ -114,6 +114,24 @@ pre{background:#0c0e13;border:1px solid var(--border);border-radius:8px;padding:
 .mdoms{display:flex;flex-wrap:wrap;gap:6px}
 .mact{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
 .merr{color:#ff6b6b;font-size:12px;min-height:15px;margin-top:8px}
+.modal.wide{max-width:min(780px,94vw)}
+.modal select{width:100%;padding:10px 12px;border-radius:9px;border:1px solid var(--border);background:#0e1015;color:var(--text);font-size:14px;font-family:inherit}
+.domlabel{font-size:13px}.domlabel b{color:#8fb6ff}
+.flow{display:flex;align-items:stretch;overflow-x:auto;padding:8px 2px 12px}
+.fbox{position:relative;flex:0 0 150px;min-height:100px;border:1px solid var(--border);border-radius:10px;background:#0e1015;display:flex}
+.fbox textarea{border:none;background:transparent;width:100%;min-height:auto;resize:none;padding:20px 6px 6px;font-size:12px}
+.fbox textarea:focus{outline:none}
+.fnum{position:absolute;top:4px;left:8px;font-size:10px;font-weight:800;color:#7f8a9e}
+.fdel{position:absolute;top:3px;right:3px;width:19px;height:19px;padding:0;border-radius:50%;background:#2a3140;border:none;color:#aeb6c6;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center}
+.fdel:hover{background:#c0392b;color:#fff}
+.fconn{flex:0 0 42px;display:flex;align-items:center;justify-content:center;position:relative}
+.fconn:before{content:"";position:absolute;left:2px;right:2px;top:50%;height:1px;background:var(--border)}
+.fconn:after{content:"▸";position:absolute;right:1px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px}
+.fadd{position:relative;z-index:1;width:23px;height:23px;padding:0;border-radius:6px;background:#232833;border:1px solid var(--border);color:#5be59a;font-weight:800;font-size:15px;line-height:1}
+.fadd:hover{background:rgba(46,204,113,.2);border-color:var(--ok)}
+.rflow{display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-top:2px}
+.rbox{font-size:11.5px;color:#cbd3e2;background:#0e1015;border:1px solid var(--border);border-radius:7px;padding:5px 9px}
+.rarrow{color:var(--muted);font-size:12px}
 </style></head><body>
 <div class="wrap">
 <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
@@ -130,15 +148,25 @@ pre{background:#0c0e13;border:1px solid var(--border);border-radius:8px;padding:
 <div id="tab-q" style="display:none"><div class="panel"><div class="dom" id="domains"></div><div id="tasklist"></div><div id="qlist"></div></div></div>
 <div id="tab-doc" style="display:none"><div class="panel"><div class="docbtns" id="docbtns"></div><pre id="docview">문서를 선택하세요.</pre></div></div>
 </div>
-<div class="ov" id="addov"><div class="modal">
+<div class="ov" id="addov"><div class="modal wide">
 <h3>＋ 업무 추가</h3>
-<div class="ms">현재 <b>9개 업무 영역</b> 중 하나를 고르고, 실제 업무 프로세스를 적어 주세요. 저장하면 서버에 기록되어 담당자와 공유됩니다.</div>
-<label>① 업무 영역 선택</label><div class="mdoms" id="mdoms"></div>
-<label>② 업무명</label><input id="t-title" placeholder="예: 재고 실사 프로세스" />
-<label>③ 프로세스 내용</label><textarea id="t-proc" placeholder="이 업무가 지금 어떻게 진행되는지 순서대로 적어 주세요…"></textarea>
-<label>④ 담당자 이름</label><input id="t-resp" placeholder="이름" />
-<div class="merr" id="t-err"></div>
-<div class="mact"><button id="t-cancel">취소</button><button class="primary" id="t-save">저장</button></div>
+<div id="phaseA">
+<div class="ms">등록할 <b>업무 영역</b>을 선택하고 <b>확인</b>을 누르세요. (총 10개 영역, 없으면 <b>기타</b> 선택)</div>
+<label>업무 영역</label>
+<select id="t-domain"><option value="">— 영역 선택 —</option></select>
+<div class="merr" id="t-err1"></div>
+<div class="mact"><button id="t-cancel1">취소</button><button class="primary" id="t-next">확인 →</button></div>
+</div>
+<div id="phaseB" style="display:none">
+<div class="ms domlabel">영역: <b id="t-domlabel"></b> · <a href="#" id="t-changedom" style="color:#4f8cff;text-decoration:none">영역 변경</a></div>
+<label>업무명</label><input id="t-title" placeholder="예: 재고 실사 프로세스" />
+<label>담당자 이름</label><input id="t-resp" placeholder="이름" />
+<label style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">업무 프로세스 <span style="color:#7f8a9e;font-weight:400">— 박스마다 한 단계, 화살표의 <b style="color:#5be59a">+</b> 로 추가 / <b>×</b> 로 삭제</span><button type="button" id="t-fillsample" style="margin-left:auto;padding:4px 10px;font-size:11px;background:rgba(160,107,255,.16);border-color:rgba(160,107,255,.5);color:#c5a6ff">예시로 채우기</button></label>
+<div style="font-size:11px;color:#7f8a9e;margin:-4px 0 8px">회색 글씨는 이 영역의 <b>예시</b>입니다 — 실제 내용으로 입력하세요.</div>
+<div class="flow" id="t-flow"></div>
+<div class="merr" id="t-err2"></div>
+<div class="mact"><button id="t-back">← 이전</button><button id="t-cancel2">취소</button><button class="primary" id="t-save">저장</button></div>
+</div>
 </div></div>
 <script>
 const $=(s)=>document.querySelector(s);let STATE={phases:[],questions:[],docs:[],answers:[],tasks:[]};let curDomain='전체';let selDomain='';
@@ -169,17 +197,38 @@ function bindActs(){document.querySelectorAll('#road .act').forEach(function(ch)
   if(wasOn){box.style.display='none';box.innerHTML='';return;}
   ch.classList.add('on');box.innerHTML='<b>'+esc(det.t||'')+'</b> — '+esc(det.d||'');box.style.display='';
 };});}
-function renderDomains(){const doms=['전체',...new Set(STATE.questions.map(q=>q.domain))];$('#domains').innerHTML=doms.map(d=>'<span class="chip '+(d===curDomain?'active':'')+'" data-d="'+d+'">'+d+'</span>').join('');document.querySelectorAll('#domains .chip').forEach(c=>c.onclick=()=>{curDomain=c.dataset.d;renderDomains();renderTasks();renderQ();});}
+function renderDomains(){const doms=['전체',...new Set(STATE.questions.map(q=>q.domain)),'기타'];$('#domains').innerHTML=doms.map(d=>'<span class="chip '+(d===curDomain?'active':'')+'" data-d="'+esc(d)+'">'+esc(d)+'</span>').join('');document.querySelectorAll('#domains .chip').forEach(c=>c.onclick=()=>{curDomain=c.dataset.d;renderDomains();renderTasks();renderQ();});}
+function taskFlow(t){var st=(t.steps&&t.steps.length)?t.steps:(t.process?[t.process]:[]);return '<div class="rflow">'+st.map((s,i)=>'<span class="rbox">'+esc(s)+'</span>'+(i<st.length-1?'<span class="rarrow">▸</span>':'')).join('')+'</div>';}
 function renderTasks(){var el=$('#tasklist');if(!el)return;var ts=(STATE.tasks||[]).filter(t=>curDomain==='전체'||t.domain===curDomain);
  if(!ts.length){el.innerHTML='';return;}
- el.innerHTML='<div class="tasktitle">➕ 추가된 업무 '+ts.length+'건</div>'+ts.map(t=>'<div class="task"><div class="th"><span class="tg">'+esc(t.domain)+'</span>'+(t.title?'<span class="tt">'+esc(t.title)+'</span>':'')+'</div><div class="tp">'+esc(t.process)+'</div><div class="tm">— '+esc(t.respondent||'익명')+' · '+esc(t.ts)+'</div></div>').join('');}
-function taskDomains(){return [...new Set(STATE.questions.map(q=>q.domain))];}
-function renderMDoms(){$('#mdoms').innerHTML=taskDomains().map(d=>'<span class="chip '+(d===selDomain?'active':'')+'" data-md="'+esc(d)+'">'+esc(d)+'</span>').join('');document.querySelectorAll('#mdoms .chip').forEach(c=>c.onclick=()=>{selDomain=c.getAttribute('data-md');renderMDoms();});}
-function openAddTask(){selDomain=(curDomain&&curDomain!=='전체')?curDomain:'';$('#t-err').textContent='';$('#t-title').value='';$('#t-proc').value='';$('#t-resp').value='';renderMDoms();$('#addov').classList.add('on');}
+ el.innerHTML='<div class="tasktitle">➕ 추가된 업무 '+ts.length+'건</div>'+ts.map(t=>'<div class="task"><div class="th"><span class="tg">'+esc(t.domain)+'</span>'+(t.title?'<span class="tt">'+esc(t.title)+'</span>':'')+'</div>'+taskFlow(t)+'<div class="tm">— '+esc(t.respondent||'익명')+' · '+esc(t.ts)+'</div></div>').join('');}
+var SAMPLES={
+ '회계':['은행/가상계좌 입금 내역 확인','주문 건과 금액 대사·매칭','이카운트 전표 입력·마감'],
+ '발주·영업':['지사/기관 발주 접수','재고·공급가 확인','출고 지시·발주 확정'],
+ 'CS·반품':['반품/문의 접수','사유 확인·승인 판단','환불/교환 처리·고객 안내'],
+ '물류':['출고 대상 집계','송장 발급·택배사 전송','출고 완료·배송 추적'],
+ '지사(외부)':['지사 로그인·발주 등록','본사 발주 내용 확인','공급가 적용·출고 요청'],
+ '지구별닷컴':['공급사 상품 사입/위탁 등록','주문 접수·공급사 발주','송장 회신·매입 정산'],
+ '권한·계정':['계정 생성/변경 요청 접수','역할·권한 부여','접근 범위 확인·승인'],
+ '데이터':['거래처/품목 코드 수집','기준정보(MDM) 매핑','중복·오류 정리·표준화'],
+ '전략':['현안·목표 정의','우선순위 선정','성공기준(KPI) 합의'],
+ '기타':['업무 시작(요청 접수)','처리·검토·확인','완료·결과 공유']
+};
+function allDomains(){return [...new Set(STATE.questions.map(q=>q.domain)),'기타'];}
+var flowSteps=['','',''];var curSample=[];
+function syncFlow(){var el=$('#t-flow');if(!el)return;el.querySelectorAll('textarea[data-step]').forEach(function(t){flowSteps[+t.getAttribute('data-step')]=t.value;});}
+function renderFlow(){var el=$('#t-flow');var h='';flowSteps.forEach(function(s,i){var ph=curSample[i]||('업무 '+(i+1));h+='<div class="fbox"><span class="fnum">'+(i+1)+'</span>'+(flowSteps.length>1?'<button class="fdel" data-del="'+i+'" title="이 단계 삭제">×</button>':'')+'<textarea data-step="'+i+'" placeholder="'+esc(ph)+'">'+esc(s)+'</textarea></div>';h+='<div class="fconn"><button class="fadd" data-add="'+(i+1)+'" title="여기에 단계 추가">+</button></div>';});el.innerHTML=h;
+ el.querySelectorAll('textarea[data-step]').forEach(function(t){t.oninput=function(){flowSteps[+t.getAttribute('data-step')]=t.value;};});
+ el.querySelectorAll('[data-add]').forEach(function(b){b.onclick=function(){syncFlow();flowSteps.splice(+b.getAttribute('data-add'),0,'');renderFlow();};});
+ el.querySelectorAll('[data-del]').forEach(function(b){b.onclick=function(){if(flowSteps.length<=1)return;syncFlow();flowSteps.splice(+b.getAttribute('data-del'),1);renderFlow();};});}
+function fillSample(){if(!curSample.length)return;flowSteps=curSample.slice();renderFlow();}
+function openAddTask(){var sel=$('#t-domain');sel.innerHTML='<option value="">— 영역 선택 —</option>'+allDomains().map(d=>'<option value="'+esc(d)+'">'+esc(d)+'</option>').join('');if(curDomain&&curDomain!=='전체')sel.value=curDomain;$('#t-err1').textContent='';$('#t-err2').textContent='';$('#t-title').value='';$('#t-resp').value='';$('#phaseB').style.display='none';$('#phaseA').style.display='';$('#addov').classList.add('on');}
+function gotoPhaseB(){var d=$('#t-domain').value;if(!d){$('#t-err1').textContent='업무 영역을 선택하세요.';return;}selDomain=d;$('#t-domlabel').textContent=d;curSample=SAMPLES[d]||[];flowSteps=['','',''];$('#t-err2').textContent='';$('#phaseA').style.display='none';$('#phaseB').style.display='';renderFlow();}
+function backPhaseA(){$('#phaseB').style.display='none';$('#phaseA').style.display='';}
 function closeAddTask(){$('#addov').classList.remove('on');}
-async function submitTask(){var title=$('#t-title').value.trim(),proc=$('#t-proc').value.trim(),resp=$('#t-resp').value.trim();if(!selDomain){$('#t-err').textContent='업무 영역을 선택하세요.';return;}if(!title){$('#t-err').textContent='업무명을 입력하세요.';return;}if(!proc){$('#t-err').textContent='프로세스 내용을 입력하세요.';return;}if(!resp){$('#t-err').textContent='담당자 이름을 입력하세요.';return;}
- var r=await fetch('/piaget/api/task',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({domain:selDomain,title:title,process:proc,respondent:resp})}).then(r=>r.json());
- if(r.ok){closeAddTask();curDomain=selDomain;await load();switchTab('q');}else $('#t-err').textContent='저장 실패: '+(r.error||'');}
+async function submitTask(){syncFlow();var title=$('#t-title').value.trim(),resp=$('#t-resp').value.trim();var steps=flowSteps.map(s=>s.trim()).filter(Boolean);if(!title){$('#t-err2').textContent='업무명을 입력하세요.';return;}if(!resp){$('#t-err2').textContent='담당자 이름을 입력하세요.';return;}if(!steps.length){$('#t-err2').textContent='최소 한 단계 이상 프로세스를 입력하세요.';return;}
+ var r=await fetch('/piaget/api/task',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({domain:selDomain,title:title,respondent:resp,steps:steps})}).then(r=>r.json());
+ if(r.ok){closeAddTask();curDomain=selDomain;await load();switchTab('q');}else $('#t-err2').textContent='저장 실패: '+(r.error||'');}
 function esc(s){return String(s).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));}
 function renderQ(){const qs=STATE.questions.filter(q=>curDomain==='전체'||q.domain===curDomain);
  $('#qlist').innerHTML=qs.map(q=>{const prev=answersFor(q.id);return '<div class="q"><div class="meta">['+q.phase+'·'+q.domain+'] <span class="doc">→ '+q.doc+' · '+q.section+'</span></div><div class="qt">'+esc(q.q)+'</div><textarea id="ta-'+q.id+'" placeholder="여기에 답변을 입력하세요…"></textarea><div class="frow"><input class="sm" id="nm-'+q.id+'" placeholder="이름"/><input class="sm" id="rl-'+q.id+'" placeholder="역할(예: 회계)"/><button class="primary" data-q="'+q.id+'">저장</button><span class="cnt">응답 '+prev.length+'건</span></div>'+(prev.length?'<div class="prev">'+prev.map(a=>'<div class="a">'+esc(a.answer)+' <small>— '+esc(a.respondent||'익명')+(a.role?'·'+esc(a.role):'')+' · '+a.ts+'</small></div>').join('')+'</div>':'')+'</div>';}).join('');
@@ -190,6 +239,6 @@ function applyRole(){var isAdmin=STATE.role==='admin';var dt=$('#doctab');if(dt)
 function render(){renderUser();renderRoad();renderDomains();renderTasks();renderQ();renderDocs();applyRole();}
 function switchTab(t){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));$('#tab-road').style.display=t==='road'?'':'none';$('#tab-q').style.display=t==='q'?'':'none';$('#tab-doc').style.display=t==='doc'?'':'none';}
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
-$('#addtaskbtn').onclick=openAddTask;$('#t-cancel').onclick=closeAddTask;$('#t-save').onclick=submitTask;$('#addov').onclick=(e)=>{if(e.target.id==='addov')closeAddTask();};
+$('#addtaskbtn').onclick=openAddTask;$('#t-next').onclick=gotoPhaseB;$('#t-back').onclick=backPhaseA;$('#t-changedom').onclick=(e)=>{e.preventDefault();backPhaseA();};$('#t-fillsample').onclick=fillSample;$('#t-cancel1').onclick=closeAddTask;$('#t-cancel2').onclick=closeAddTask;$('#t-save').onclick=submitTask;$('#addov').onclick=(e)=>{if(e.target.id==='addov')closeAddTask();};
 load();
 </script></body></html>`;
