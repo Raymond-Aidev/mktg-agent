@@ -200,7 +200,7 @@ function bindActs(){document.querySelectorAll('#road .act').forEach(function(ch)
 function renderDomains(){const doms=['전체',...new Set(STATE.questions.map(q=>q.domain)),'기타'];$('#domains').innerHTML=doms.map(d=>'<span class="chip '+(d===curDomain?'active':'')+'" data-d="'+esc(d)+'">'+esc(d)+'</span>').join('');document.querySelectorAll('#domains .chip').forEach(c=>c.onclick=()=>{curDomain=c.dataset.d;renderDomains();renderTasks();renderQ();});}
 function taskFlow(t){var st=(t.steps&&t.steps.length)?t.steps:(t.process?[t.process]:[]);return '<div class="rflow">'+st.map((s,i)=>'<span class="rbox">'+esc(s)+'</span>'+(i<st.length-1?'<span class="rarrow">▸</span>':'')).join('')+'</div>';}
 function renderTasks(){var el=$('#tasklist');if(!el)return;var ts=(STATE.tasks||[]).filter(t=>curDomain==='전체'||t.domain===curDomain);
- if(!ts.length){el.innerHTML='';return;}
+ if(!ts.length){el.innerHTML='<div style="color:var(--muted);font-size:13px;padding:10px 2px">아직 등록된 업무가 없습니다. 우측 상단 <b style="color:#5be59a">＋ 업무 추가</b>로 업무 프로세스를 등록하세요.</div>';return;}
  el.innerHTML='<div class="tasktitle">➕ 추가된 업무 '+ts.length+'건</div>'+ts.map(t=>'<div class="task"><div class="th"><span class="tg">'+esc(t.domain)+'</span>'+(t.title?'<span class="tt">'+esc(t.title)+'</span>':'')+'</div>'+taskFlow(t)+'<div class="tm">— '+esc(t.respondent||'익명')+' · '+esc(t.ts)+'</div></div>').join('');}
 var SAMPLES={
  '회계':['은행/가상계좌 입금 내역 확인','주문 건과 금액 대사·매칭','이카운트 전표 입력·마감'],
@@ -230,9 +230,7 @@ async function submitTask(){syncFlow();var title=$('#t-title').value.trim(),resp
  var r=await fetch('/piaget/api/task',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({domain:selDomain,title:title,respondent:resp,steps:steps})}).then(r=>r.json());
  if(r.ok){closeAddTask();curDomain=selDomain;await load();switchTab('q');}else $('#t-err2').textContent='저장 실패: '+(r.error||'');}
 function esc(s){return String(s).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));}
-function renderQ(){const qs=STATE.questions.filter(q=>curDomain==='전체'||q.domain===curDomain);
- $('#qlist').innerHTML=qs.map(q=>{const prev=answersFor(q.id);return '<div class="q"><div class="meta">['+q.phase+'·'+q.domain+'] <span class="doc">→ '+q.doc+' · '+q.section+'</span></div><div class="qt">'+esc(q.q)+'</div><textarea id="ta-'+q.id+'" placeholder="여기에 답변을 입력하세요…"></textarea><div class="frow"><input class="sm" id="nm-'+q.id+'" placeholder="이름"/><input class="sm" id="rl-'+q.id+'" placeholder="역할(예: 회계)"/><button class="primary" data-q="'+q.id+'">저장</button><span class="cnt">응답 '+prev.length+'건</span></div>'+(prev.length?'<div class="prev">'+prev.map(a=>'<div class="a">'+esc(a.answer)+' <small>— '+esc(a.respondent||'익명')+(a.role?'·'+esc(a.role):'')+' · '+a.ts+'</small></div>').join('')+'</div>':'')+'</div>';}).join('');
- document.querySelectorAll('#qlist button[data-q]').forEach(b=>b.onclick=()=>submit(b.dataset.q));}
+function renderQ(){var el=$('#qlist');if(el)el.innerHTML='';}
 async function submit(qid){const answer=$('#ta-'+qid).value.trim();if(!answer){alert('답변을 입력하세요');return;}const respondent=$('#nm-'+qid).value.trim(),role=$('#rl-'+qid).value.trim();const r=await fetch('/piaget/api/answer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({questionId:qid,answer,respondent,role})}).then(r=>r.json());if(r.ok){await load();switchTab('q');}else alert('저장 실패: '+(r.error||''));}
 function renderDocs(){$('#docbtns').innerHTML=STATE.docs.map(d=>'<button data-doc="'+d+'">📄 '+d+'</button>').join('');document.querySelectorAll('#docbtns button').forEach(b=>b.onclick=async()=>{const r=await fetch('/piaget/api/doc/'+encodeURIComponent(b.dataset.doc)).then(r=>r.json());$('#docview').textContent=r.md;});}
 function applyRole(){var isAdmin=STATE.role==='admin';var dt=$('#doctab');if(dt)dt.style.display=isAdmin?'':'none';if(!isAdmin&&$('#tab-doc').style.display!=='none'){switchTab('road');}}
